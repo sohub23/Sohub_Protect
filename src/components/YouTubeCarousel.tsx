@@ -37,7 +37,7 @@ const YouTubeCarousel = () => {
     const el = scrollRef.current;
     if (!el) return;
     const cardWidth = el.querySelector("div")?.offsetWidth || 300;
-    el.scrollBy({ left: dir === "left" ? -cardWidth * 2 : cardWidth * 2, behavior: "smooth" });
+    el.scrollBy({ left: dir === "left" ? -cardWidth : cardWidth, behavior: "smooth" });
   };
 
   return (
@@ -48,18 +48,18 @@ const YouTubeCarousel = () => {
             <p className="text-sm uppercase tracking-widest text-primary font-medium mb-3">ভিডিও</p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">দেখুন কিভাবে কাজ করে</h2>
           </div>
-          <div className="hidden md:flex gap-2">
+          <div className="flex gap-2">
             <button
               onClick={() => scroll("left")}
               disabled={!canScrollLeft}
-              className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-30"
+              className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
             <button
               onClick={() => scroll("right")}
               disabled={!canScrollRight}
-              className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-30"
+              className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronRight className="w-5 h-5 text-foreground" />
             </button>
@@ -68,13 +68,13 @@ const YouTubeCarousel = () => {
 
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4"
+          className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {videos.map((video, i) => (
             <div
               key={i}
-              className="min-w-[calc(50%-8px)] md:min-w-[calc(25%-12px)] snap-start shrink-0"
+              className="w-[calc(25%-12px)] shrink-0 snap-start"
             >
               <div className="relative aspect-video bg-foreground/5 rounded-xl overflow-hidden group cursor-pointer">
                 {playingId === i ? (

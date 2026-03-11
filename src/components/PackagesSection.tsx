@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import panelImage from "@/assets/panel-product.png";
 import cubeImage from "@/assets/cube-product.png";
+import howDevicesImage from "@/assets/how-devices.png";
 import { Check, ChevronRight, Wifi, Signal, Shield, Smartphone, Radio, Battery } from "lucide-react";
 
 interface Package {
@@ -50,7 +51,7 @@ const packages: Package[] = [
     tagline: "প্রিমিয়াম। সম্পূর্ণ নিরাপত্তা।",
     model: "SP05-Smart-Panel-Kit",
     price: 15990,
-    image: panelImage,
+    image: howDevicesImage,
     connectivity: "WiFi + 4G",
     features: [
       '১টি 5" Smart Touch Panel',
@@ -75,7 +76,7 @@ const PackagesSection = () => {
   const [selected, setSelected] = useState("sp05");
 
   return (
-    <section id="packages" className="py-24 lg:py-32">
+    <section id="packages" className="py-24 lg:py-32" style={{ backgroundColor: '#FFF8F0' }}>
       <div className="section-container">
         {/* Header */}
         <div className="text-center mb-16">

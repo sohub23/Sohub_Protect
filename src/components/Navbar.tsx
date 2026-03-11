@@ -20,11 +20,11 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-primary/95 backdrop-blur-md">
       <div className="section-container flex items-center justify-between h-16">
         <Link to="/">
-          <img src={logoWithIcon} alt="SOHUB Protect" className="h-10 md:h-12" />
+          <img src={logoWithIcon} alt="SOHUB Protect" className="h-8 md:h-10" />
         </Link>
 
         {/* Desktop */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-6">
           {navLinks.map((link) =>
             link.isRoute ? (
               <Link
@@ -52,24 +52,25 @@ const Navbar = () => {
               </Link>
             )
           )}
-          {isHome ? (
-            <a
-              href="#order"
-              className="flex items-center gap-2 bg-primary-foreground text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-primary-foreground/90 transition-colors"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              অর্ডার করুন
-            </a>
-          ) : (
-            <Link
-              to="/#order"
-              className="flex items-center gap-2 bg-primary-foreground text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-primary-foreground/90 transition-colors"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              অর্ডার করুন
-            </Link>
-          )}
         </div>
+
+        {isHome ? (
+          <a
+            href="#order"
+            className="hidden md:flex items-center gap-2 bg-primary-foreground text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-primary-foreground/90 transition-colors"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            অর্ডার করুন
+          </a>
+        ) : (
+          <Link
+            to="/#order"
+            className="hidden md:flex items-center gap-2 bg-primary-foreground text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-primary-foreground/90 transition-colors"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            অর্ডার করুন
+          </Link>
+        )}
 
         {/* Mobile toggle */}
         <button

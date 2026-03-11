@@ -30,7 +30,7 @@ const HowItWorksSection = () => {
   ];
 
   return (
-    <section id="how" className="py-24 lg:py-32 terracotta-section">
+    <section id="how" className="py-24 lg:py-32" style={{ backgroundColor: '#1f98d1' }}>
       <div className="section-container">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Product image */}
@@ -38,29 +38,29 @@ const HowItWorksSection = () => {
             <img
               src={panelImage}
               alt="SOHUB Protect Smart Panel"
-              className="w-full max-w-md"
+              className="w-full max-w-lg"
             />
           </div>
 
           {/* Steps */}
           <div>
-            <p className="text-sm uppercase tracking-widest text-primary font-medium mb-4">
+            <p className="text-sm uppercase tracking-widest text-white/80 font-medium mb-4">
               কিভাবে কাজ করে
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-12">
               কিভাবে SOHUB Protect<br /> নিরাপত্তা নিশ্চিত করে?
             </h2>
 
             <div className="space-y-8">
               {steps.map((step, i) => (
                 <div key={i} className="flex gap-5">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <step.icon className="w-6 h-6 text-primary" />
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                    <step.icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <div className="text-xs text-primary font-semibold mb-1">{step.num}</div>
-                    <h3 className="text-lg font-semibold text-foreground mb-1">{step.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{step.desc}</p>
+                    <div className="text-xs text-white/70 font-semibold mb-1">{step.num}</div>
+                    <h3 className="text-lg font-semibold text-white mb-1">{step.title}</h3>
+                    <p className="text-white/80 text-sm leading-relaxed">{step.desc}</p>
                   </div>
                 </div>
               ))}

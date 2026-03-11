@@ -18,9 +18,7 @@ const CompatibilityIcons = ({ variant = "light" }: CompatibilityIconsProps) => {
 
   return (
     <div className="flex flex-wrap items-center gap-5">
-      <span className={`text-xs uppercase tracking-wider font-medium ${textMuted}`}>
-        Compatible with
-      </span>
+      
       {platforms.map((p) => (
         <div key={p.label} className="flex items-center gap-2">
           <div className={`w-8 h-8 rounded-lg ${iconBg} flex items-center justify-center`}>
