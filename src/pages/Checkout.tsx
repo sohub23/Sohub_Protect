@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check, ChevronRight, Loader2, CheckCircle2, AlertCircle, Send } from "lucide-react";
 import panelImage from "@/assets/panel-product.png";
 import cubeImage from "@/assets/Sp1.png";
@@ -75,7 +75,9 @@ type SubmitStatus = "idle" | "loading" | "success" | "error";
 
 /* ─── Component ─── */
 const Checkout = () => {
-  const [selectedEdition, setSelectedEdition] = useState("sp05");
+  const [searchParams] = useSearchParams();
+  const initialEdition = editions.find(e => e.id === searchParams.get('edition'))?.id || "sp05";
+  const [selectedEdition, setSelectedEdition] = useState(initialEdition);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("online");
   const [formData, setFormData] = useState({
