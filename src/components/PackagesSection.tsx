@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import panelImage from "@/assets/panel-product.png";
 import cubeImage from "@/assets/Sp1.png";
 import howDevicesImage from "@/assets/how-devices.png";
-import { Check, ChevronRight, Wifi, Signal, Shield, Smartphone, Radio, Battery } from "lucide-react";
+import { Check, ChevronRight, Wifi, Signal, Shield, Smartphone, Radio, Battery, X } from "lucide-react";
+import specImage from "@/assets/spec.png";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Package {
   id: string;
@@ -74,6 +76,31 @@ const packages: Package[] = [
 
 const PackagesSection = () => {
   const [selected, setSelected] = useState("sp05");
+  const [showFullSpecs, setShowFullSpecs] = useState(false);
+  const navigate = useNavigate();
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (showFullSpecs) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [showFullSpecs]);
+
+  const handleOrder = (editionId: string) => {
+    // Update URL with edition param, then scroll to order section
+    navigate(`/?edition=${editionId}#order`, { replace: true });
+    setTimeout(() => {
+      const orderEl = document.getElementById('order');
+      if (orderEl) {
+        orderEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 50);
+  };
 
   return (
     <section id="packages" className="py-24 lg:py-32 bg-white">
@@ -146,8 +173,8 @@ const PackagesSection = () => {
               </span>
               <span className="text-muted-foreground text-xs md:text-sm ml-1">/ one-time</span>
               <div className="mt-3">
-                <Link
-                  to={`/checkout?edition=${pkg.id}`}
+                <button
+                  onClick={() => handleOrder(pkg.id)}
                   className={`inline-flex items-center justify-center gap-1.5 px-6 md:px-8 py-2.5 md:py-3 rounded-full font-medium text-xs md:text-sm transition-colors ${
                     selected === pkg.id
                       ? "bg-primary text-primary-foreground hover:bg-brand-dark"
@@ -156,7 +183,7 @@ const PackagesSection = () => {
                 >
                   অর্ডার করুন
                   <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                </Link>
+                </button>
               </div>
             </div>
           ))}
@@ -207,14 +234,51 @@ const PackagesSection = () => {
 
         {/* Full Specs Button */}
         <div className="text-center mt-10">
-          <a
-            href="#contact"
+          <button
+            onClick={() => setShowFullSpecs(true)}
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors"
           >
             Full Specifications
             <ChevronRight className="w-4 h-4" />
-          </a>
+          </button>
         </div>
+
+        {/* Full Specifications Image Overlay */}
+        <AnimatePresence>
+          {showFullSpecs && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowFullSpecs(false)}
+                className="absolute inset-0 bg-black/90 backdrop-blur-md cursor-zoom-out"
+              />
+              
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                className="relative z-10 w-full max-h-screen overflow-y-auto px-4 py-16 md:px-8 md:py-24 flex justify-center items-start"
+              >
+                {/* Floating Close Button */}
+                <button 
+                  onClick={() => setShowFullSpecs(false)}
+                  className="fixed top-4 right-4 md:top-8 md:right-8 p-3 rounded-full bg-black/50 hover:bg-black/80 text-white transition-all duration-200 border border-white/20 backdrop-blur-md z-[110]"
+                >
+                  <X className="w-6 h-6 md:w-8 md:h-8" />
+                </button>
+
+                <img 
+                  src={specImage} 
+                  alt="SOHUB Protect Specifications" 
+                  className="w-full h-auto max-w-[80vw] lg:max-w-2xl shadow-2xl rounded-sm object-contain border border-white/10"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

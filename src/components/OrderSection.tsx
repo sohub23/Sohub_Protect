@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Check,
   ChevronRight,
@@ -7,6 +7,7 @@ import {
   AlertCircle,
   Send,
 } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import panelImage from "@/assets/panel-product.png";
 import cubeImage from "@/assets/Sp1.png";
 import howDevicesImage from "@/assets/how-devices.png";
@@ -58,7 +59,10 @@ type PaymentMethod = "online" | "cod";
 type SubmitStatus = "idle" | "loading" | "success" | "error";
 
 const OrderSection = () => {
-  const [selectedEdition, setSelectedEdition] = useState("sp05");
+  const [searchParams] = useSearchParams();
+  const editionParam = searchParams.get('edition');
+  const initialEdition = editions.find(e => e.id === editionParam)?.id || "sp05";
+  const [selectedEdition, setSelectedEdition] = useState(initialEdition);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("online");
   const [formData, setFormData] = useState({
@@ -72,6 +76,13 @@ const OrderSection = () => {
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
   const [orderId, setOrderId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Update edition when URL param changes (from PackagesSection)
+  useEffect(() => {
+    if (editionParam && editions.find(e => e.id === editionParam)) {
+      setSelectedEdition(editionParam);
+    }
+  }, [editionParam]);
 
   const edition = editions.find((e) => e.id === selectedEdition)!;
 
