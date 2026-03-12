@@ -1,5 +1,6 @@
-import { Phone, Mail, Globe } from "lucide-react";
+import { Mail, Globe } from "lucide-react";
 import shieldBadge from "@/assets/shield-badge.png";
+import QRExpandable from "@/components/ui/QRExpandable";
 
 const ContactSection = () => {
   return (
@@ -18,47 +19,41 @@ const ContactSection = () => {
               আমাদের টিম সবসময় আপনার পাশে।
             </p>
 
-            <div className="space-y-5">
-              <a
-                href="tel:09678076482"
-                className="flex items-center gap-4 text-background hover:text-primary transition-colors"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-background/50">হটলাইন</p>
-                  <p className="font-semibold">09678-076482</p>
-                </div>
-              </a>
+            <div className="space-y-6">
+              {/* QR Code replacing the phone number */}
+              <div className="flex items-center gap-4">
+                <QRExpandable size="md" dark={true} className="w-full sm:w-auto" />
+              </div>
 
-              <a
-                href="mailto:hello@sohub.com.bd"
-                className="flex items-center gap-4 text-background hover:text-primary transition-colors"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-background/50">ইমেইল</p>
-                  <p className="font-semibold">hello@sohub.com.bd</p>
-                </div>
-              </a>
+              <div className="space-y-5">
+                <a
+                  href="mailto:hello@sohub.com.bd"
+                  className="flex items-center gap-4 text-background hover:text-primary transition-colors"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-background/50">ইমেইল</p>
+                    <p className="font-semibold">hello@sohub.com.bd</p>
+                  </div>
+                </a>
 
-              <a
-                href="https://www.sohub.com.bd"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 text-background hover:text-primary transition-colors"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-background/50">ওয়েবসাইট</p>
-                  <p className="font-semibold">www.sohub.com.bd</p>
-                </div>
-              </a>
+                <a
+                  href="https://www.sohub.com.bd"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-4 text-background hover:text-primary transition-colors"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                    <Globe className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-background/50">ওয়েবসাইট</p>
+                    <p className="font-semibold">www.sohub.com.bd</p>
+                  </div>
+                </a>
+              </div>
             </div>
           </div>
 
