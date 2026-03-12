@@ -19,9 +19,15 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-primary/95 backdrop-blur-md">
       <div className="section-container flex items-center justify-between h-16">
-        <Link to="/">
-          <img src={logoWithIcon} alt="SOHUB Protect" className="h-8 md:h-10" />
-        </Link>
+        {isHome ? (
+          <a href="#hero">
+            <img src={logoWithIcon} alt="SOHUB Protect" className="h-8 md:h-10" />
+          </a>
+        ) : (
+          <Link to="/#hero">
+            <img src={logoWithIcon} alt="SOHUB Protect" className="h-8 md:h-10" />
+          </Link>
+        )}
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-6">

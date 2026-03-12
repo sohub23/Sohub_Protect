@@ -1,5 +1,6 @@
 import { Shield, Eye, Bell, TrendingUp, TrendingDown, AlertTriangle, Globe, BarChart3, Building2, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import fbiImage from "@/assets/FBI.png";
 
 const useInView = (threshold = 0.2) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -234,18 +235,18 @@ const ProblemSection = () => {
               </div>
             </div>
 
-            {/* Right - market data visualization */}
+            {/* Right - FBI image and stats */}
             <div className="space-y-6">
-              <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
-                <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-5">Smart Home Security Revenue by Country</h4>
-                <StatBar label="USA" value="$5,474m" max={90} color="bg-primary" flag="🇺🇸" />
-                <StatBar label="China" value="$1,083m" max={35} color="bg-primary/70" flag="🇨🇳" />
-                <StatBar label="UK" value="$514m" max={22} color="bg-primary/60" flag="🇬🇧" />
-                <StatBar label="Germany" value="$495m" max={20} color="bg-primary/50" flag="🇩🇪" />
-                <StatBar label="France" value="$428m" max={18} color="bg-primary/40" flag="🇫🇷" />
-                <p className="text-xs text-muted-foreground mt-4">Source: Statista, 2021</p>
+              {/* FBI Image */}
+              <div className="flex justify-center items-center">
+                <img
+                  src={fbiImage}
+                  alt="Global Market Statistics"
+                  className="w-full max-w-lg rounded-2xl shadow-lg"
+                />
               </div>
 
+              {/* Market Stats */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-primary text-primary-foreground rounded-2xl p-6 text-center">
                   <div className="text-3xl font-bold mb-1">$<AnimatedCounter end={52} />B</div>
@@ -257,6 +258,7 @@ const ProblemSection = () => {
                 </div>
               </div>
 
+              {/* Bangladesh Opportunity */}
               <div className="bg-primary/5 border border-primary/10 rounded-2xl p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <Building2 className="w-6 h-6 text-primary" />

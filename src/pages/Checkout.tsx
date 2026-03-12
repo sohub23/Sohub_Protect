@@ -1,9 +1,21 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Check, ChevronRight, ShieldAlert, Radio, DoorOpen, BellRing, Flame, Vibrate, ScanEye, Volume2, PanelTop, Camera } from "lucide-react";
+import { ArrowLeft, Check, ChevronRight, Loader2, CheckCircle2, AlertCircle, Send } from "lucide-react";
 import panelImage from "@/assets/panel-product.png";
-import cubeImage from "@/assets/cube-product.png";
+import cubeImage from "@/assets/Sp1.png";
+import howDevicesImage from "@/assets/how-devices.png";
 import logoIcon from "@/assets/sohub-icon.png";
+
+import imgShutter from "@/assets/Accesories/shutter sensor.jpeg";
+import imgVibration from "@/assets/Accesories/vivration_sensor.jpeg";
+import imgDoor from "@/assets/Accesories/door_sensor.jpeg";
+import imgSmoke from "@/assets/Accesories/fire_alarm.jpeg";
+import imgGas from "@/assets/Accesories/gas_sensor.jpeg";
+import imgMotion from "@/assets/Accesories/motion_sensor.jpeg";
+import imgSignal from "@/assets/Accesories/signal_extender.png";
+import imgSos from "@/assets/Accesories/sos_band.jpeg";
+import imgSiren from "@/assets/Accesories/wireless_siren.png";
+import imgAiCamera from "@/assets/Accesories/ai_camera.jpeg";
 
 /* ─── Data ─── */
 interface Edition {
@@ -42,23 +54,24 @@ interface Addon {
   name: string;
   nameBn: string;
   price: number;
-  icon: React.ElementType;
+  image: string;
 }
 
 const addons: Addon[] = [
-  { id: "sos", name: "SOS Band", nameBn: "এসওএস ব্যান্ড", price: 560, icon: ShieldAlert },
-  { id: "signal", name: "Signal Extender", nameBn: "সিগন্যাল এক্সটেন্ডার", price: 890, icon: Radio },
-  { id: "door", name: "Door Sensor", nameBn: "ডোর সেন্সর", price: 690, icon: DoorOpen },
-  { id: "bell", name: "Door Bell Button", nameBn: "ডোরবেল বাটন", price: 490, icon: BellRing },
-  { id: "gas", name: "Gas Leak Detector", nameBn: "গ্যাস লিক ডিটেক্টর", price: 1290, icon: Flame },
-  { id: "vibration", name: "Vibration Sensor", nameBn: "ভাইব্রেশন সেন্সর", price: 790, icon: Vibrate },
-  { id: "motion", name: "Motion Sensor", nameBn: "মোশন সেন্সর", price: 690, icon: ScanEye },
-  { id: "siren", name: "Wireless Siren", nameBn: "ওয়্যারলেস সাইরেন", price: 990, icon: Volume2 },
-  { id: "shutter", name: "Shutter Sensor", nameBn: "শাটার সেন্সর", price: 890, icon: PanelTop },
-  { id: "camera", name: "Indoor PTZ Camera", nameBn: "ইনডোর PTZ ক্যামেরা", price: 2490, icon: Camera },
+  { id: "1", name: "Shutter Sensor", nameBn: "শাটার সেন্সর", price: 1550, image: imgShutter },
+  { id: "2", name: "Vibration Sensor", nameBn: "ভাইব্রেশন সেন্সর", price: 2600, image: imgVibration },
+  { id: "3", name: "Door Sensor", nameBn: "ডোর সেন্সর", price: 850, image: imgDoor },
+  { id: "4", name: "Smoke Detector", nameBn: "স্মোক ডিটেক্টর", price: 4500, image: imgSmoke },
+  { id: "5", name: "Gas Detector", nameBn: "গ্যাস ডিটেক্টর", price: 1850, image: imgGas },
+  { id: "6", name: "Motion Sensor", nameBn: "মোশন সেন্সর", price: 1200, image: imgMotion },
+  { id: "7", name: "Signal Extender", nameBn: "সিগন্যাল এক্সটেন্ডার", price: 4500, image: imgSignal },
+  { id: "8", name: "SOS Band", nameBn: "এসওএস ব্যান্ড", price: 1200, image: imgSos },
+  { id: "9", name: "Wireless Siren", nameBn: "ওয়্যারলেস সাইরেন", price: 2600, image: imgSiren },
+  { id: "10", name: "AI Camera", nameBn: "AI ক্যামেরা", price: 3500, image: imgAiCamera },
 ];
 
 type PaymentMethod = "online" | "cod";
+type SubmitStatus = "idle" | "loading" | "success" | "error";
 
 /* ─── Component ─── */
 const Checkout = () => {
@@ -72,6 +85,10 @@ const Checkout = () => {
     address: "",
     note: "",
   });
+
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
+  const [orderId, setOrderId] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const edition = editions.find((e) => e.id === selectedEdition)!;
 
@@ -99,9 +116,71 @@ const Checkout = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = () => {
-    if (!formData.name.trim() || !formData.phone.trim() || !formData.address.trim()) return;
+  const isValid = formData.name.trim() && formData.phone.trim() && formData.address.trim();
 
+  const handleSubmit = async () => {
+    if (!isValid) return;
+
+    setSubmitStatus("loading");
+    setErrorMessage("");
+
+    const selectedAddonDetails = selectedAddons
+      .map((id) => {
+        const addon = addons.find((a) => a.id === id);
+        if (!addon) return null;
+        return {
+          id: addon.id,
+          name: addon.name,
+          nameBn: addon.nameBn,
+          price: addon.price,
+        };
+      })
+      .filter(Boolean);
+
+    const orderPayload = {
+      edition: {
+        id: edition.id,
+        name: edition.name,
+        nameBn: edition.nameBn,
+        desc: edition.desc,
+        price: edition.price,
+      },
+      addons: selectedAddonDetails,
+      paymentMethod,
+      deliveryFee,
+      total,
+      customer: {
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        email: formData.email.trim(),
+        address: formData.address.trim(),
+        note: formData.note.trim(),
+      },
+    };
+
+    try {
+      const response = await fetch("/api/send-order.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setOrderId(data.orderId || "");
+        setSubmitStatus("success");
+      } else {
+        setErrorMessage(data.error || "Something went wrong. Please try again.");
+        setSubmitStatus("error");
+      }
+    } catch {
+      setErrorMessage("Network error. Please check your connection and try again.");
+      setSubmitStatus("error");
+    }
+  };
+
+  const handleWhatsAppFallback = () => {
     const addonNames = selectedAddons
       .map((id) => addons.find((a) => a.id === id)?.name)
       .filter(Boolean)
@@ -112,7 +191,7 @@ const Checkout = () => {
       `Edition: ${edition.nameBn}`,
       addonNames ? `Add-ons: ${addonNames}` : "",
       `Payment: ${paymentMethod === "online" ? "Online Payment" : "Cash on Delivery"}`,
-      `Total: ৳${total.toLocaleString()}`,
+      `Total: ${total.toLocaleString()} BDT`,
       ``,
       `Name: ${formData.name}`,
       `Phone: ${formData.phone}`,
@@ -123,9 +202,76 @@ const Checkout = () => {
       .filter(Boolean)
       .join("\n");
 
-    const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/8809678076482?text=${encoded}`, "_blank");
+    window.open(`https://wa.me/8809678076482?text=${encodeURIComponent(message)}`, "_blank");
   };
+
+  /* ─── Success Screen ─── */
+  if (submitStatus === "success") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <nav className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border">
+          <div className="section-container flex items-center justify-between h-14">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Home
+            </Link>
+            <img src={logoIcon} alt="SOHUB" className="h-7" />
+            <div className="w-16" />
+          </div>
+        </nav>
+
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="text-center max-w-md mx-auto">
+            {/* Success Animation */}
+            <div className="relative mx-auto w-24 h-24 mb-6">
+              <div className="absolute inset-0 rounded-full bg-primary/10 animate-ping" style={{ animationDuration: '2s' }} />
+              <div className="relative w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle2 className="w-12 h-12 text-primary" />
+              </div>
+            </div>
+
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+              অর্ডার সফলভাবে সম্পন্ন হয়েছে! 🎉
+            </h1>
+
+            {orderId && (
+              <div className="inline-block bg-primary/10 border border-primary/20 px-5 py-2.5 rounded-full mb-4">
+                <span className="text-primary font-bold text-sm tracking-wide">
+                  🛡️ Order #{orderId}
+                </span>
+              </div>
+            )}
+
+            <p className="text-muted-foreground mb-2">
+              আপনার ইমেইলে একটি কোটেশন পিডিএফ পাঠানো হয়েছে।
+            </p>
+            <p className="text-muted-foreground text-sm mb-8">
+              আমাদের টিম শিগগিরই আপনার সাথে যোগাযোগ করবে 
+              অর্ডার নিশ্চিত করতে এবং ডেলিভারি নির্ধারণ করতে।
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                to="/"
+                className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-full font-medium text-sm hover:bg-brand-dark transition-colors"
+              >
+                হোমে ফিরে যান
+              </Link>
+              <a
+                href="tel:09678076482"
+                className="inline-flex items-center justify-center gap-2 border border-border text-foreground px-8 py-3 rounded-full font-medium text-sm hover:bg-muted transition-colors"
+              >
+                📞 09678-076482
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -203,11 +349,12 @@ const Checkout = () => {
                   <button
                     key={ed.id}
                     onClick={() => setSelectedEdition(ed.id)}
+                    disabled={submitStatus === "loading"}
                     className={`w-full text-left rounded-xl p-4 border-2 transition-all ${
                       selectedEdition === ed.id
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/30"
-                    }`}
+                    } disabled:opacity-60`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
@@ -220,7 +367,7 @@ const Checkout = () => {
                       </div>
                       <div className="flex items-center gap-3 ml-4 flex-shrink-0">
                         <span className="text-sm md:text-base font-bold text-foreground">
-                          ৳{ed.price.toLocaleString()}
+                          {ed.price.toLocaleString()} BDT
                         </span>
                         {selectedEdition === ed.id && (
                           <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
@@ -251,22 +398,25 @@ const Checkout = () => {
                     <button
                       key={addon.id}
                       onClick={() => toggleAddon(addon.id)}
+                      disabled={submitStatus === "loading"}
                       className={`relative rounded-xl p-3 text-center transition-all duration-200 ${
                         isSelected
                           ? "bg-primary/10 border-2 border-primary"
                           : "bg-muted/30 border border-border hover:border-primary/30"
-                      }`}
+                      } disabled:opacity-60`}
                     >
-                      <addon.icon
-                        className={`w-6 h-6 mx-auto mb-1.5 ${
-                          isSelected ? "text-primary" : "text-muted-foreground"
-                        }`}
-                      />
+                      <div className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-2 bg-white rounded-lg shadow-sm flex items-center justify-center p-1.5 overflow-hidden">
+                        <img 
+                          src={addon.image} 
+                          alt={addon.nameBn} 
+                          className="max-w-full max-h-full object-contain mix-blend-multiply" 
+                        />
+                      </div>
                       <p className="text-[10px] md:text-xs font-medium leading-tight text-foreground">
                         {addon.nameBn}
                       </p>
                       <p className={`text-[10px] mt-1 font-semibold ${isSelected ? "text-primary" : "text-muted-foreground"}`}>
-                        +৳{addon.price}
+                        +{addon.price} BDT
                       </p>
                       {isSelected && (
                         <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
@@ -280,7 +430,7 @@ const Checkout = () => {
 
               {selectedAddons.length > 0 && (
                 <p className="text-xs text-muted-foreground mt-3 text-center">
-                  {selectedAddons.length}টি এক্সেসরি নির্বাচিত • +৳{addonTotal.toLocaleString()}
+                  {selectedAddons.length}টি এক্সেসরি নির্বাচিত • +{addonTotal.toLocaleString()} BDT
                 </p>
               )}
             </div>
@@ -294,11 +444,12 @@ const Checkout = () => {
               <div className="space-y-3">
                 <button
                   onClick={() => setPaymentMethod("online")}
+                  disabled={submitStatus === "loading"}
                   className={`w-full flex items-center justify-between rounded-xl p-4 border-2 transition-all ${
                     paymentMethod === "online"
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary/30"
-                  }`}
+                  } disabled:opacity-60`}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
@@ -320,11 +471,12 @@ const Checkout = () => {
 
                 <button
                   onClick={() => setPaymentMethod("cod")}
+                  disabled={submitStatus === "loading"}
                   className={`w-full flex items-center justify-between rounded-xl p-4 border-2 transition-all ${
                     paymentMethod === "cod"
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary/30"
-                  }`}
+                  } disabled:opacity-60`}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
@@ -336,7 +488,7 @@ const Checkout = () => {
                     </div>
                     <span className="text-sm font-medium text-foreground">Cash on Delivery</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">+৳100</span>
+                  <span className="text-xs text-muted-foreground">+100 BDT</span>
                 </button>
               </div>
             </div>
@@ -359,7 +511,8 @@ const Checkout = () => {
                     maxLength={100}
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                    disabled={submitStatus === "loading"}
+                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors disabled:opacity-60"
                   />
                 </div>
                 <div>
@@ -373,12 +526,13 @@ const Checkout = () => {
                     maxLength={15}
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                    disabled={submitStatus === "loading"}
+                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors disabled:opacity-60"
                   />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">
-                    Email <span className="text-muted-foreground">(Optional)</span>
+                    Email <span className="text-muted-foreground">(Optional — কোটেশন পিডিএফ পেতে ইমেইল দিন)</span>
                   </label>
                   <input
                     type="email"
@@ -387,7 +541,8 @@ const Checkout = () => {
                     maxLength={255}
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                    disabled={submitStatus === "loading"}
+                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors disabled:opacity-60"
                   />
                 </div>
                 <div>
@@ -401,7 +556,8 @@ const Checkout = () => {
                     rows={3}
                     value={formData.address}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none"
+                    disabled={submitStatus === "loading"}
+                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none disabled:opacity-60"
                   />
                 </div>
                 <div>
@@ -415,7 +571,8 @@ const Checkout = () => {
                     maxLength={300}
                     value={formData.note}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                    disabled={submitStatus === "loading"}
+                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors disabled:opacity-60"
                   />
                 </div>
               </div>
@@ -430,37 +587,62 @@ const Checkout = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{edition.name}</span>
-                  <span className="text-foreground font-medium">৳{edition.price.toLocaleString()}</span>
+                  <span className="text-foreground font-medium">{edition.price.toLocaleString()} BDT</span>
                 </div>
                 {selectedAddons.length > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Accessories ({selectedAddons.length})</span>
-                    <span className="text-foreground font-medium">৳{addonTotal.toLocaleString()}</span>
+                    <span className="text-foreground font-medium">{addonTotal.toLocaleString()} BDT</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Delivery</span>
                   <span className={`font-medium ${deliveryFee === 0 ? "text-primary" : "text-foreground"}`}>
-                    {deliveryFee === 0 ? "FREE" : `৳${deliveryFee}`}
+                    {deliveryFee === 0 ? "FREE" : `+${deliveryFee} BDT`}
                   </span>
                 </div>
                 <div className="border-t border-border pt-3 mt-3 flex justify-between">
                   <span className="font-bold text-foreground">Total</span>
-                  <span className="font-bold text-foreground text-lg">৳{total.toLocaleString()}</span>
+                  <span className="font-bold text-foreground text-lg">{total.toLocaleString()} BDT</span>
                 </div>
               </div>
 
+              {/* Error Message */}
+              {submitStatus === "error" && (
+                <div className="mt-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm text-destructive font-medium">{errorMessage}</p>
+                    <button
+                      onClick={handleWhatsAppFallback}
+                      className="text-xs text-primary font-medium mt-1 hover:underline"
+                    >
+                      WhatsApp এ অর্ডার করুন →
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={handleSubmit}
-                disabled={!formData.name.trim() || !formData.phone.trim() || !formData.address.trim()}
+                disabled={!isValid || submitStatus === "loading"}
                 className="w-full mt-6 flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3.5 rounded-full font-semibold text-sm hover:bg-brand-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                অর্ডার কনফার্ম করুন
-                <ChevronRight className="w-4 h-4" />
+                {submitStatus === "loading" ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    প্রসেসিং হচ্ছে...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    অর্ডার কনফার্ম করুন
+                  </>
+                )}
               </button>
 
               <p className="text-[10px] text-muted-foreground text-center mt-3">
-                WhatsApp এর মাধ্যমে আপনার অর্ডার কনফার্ম করা হবে
+                📧 আপনার ইমেইলে কোটেশন পিডিএফ সহ নিশ্চিতকরণ পাঠানো হবে
               </p>
             </div>
           </div>

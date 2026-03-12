@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import panelImage from "@/assets/panel-product.png";
-import cubeImage from "@/assets/cube-product.png";
+import cubeImage from "@/assets/Sp1.png";
 import shieldBadge from "@/assets/shield-badge.png";
 import CompatibilityIcons from "@/components/CompatibilityIcons";
 import {

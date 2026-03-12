@@ -35,11 +35,13 @@ const HowItWorksSection = () => {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Product image */}
           <div className="flex justify-center">
-            <img
-              src={panelImage}
-              alt="SOHUB Protect Smart Panel"
-              className="w-full max-w-lg"
-            />
+            <div className="rounded-3xl p-8 md:p-12 shadow-lg overflow-hidden" style={{ backgroundColor: '#f5e8e0' }}>
+              <img
+                src={panelImage}
+                alt="SOHUB Protect Smart Panel"
+                className="w-full max-w-lg scale-125"
+              />
+            </div>
           </div>
 
           {/* Steps */}

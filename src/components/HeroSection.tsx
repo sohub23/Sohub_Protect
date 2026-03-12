@@ -1,4 +1,5 @@
 import heroImage from "@/assets/protect hero.jpeg";
+import comHeroImage from "@/assets/com hero.png";
 import shieldBadge from "@/assets/shield-badge.png";
 import CompatibilityIcons from "./CompatibilityIcons";
 
@@ -14,9 +15,9 @@ const HeroSection = () => {
           className="md:hidden w-full h-full object-cover"
           style={{ objectPosition: '60% center' }} />
         
-        {/* Desktop version - shows full image */}
+        {/* Desktop version - shows com hero image */}
         <img
-          src={heroImage}
+          src={comHeroImage}
           alt="আপনার ঘর, আপনার শান্তি"
           className="hidden md:block w-full h-full object-cover object-center" />
         

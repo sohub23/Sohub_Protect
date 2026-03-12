@@ -1,46 +1,35 @@
-import { useState } from "react";
-import {
-  ShieldAlert,
-  Radio,
-  DoorOpen,
-  BellRing,
-  Flame,
-  Vibrate,
-  ScanEye,
-  Volume2,
-  PanelTop,
-  Camera,
-} from "lucide-react";
+import imgShutter from "@/assets/Accesories/shutter sensor.jpeg";
+import imgVibration from "@/assets/Accesories/vivration_sensor.jpeg";
+import imgDoor from "@/assets/Accesories/door_sensor.jpeg";
+import imgSmoke from "@/assets/Accesories/fire_alarm.jpeg";
+import imgGas from "@/assets/Accesories/gas_sensor.jpeg";
+import imgMotion from "@/assets/Accesories/motion_sensor.jpeg";
+import imgSignal from "@/assets/Accesories/signal_extender.png";
+import imgSos from "@/assets/Accesories/sos_band.jpeg";
+import imgSiren from "@/assets/Accesories/wireless_siren.png";
+import imgAiCamera from "@/assets/Accesories/ai_camera.jpeg";
 
 interface Addon {
   id: string;
   name: string;
   nameBn: string;
-  icon: React.ElementType;
+  image: string;
 }
 
 const addons: Addon[] = [
-  { id: "sos", name: "SOS Band", nameBn: "এসওএস ব্যান্ড", icon: ShieldAlert },
-  { id: "signal", name: "Signal Extender", nameBn: "সিগন্যাল এক্সটেন্ডার", icon: Radio },
-  { id: "door", name: "Door Sensor", nameBn: "ডোর সেন্সর", icon: DoorOpen },
-  { id: "bell", name: "Door Bell Button", nameBn: "ডোরবেল বাটন", icon: BellRing },
-  { id: "gas", name: "Gas Leak Detector", nameBn: "গ্যাস লিক ডিটেক্টর", icon: Flame },
-  { id: "vibration", name: "Vibration Sensor", nameBn: "ভাইব্রেশন সেন্সর", icon: Vibrate },
-  { id: "motion", name: "Motion Sensor", nameBn: "মোশন সেন্সর", icon: ScanEye },
-  { id: "siren", name: "Wireless Siren", nameBn: "ওয়্যারলেস সাইরেন", icon: Volume2 },
-  { id: "shutter", name: "Shutter Sensor", nameBn: "শাটার সেন্সর", icon: PanelTop },
-  { id: "camera", name: "Indoor PTZ Camera", nameBn: "ইনডোর PTZ ক্যামেরা", icon: Camera },
+  { id: "1", name: "Shutter Sensor", nameBn: "শাটার সেন্সর", image: imgShutter },
+  { id: "2", name: "Vibration Sensor", nameBn: "ভাইব্রেশন সেন্সর", image: imgVibration },
+  { id: "3", name: "Door Sensor", nameBn: "ডোর সেন্সর", image: imgDoor },
+  { id: "4", name: "Smoke Detector", nameBn: "স্মোক ডিটেক্টর", image: imgSmoke },
+  { id: "5", name: "Gas Detector", nameBn: "গ্যাস ডিটেক্টর", image: imgGas },
+  { id: "6", name: "Motion Sensor", nameBn: "মোশন সেন্সর", image: imgMotion },
+  { id: "7", name: "Signal Extender", nameBn: "সিগন্যাল এক্সটেন্ডার", image: imgSignal },
+  { id: "8", name: "SOS Band", nameBn: "এসওএস ব্যান্ড", image: imgSos },
+  { id: "9", name: "Wireless Siren", nameBn: "ওয়্যারলেস সাইরেন", image: imgSiren },
+  { id: "10", name: "AI Camera", nameBn: "AI ক্যামেরা", image: imgAiCamera }
 ];
 
 const AddonsSection = () => {
-  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
-
-  const toggleAddon = (id: string) => {
-    setSelectedAddons((prev) =>
-      prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]
-    );
-  };
-
   return (
     <section id="addons" className="py-24 lg:py-32 terracotta-section">
       <div className="section-container">
@@ -57,57 +46,27 @@ const AddonsSection = () => {
           </p>
         </div>
 
-        {/* Addons grid - Apple-style card selection */}
+        {/* Addons grid - non-selectable display */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-4xl mx-auto">
-          {addons.map((addon) => {
-            const isSelected = selectedAddons.includes(addon.id);
-            return (
-              <button
-                key={addon.id}
-                onClick={() => toggleAddon(addon.id)}
-                className={`relative rounded-2xl p-5 text-center transition-all duration-300 ${
-                  isSelected
-                    ? "bg-primary text-primary-foreground shadow-lg scale-[1.03]"
-                    : "bg-card border border-border hover:border-primary/40 text-foreground"
-                }`}
-              >
-                <addon.icon
-                  className={`w-8 h-8 mx-auto mb-3 ${
-                    isSelected ? "text-primary-foreground" : "text-primary"
-                  }`}
-                />
-                <p className="text-xs font-semibold leading-tight">{addon.nameBn}</p>
-                <p
-                  className={`text-[10px] mt-1 ${
-                    isSelected ? "text-primary-foreground/70" : "text-muted-foreground"
-                  }`}
-                >
-                  {addon.name}
-                </p>
-
-                {isSelected && (
-                  <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-card rounded-full flex items-center justify-center shadow">
-                    <div className="w-3 h-3 bg-primary rounded-full" />
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {selectedAddons.length > 0 && (
-          <div className="mt-10 text-center">
-            <p className="text-sm text-muted-foreground mb-4">
-              {selectedAddons.length}টি অ্যাড-অন নির্বাচিত
-            </p>
-            <a
-              href="#contact"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3.5 rounded-full font-medium hover:bg-brand-dark transition-colors"
+          {addons.map((addon) => (
+            <div
+              key={addon.id}
+              className="rounded-2xl p-4 text-center bg-card border border-border hover:border-primary/40 text-foreground shadow-sm hover:shadow-md transition-all"
             >
-              কাস্টম কোটেশন নিন
-            </a>
-          </div>
-        )}
+              <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-4 bg-white rounded-xl shadow-sm flex items-center justify-center p-2 overflow-hidden">
+                <img 
+                  src={addon.image} 
+                  alt={addon.nameBn} 
+                  className="max-w-full max-h-full object-contain mix-blend-multiply" 
+                />
+              </div>
+              <p className="text-xs font-semibold leading-tight">{addon.nameBn}</p>
+              <p className="text-[10px] mt-1 text-muted-foreground">
+                {addon.name}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

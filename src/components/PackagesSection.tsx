@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import panelImage from "@/assets/panel-product.png";
-import cubeImage from "@/assets/cube-product.png";
+import cubeImage from "@/assets/Sp1.png";
 import howDevicesImage from "@/assets/how-devices.png";
 import { Check, ChevronRight, Wifi, Signal, Shield, Smartphone, Radio, Battery } from "lucide-react";
 
@@ -76,7 +76,7 @@ const PackagesSection = () => {
   const [selected, setSelected] = useState("sp05");
 
   return (
-    <section id="packages" className="py-24 lg:py-32" style={{ backgroundColor: '#FFF8F0' }}>
+    <section id="packages" className="py-24 lg:py-32 bg-white">
       <div className="section-container">
         {/* Header */}
         <div className="text-center mb-16">
@@ -97,18 +97,21 @@ const PackagesSection = () => {
             <div
               key={pkg.id}
               onClick={() => setSelected(pkg.id)}
-              className={`relative rounded-2xl md:rounded-3xl p-4 md:p-8 cursor-pointer transition-all duration-300 ${
+              className={`relative bg-card rounded-2xl md:rounded-3xl p-4 md:p-8 cursor-pointer transition-all duration-300 w-[430px] h-[380px] mx-auto ${
                 selected === pkg.id
-                  ? "bg-muted/50 border-2 border-primary"
-                  : "bg-muted/30 border border-border hover:border-primary/30"
+                  ? "border-2 border-primary shadow-sm"
+                  : "border border-border hover:border-primary/30 shadow-none"
               }`}
             >
               {/* Product Image */}
-              <div className="flex justify-center mb-4 md:mb-6">
+              <div 
+                className="flex justify-center items-center mb-6 py-6 rounded-2xl" 
+                style={{ backgroundColor: '#fdfbf7' }}
+              >
                 <img
                   src={pkg.image}
                   alt={pkg.name}
-                  className="h-28 sm:h-36 md:h-48 object-contain"
+                  className="h-32 sm:h-36 md:h-40 object-contain mix-blend-multiply"
                 />
               </div>
 
@@ -117,7 +120,7 @@ const PackagesSection = () => {
                 {packages.map((p) => (
                   <div
                     key={p.id}
-                    className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full transition-colors ${
+                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
                       p.id === pkg.id ? "bg-primary" : "bg-border"
                     }`}
                   />
@@ -126,9 +129,9 @@ const PackagesSection = () => {
 
               {/* Product Name */}
               <div className="text-center">
-                <h3 className="text-base md:text-xl font-bold text-foreground">{pkg.nameBn}</h3>
-                <p className="text-xs md:text-sm text-primary font-medium">{pkg.name}</p>
-                <p className="text-xs md:text-sm text-muted-foreground mt-1 italic">{pkg.tagline}</p>
+                <h3 className="text-lg font-bold text-foreground">{pkg.nameBn}</h3>
+                <p className="text-sm text-primary font-medium">{pkg.name}</p>
+                <p className="text-sm text-muted-foreground mt-1 italic">{pkg.tagline}</p>
               </div>
             </div>
           ))}
@@ -139,7 +142,7 @@ const PackagesSection = () => {
           {packages.map((pkg) => (
             <div key={pkg.id} className="text-center py-4">
               <span className="text-2xl md:text-4xl font-bold text-foreground">
-                ৳{pkg.price.toLocaleString()}
+                {pkg.price.toLocaleString()} BDT
               </span>
               <span className="text-muted-foreground text-xs md:text-sm ml-1">/ one-time</span>
               <div className="mt-3">
