@@ -12,9 +12,9 @@ import imgDoor from "@/assets/Accesories/door_sensor.jpeg";
 import imgSmoke from "@/assets/Accesories/fire_alarm.jpeg";
 import imgGas from "@/assets/Accesories/gas_sensor.jpeg";
 import imgMotion from "@/assets/Accesories/motion_sensor.jpeg";
-import imgSignal from "@/assets/Accesories/signal_extender.png";
+import imgSignal from "@/assets/Accesories/signal_extender.jpeg";
 import imgSos from "@/assets/Accesories/sos_band.jpeg";
-import imgSiren from "@/assets/Accesories/wireless_siren.png";
+import imgSiren from "@/assets/Accesories/wireless_siren.jpeg";
 import imgAiCamera from "@/assets/Accesories/ai_camera.jpeg";
 
 /* ─── Data ─── */
@@ -251,7 +251,7 @@ const Checkout = () => {
               আপনার ইমেইলে একটি কোটেশন পিডিএফ পাঠানো হয়েছে।
             </p>
             <p className="text-muted-foreground text-sm mb-8">
-              আমাদের টিম শিগগিরই আপনার সাথে যোগাযোগ করবে 
+              আমাদের টিম শিগগিরই আপনার সাথে যোগাযোগ করবে
               অর্ডার নিশ্চিত করতে এবং ডেলিভারি নির্ধারণ করতে।
             </p>
 
@@ -322,11 +322,10 @@ const Checkout = () => {
                 <button
                   key={ed.id}
                   onClick={() => setSelectedEdition(ed.id)}
-                  className={`w-14 h-14 md:w-16 md:h-16 rounded-lg border-2 overflow-hidden flex items-center justify-center p-1.5 transition-colors ${
-                    selectedEdition === ed.id
-                      ? "border-primary bg-muted/50"
-                      : "border-border bg-card hover:border-primary/30"
-                  }`}
+                  className={`w-14 h-14 md:w-16 md:h-16 rounded-lg border-2 overflow-hidden flex items-center justify-center p-1.5 transition-colors ${selectedEdition === ed.id
+                    ? "border-primary bg-muted/50"
+                    : "border-border bg-card hover:border-primary/30"
+                    }`}
                 >
                   <img
                     src={ed.image}
@@ -352,11 +351,10 @@ const Checkout = () => {
                     key={ed.id}
                     onClick={() => setSelectedEdition(ed.id)}
                     disabled={submitStatus === "loading"}
-                    className={`w-full text-left rounded-xl p-4 border-2 transition-all ${
-                      selectedEdition === ed.id
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/30"
-                    } disabled:opacity-60`}
+                    className={`w-full text-left rounded-xl p-4 border-2 transition-all ${selectedEdition === ed.id
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/30"
+                      } disabled:opacity-60`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
@@ -401,17 +399,16 @@ const Checkout = () => {
                       key={addon.id}
                       onClick={() => toggleAddon(addon.id)}
                       disabled={submitStatus === "loading"}
-                      className={`relative rounded-xl p-3 text-center transition-all duration-200 ${
-                        isSelected
-                          ? "bg-primary/10 border-2 border-primary"
-                          : "bg-muted/30 border border-border hover:border-primary/30"
-                      } disabled:opacity-60`}
+                      className={`relative rounded-xl p-3 text-center transition-all duration-200 ${isSelected
+                        ? "bg-primary/10 border-2 border-primary"
+                        : "bg-muted/30 border border-border hover:border-primary/30"
+                        } disabled:opacity-60`}
                     >
                       <div className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-2 bg-white rounded-lg shadow-sm flex items-center justify-center p-1.5 overflow-hidden">
-                        <img 
-                          src={addon.image} 
-                          alt={addon.nameBn} 
-                          className="max-w-full max-h-full object-contain mix-blend-multiply" 
+                        <img
+                          src={addon.image}
+                          alt={addon.nameBn}
+                          className="max-w-full max-h-full object-contain mix-blend-multiply"
                         />
                       </div>
                       <p className="text-[10px] md:text-xs font-medium leading-tight text-foreground">
@@ -447,16 +444,14 @@ const Checkout = () => {
                 <button
                   onClick={() => setPaymentMethod("online")}
                   disabled={submitStatus === "loading"}
-                  className={`w-full flex items-center justify-between rounded-xl p-4 border-2 transition-all ${
-                    paymentMethod === "online"
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/30"
-                  } disabled:opacity-60`}
+                  className={`w-full flex items-center justify-between rounded-xl p-4 border-2 transition-all ${paymentMethod === "online"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/30"
+                    } disabled:opacity-60`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                      paymentMethod === "online" ? "border-primary" : "border-muted-foreground"
-                    }`}>
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${paymentMethod === "online" ? "border-primary" : "border-muted-foreground"
+                      }`}>
                       {paymentMethod === "online" && (
                         <div className="w-2 h-2 rounded-full bg-primary" />
                       )}
@@ -474,16 +469,14 @@ const Checkout = () => {
                 <button
                   onClick={() => setPaymentMethod("cod")}
                   disabled={submitStatus === "loading"}
-                  className={`w-full flex items-center justify-between rounded-xl p-4 border-2 transition-all ${
-                    paymentMethod === "cod"
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/30"
-                  } disabled:opacity-60`}
+                  className={`w-full flex items-center justify-between rounded-xl p-4 border-2 transition-all ${paymentMethod === "cod"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/30"
+                    } disabled:opacity-60`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                      paymentMethod === "cod" ? "border-primary" : "border-muted-foreground"
-                    }`}>
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${paymentMethod === "cod" ? "border-primary" : "border-muted-foreground"
+                      }`}>
                       {paymentMethod === "cod" && (
                         <div className="w-2 h-2 rounded-full bg-primary" />
                       )}

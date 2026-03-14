@@ -61,7 +61,8 @@ if (file_exists($envFile)) {
     foreach ($lines as $line) {
         $line = trim($line);
         // Compatible with PHP < 8.0 (replaces str_starts_with)
-        if ($line === '' || strpos($line, '#') === 0) continue;
+        if ($line === '' || strpos($line, '#') === 0)
+            continue;
         // Compatible with PHP < 8.0 (replaces str_contains)
         if (strpos($line, '=') !== false) {
             [$key, $value] = explode('=', $line, 2);
@@ -87,18 +88,18 @@ if (!$input) {
     exit;
 }
 
-$edition       = $input['edition'] ?? null;
-$addons        = $input['addons'] ?? [];
+$edition = $input['edition'] ?? null;
+$addons = $input['addons'] ?? [];
 $paymentMethod = $input['paymentMethod'] ?? 'online';
-$deliveryFee   = intval($input['deliveryFee'] ?? 0);
-$total         = intval($input['total'] ?? 0);
-$customer      = $input['customer'] ?? [];
+$deliveryFee = intval($input['deliveryFee'] ?? 0);
+$total = intval($input['total'] ?? 0);
+$customer = $input['customer'] ?? [];
 
-$customerName    = trim($customer['name'] ?? '');
-$customerPhone   = trim($customer['phone'] ?? '');
-$customerEmail   = trim($customer['email'] ?? '');
+$customerName = trim($customer['name'] ?? '');
+$customerPhone = trim($customer['phone'] ?? '');
+$customerEmail = trim($customer['email'] ?? '');
 $customerAddress = trim($customer['address'] ?? '');
-$customerNote    = trim($customer['note'] ?? '');
+$customerNote = trim($customer['note'] ?? '');
 
 if (!$edition || !$customerName || !$customerPhone || !$customerAddress) {
     http_response_code(400);
@@ -115,16 +116,16 @@ $assetsDir = __DIR__ . '/assets';
 $imageMap = [
     'sp01' => $assetsDir . '/Sp1.png',
     'sp05' => $assetsDir . '/panel-product.png',
-    '1'    => $assetsDir . '/Accesories/shutter sensor.jpeg',
-    '2'    => $assetsDir . '/Accesories/vivration_sensor.jpeg',
-    '3'    => $assetsDir . '/Accesories/door_sensor.jpeg',
-    '4'    => $assetsDir . '/Accesories/fire_alarm.jpeg',
-    '5'    => $assetsDir . '/Accesories/gas_sensor.jpeg',
-    '6'    => $assetsDir . '/Accesories/motion_sensor.jpeg',
-    '7'    => $assetsDir . '/Accesories/signal_extender.png',
-    '8'    => $assetsDir . '/Accesories/sos_band.jpeg',
-    '9'    => $assetsDir . '/Accesories/wireless_siren.png',
-    '10'   => $assetsDir . '/Accesories/ai_camera.jpeg',
+    '1' => $assetsDir . '/Accesories/shutter sensor.jpeg',
+    '2' => $assetsDir . '/Accesories/vivration_sensor.jpeg',
+    '3' => $assetsDir . '/Accesories/door_sensor.jpeg',
+    '4' => $assetsDir . '/Accesories/fire_alarm.jpeg',
+    '5' => $assetsDir . '/Accesories/gas_sensor.jpeg',
+    '6' => $assetsDir . '/Accesories/motion_sensor.jpeg',
+    '7' => $assetsDir . '/Accesories/signal_extender.jpeg',
+    '8' => $assetsDir . '/Accesories/sos_band.jpeg',
+    '9' => $assetsDir . '/Accesories/wireless_siren.jpeg',
+    '10' => $assetsDir . '/Accesories/ai_camera.jpeg',
 ];
 
 $logoPath = $assetsDir . '/logo-with-icon.png';
@@ -132,21 +133,23 @@ $logoPath = $assetsDir . '/logo-with-icon.png';
 /* ══════════════════════════════════════════════════════════════════
    5. ORDER META
    ══════════════════════════════════════════════════════════════════ */
-$orderId   = 'SP-' . date('Ymd') . '-' . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
+$orderId = 'SP-' . date('Ymd') . '-' . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
 $orderDate = date('d M Y, h:i A');
 $editionPrice = intval($edition['price'] ?? 0);
-$addonTotal   = array_reduce($addons, fn($sum, $a) => $sum + intval($a['price'] ?? 0), 0);
+$addonTotal = array_reduce($addons, fn($sum, $a) => $sum + intval($a['price'] ?? 0), 0);
 
 /* ══════════════════════════════════════════════════════════════════
    6. GENERATE PDF QUOTATION
    ══════════════════════════════════════════════════════════════════ */
 
-class SOHUBQuotation extends TCPDF {
+class SOHUBQuotation extends TCPDF
+{
     public string $logoPath = '';
     public string $orderId = '';
     public string $orderDate = '';
 
-    public function Header() {
+    public function Header()
+    {
         // Blue header bar
         $this->SetFillColor(24, 144, 255);
         $this->Rect(0, 0, 210, 38, 'F');
@@ -178,7 +181,8 @@ class SOHUBQuotation extends TCPDF {
         $this->SetY(42);
     }
 
-    public function Footer() {
+    public function Footer()
+    {
         $this->SetY(-30);
 
         // Divider
@@ -203,8 +207,8 @@ class SOHUBQuotation extends TCPDF {
 }
 
 $pdf = new SOHUBQuotation('P', 'mm', 'A4', true, 'UTF-8');
-$pdf->logoPath  = $logoPath;
-$pdf->orderId   = $orderId;
+$pdf->logoPath = $logoPath;
+$pdf->orderId = $orderId;
 $pdf->orderDate = $orderDate;
 
 $pdf->SetCreator('SOHUB Protect');
@@ -642,13 +646,13 @@ try {
 
     // SMTP Configuration
     $mail->isSMTP();
-    $mail->Host       = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
-    $mail->SMTPAuth   = true;
-    $mail->Username   = $_ENV['SMTP_USER'] ?? '';
-    $mail->Password   = $_ENV['SMTP_PASS'] ?? '';
+    $mail->Host = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
+    $mail->SMTPAuth = true;
+    $mail->Username = $_ENV['SMTP_USER'] ?? '';
+    $mail->Password = $_ENV['SMTP_PASS'] ?? '';
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = intval($_ENV['SMTP_PORT'] ?? 587);
-    $mail->CharSet    = 'UTF-8';
+    $mail->Port = intval($_ENV['SMTP_PORT'] ?? 587);
+    $mail->CharSet = 'UTF-8';
 
     // From
     $mail->setFrom($_ENV['SMTP_USER'], 'SOHUB Protect');
@@ -669,7 +673,7 @@ try {
 
     $mail->isHTML(true);
     $mail->Subject = "🛡️ New Order #{$orderId} — SOHUB Protect ({$edition['name']})";
-    $mail->Body    = $emailHtml;
+    $mail->Body = $emailHtml;
     $mail->AltBody = "New Order {$orderId}\nEdition: {$edition['name']}\nCustomer: {$customerName}\nPhone: {$customerPhone}\nTotal: {$total} BDT";
 
     $mail->send();
@@ -691,7 +695,7 @@ try {
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
-        'error'   => 'Failed to send order email',
+        'error' => 'Failed to send order email',
         'details' => $mail->ErrorInfo ?? $e->getMessage()
     ]);
 }

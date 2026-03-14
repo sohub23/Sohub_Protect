@@ -4,9 +4,9 @@ import imgDoor from "@/assets/Accesories/door_sensor.jpeg";
 import imgSmoke from "@/assets/Accesories/fire_alarm.jpeg";
 import imgGas from "@/assets/Accesories/gas_sensor.jpeg";
 import imgMotion from "@/assets/Accesories/motion_sensor.jpeg";
-import imgSignal from "@/assets/Accesories/signal_extender.png";
+import imgSignal from "@/assets/Accesories/signal_extender.jpeg";
 import imgSos from "@/assets/Accesories/sos_band.jpeg";
-import imgSiren from "@/assets/Accesories/wireless_siren.png";
+import imgSiren from "@/assets/Accesories/wireless_siren.jpeg";
 import imgAiCamera from "@/assets/Accesories/ai_camera.jpeg";
 
 interface Addon {
@@ -54,10 +54,10 @@ const AddonsSection = () => {
               className="rounded-2xl p-4 text-center bg-card border border-border hover:border-primary/40 text-foreground shadow-sm hover:shadow-md transition-all"
             >
               <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-4 bg-white rounded-xl shadow-sm flex items-center justify-center p-2 overflow-hidden">
-                <img 
-                  src={addon.image} 
-                  alt={addon.nameBn} 
-                  className="max-w-full max-h-full object-contain mix-blend-multiply" 
+                <img
+                  src={addon.image}
+                  alt={addon.nameBn}
+                  className="max-w-full max-h-full object-contain mix-blend-multiply"
                 />
               </div>
               <p className="text-xs font-semibold leading-tight">{addon.nameBn}</p>

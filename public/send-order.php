@@ -28,7 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
    2. REQUIRE & LOAD
    ══════════════════════════════════════════════════════════════════ */
 $autoloadFile = __DIR__ . '/vendor/autoload.php';
-if (!file_exists($autoloadFile)) $autoloadFile = __DIR__ . '/api/vendor/autoload.php';
+if (!file_exists($autoloadFile))
+    $autoloadFile = __DIR__ . '/api/vendor/autoload.php';
 if (!file_exists($autoloadFile)) {
     http_response_code(500);
     echo json_encode(['error' => 'Dependency missing']);
@@ -41,44 +42,51 @@ use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 $envFile = __DIR__ . '/.env';
-if (!file_exists($envFile)) $envFile = __DIR__ . '/api/.env';
+if (!file_exists($envFile))
+    $envFile = __DIR__ . '/api/.env';
 
 if (file_exists($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         $line = trim($line);
-        if ($line === '' || strpos($line, '#') === 0) continue;
+        if ($line === '' || strpos($line, '#') === 0)
+            continue;
         if (strpos($line, '=') !== false) {
             [$key, $value] = explode('=', $line, 2);
             $_ENV[trim($key)] = trim($value);
         }
     }
 }
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') exit;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST')
+    exit;
 
 /* ══════════════════════════════════════════════════════════════════
    3. PARSE REQUEST
    ══════════════════════════════════════════════════════════════════ */
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) {
-    http_response_code(400); echo json_encode(['error' => 'Invalid JSON']); exit;
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid JSON']);
+    exit;
 }
 
-$edition       = $input['edition'] ?? null;
-$addons        = $input['addons'] ?? [];
+$edition = $input['edition'] ?? null;
+$addons = $input['addons'] ?? [];
 $paymentMethod = $input['paymentMethod'] ?? 'online';
-$deliveryFee   = intval($input['deliveryFee'] ?? 0);
-$total         = intval($input['total'] ?? 0);
-$customer      = $input['customer'] ?? [];
+$deliveryFee = intval($input['deliveryFee'] ?? 0);
+$total = intval($input['total'] ?? 0);
+$customer = $input['customer'] ?? [];
 
-$customerName    = trim($customer['name'] ?? '');
-$customerPhone   = trim($customer['phone'] ?? '');
-$customerEmail   = trim($customer['email'] ?? '');
+$customerName = trim($customer['name'] ?? '');
+$customerPhone = trim($customer['phone'] ?? '');
+$customerEmail = trim($customer['email'] ?? '');
 $customerAddress = trim($customer['address'] ?? '');
-$customerNote    = trim($customer['note'] ?? '');
+$customerNote = trim($customer['note'] ?? '');
 
 if (!$edition || !$customerName || !$customerPhone || !$customerAddress) {
-    http_response_code(400); echo json_encode(['error' => 'Missing fields']); exit;
+    http_response_code(400);
+    echo json_encode(['error' => 'Missing fields']);
+    exit;
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -93,34 +101,36 @@ if (!is_dir($assetsPath)) {
 $imageMap = [
     'sp01' => $assetsPath . '/Sp1.png',
     'sp05' => $assetsPath . '/panel-product.png',
-    '1'    => $assetsPath . '/Accesories/shutter sensor.jpeg',
-    '2'    => $assetsPath . '/Accesories/vivration_sensor.jpeg',
-    '3'    => $assetsPath . '/Accesories/door_sensor.jpeg',
-    '4'    => $assetsPath . '/Accesories/fire_alarm.jpeg',
-    '5'    => $assetsPath . '/Accesories/gas_sensor.jpeg',
-    '6'    => $assetsPath . '/Accesories/motion_sensor.jpeg',
-    '7'    => $assetsPath . '/Accesories/signal_extender.png',
-    '8'    => $assetsPath . '/Accesories/sos_band.jpeg',
-    '9'    => $assetsPath . '/Accesories/wireless_siren.png',
-    '10'   => $assetsPath . '/Accesories/ai_camera.jpeg',
+    '1' => $assetsPath . '/Accesories/shutter sensor.jpeg',
+    '2' => $assetsPath . '/Accesories/vivration_sensor.jpeg',
+    '3' => $assetsPath . '/Accesories/door_sensor.jpeg',
+    '4' => $assetsPath . '/Accesories/fire_alarm.jpeg',
+    '5' => $assetsPath . '/Accesories/gas_sensor.jpeg',
+    '6' => $assetsPath . '/Accesories/motion_sensor.jpeg',
+    '7' => $assetsPath . '/Accesories/signal_extender.jpeg',
+    '8' => $assetsPath . '/Accesories/sos_band.jpeg',
+    '9' => $assetsPath . '/Accesories/wireless_siren.jpeg',
+    '10' => $assetsPath . '/Accesories/ai_camera.jpeg',
 ];
 
 $logoPath = $assetsPath . '/logo-with-icon.png';
 $emailLogoUrl = $rootUrl . '/api-assets/logo-with-icon.png';
 
-$orderId   = 'SP-' . date('Ymd') . '-' . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
+$orderId = 'SP-' . date('Ymd') . '-' . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
 $orderDate = date('d M Y, h:i A');
 $editionPrice = intval($edition['price'] ?? 0);
-$addonTotal   = array_reduce($addons, fn($sum, $a) => $sum + intval($a['price'] ?? 0), 0);
+$addonTotal = array_reduce($addons, fn($sum, $a) => $sum + intval($a['price'] ?? 0), 0);
 
 
 /**
  * Helper: Converts Interlaced/Alpha PNGs to standard JPGs which TCPDF NEVER chokes on.
  */
-function getSafePdfImage($origPath, $isLogo = false) {
-    if (!$origPath || !file_exists($origPath)) return '';
+function getSafePdfImage($origPath, $isLogo = false)
+{
+    if (!$origPath || !file_exists($origPath))
+        return '';
     $ext = strtolower(pathinfo($origPath, PATHINFO_EXTENSION));
-    
+
     if ($ext === 'png' && function_exists('imagecreatefrompng')) {
         $tmp = sys_get_temp_dir() . '/tcpdf_' . ($isLogo ? 'logo_' : 'item_') . md5($origPath) . '.jpg';
         if (!file_exists($tmp)) {
@@ -142,7 +152,8 @@ function getSafePdfImage($origPath, $isLogo = false) {
                 imagedestroy($img);
             }
         }
-        if (file_exists($tmp)) return $tmp;
+        if (file_exists($tmp))
+            return $tmp;
     }
     return $origPath;
 }
@@ -150,19 +161,21 @@ function getSafePdfImage($origPath, $isLogo = false) {
 /* ══════════════════════════════════════════════════════════════════
    5. PDF GENERATION
    ══════════════════════════════════════════════════════════════════ */
-class SOHUBQuotation extends TCPDF {
+class SOHUBQuotation extends TCPDF
+{
     public string $logoPath = '';
     public string $orderId = '';
     public string $orderDate = '';
 
-    public function Header() {
+    public function Header()
+    {
         $this->SetFillColor(24, 144, 255);
         $this->Rect(0, 0, 210, 38, 'F');
 
         $safeLogo = getSafePdfImage($this->logoPath, true);
         if ($safeLogo && file_exists($safeLogo)) {
             // Embed perfectly processed safe JPG for logo!
-            $this->Image($safeLogo, 15, 6, 45); 
+            $this->Image($safeLogo, 15, 6, 45);
         }
 
         $this->SetFont('dejavusans', 'B', 20); // Better Bengali fallback
@@ -183,7 +196,8 @@ class SOHUBQuotation extends TCPDF {
         $this->SetY(42);
     }
 
-    public function Footer() {
+    public function Footer()
+    {
         $this->SetY(-30);
         $this->SetDrawColor(24, 144, 255);
         $this->SetLineWidth(0.3);
@@ -203,8 +217,8 @@ class SOHUBQuotation extends TCPDF {
 }
 
 $pdf = new SOHUBQuotation('P', 'mm', 'A4', true, 'UTF-8', false);
-$pdf->logoPath  = $logoPath;
-$pdf->orderId   = $orderId;
+$pdf->logoPath = $logoPath;
+$pdf->orderId = $orderId;
 $pdf->orderDate = $orderDate;
 $pdf->SetMargins(15, 45, 15);
 $pdf->SetAutoPageBreak(true, 35);
@@ -258,7 +272,7 @@ EOD;
 
 // Edition
 $edImg = getSafePdfImage($imageMap[$edition['id']] ?? '');
-$edImgTag = ($edImg && file_exists($edImg)) ? '<img src="'.$edImg.'" width="55" />' : '';
+$edImgTag = ($edImg && file_exists($edImg)) ? '<img src="' . $edImg . '" width="55" />' : '';
 $edNameStr = $edition['nameBn'] ?? $edition['name'];
 $edEngStr = $edition['name'];
 $edPriceF = number_format($editionPrice) . ' BDT';
@@ -275,7 +289,7 @@ EOD;
 // Accessories
 foreach ($addons as $addon) {
     $adImg = getSafePdfImage($imageMap[$addon['id']] ?? '');
-    $adImgTag = ($adImg && file_exists($adImg)) ? '<img src="'.$adImg.'" width="45" />' : '';
+    $adImgTag = ($adImg && file_exists($adImg)) ? '<img src="' . $adImg . '" width="45" />' : '';
     $adNameStr = $addon['nameBn'] ?? $addon['name'];
     $adEngStr = $addon['name'];
     $adPriceF = number_format($addon['price']) . ' BDT';
@@ -513,13 +527,13 @@ HTML;
 try {
     $mail = new PHPMailer(true);
     $mail->isSMTP();
-    $mail->Host       = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
-    $mail->SMTPAuth   = true;
-    $mail->Username   = $_ENV['SMTP_USER'] ?? '';
-    $mail->Password   = $_ENV['SMTP_PASS'] ?? '';
+    $mail->Host = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
+    $mail->SMTPAuth = true;
+    $mail->Username = $_ENV['SMTP_USER'] ?? '';
+    $mail->Password = $_ENV['SMTP_PASS'] ?? '';
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = intval($_ENV['SMTP_PORT'] ?? 587);
-    $mail->CharSet    = 'UTF-8';
+    $mail->Port = intval($_ENV['SMTP_PORT'] ?? 587);
+    $mail->CharSet = 'UTF-8';
 
     $mail->setFrom($_ENV['SMTP_USER'], 'SOHUB Protect');
     $mail->addReplyTo('hello@sohub.com.bd', 'SOHUB Protect');
@@ -530,7 +544,7 @@ try {
     $mail->addAddress($_ENV['ADMIN_EMAIL'] ?? 'hello@sohub.com.bd');
     $mail->isHTML(true);
     $mail->Subject = "🚨 [NEW ORDER] #{$orderId} from {$customerName}";
-    $mail->Body    = $adminEmailHtml;
+    $mail->Body = $adminEmailHtml;
     $mail->addStringAttachment($pdfContent, $pdfName, 'base64', 'application/pdf');
     $mail->send();
 
@@ -540,7 +554,7 @@ try {
         // Since we didn't clear attachments, the PDF stays attached! No extra logo attachment anymore!
         $mail->addAddress($customerEmail, $customerName);
         $mail->Subject = "🛡️ Order Confirmation #{$orderId} — SOHUB Protect";
-        $mail->Body    = $emailHtml;
+        $mail->Body = $emailHtml;
         $mail->send();
     }
 

@@ -9,8 +9,8 @@ import {
 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import panelImage from "@/assets/panel-product.png";
-import hero2Image from "@/assets/afford_trans.png";
-import proNewImage from "@/assets/pro_trans.png";
+import hero2Image from "@/assets/afford_trans.jpeg";
+import proNewImage from "@/assets/pro_trans.jpeg";
 import howDevicesImage from "@/assets/how-devices.png";
 import imgShutter from "@/assets/Accesories/shutter sensor.jpeg";
 import imgVibration from "@/assets/Accesories/vivration_sensor.jpeg";
@@ -18,9 +18,9 @@ import imgDoor from "@/assets/Accesories/door_sensor.jpeg";
 import imgSmoke from "@/assets/Accesories/fire_alarm.jpeg";
 import imgGas from "@/assets/Accesories/gas_sensor.jpeg";
 import imgMotion from "@/assets/Accesories/motion_sensor.jpeg";
-import imgSignal from "@/assets/Accesories/signal_extender.png";
+import imgSignal from "@/assets/Accesories/signal_extender.jpeg";
 import imgSos from "@/assets/Accesories/sos_band.jpeg";
-import imgSiren from "@/assets/Accesories/wireless_siren.png";
+import imgSiren from "@/assets/Accesories/wireless_siren.jpeg";
 import imgAiCamera from "@/assets/Accesories/ai_camera.jpeg";
 
 /* ─── Data ─── */
@@ -268,8 +268,8 @@ const OrderSection = () => {
                     key={ed.id}
                     onClick={() => setSelectedEdition(ed.id)}
                     className={`w-14 h-14 md:w-16 md:h-16 rounded-lg border-2 overflow-hidden flex items-center justify-center p-1.5 transition-colors ${selectedEdition === ed.id
-                        ? "border-primary bg-muted/50"
-                        : "border-border bg-card hover:border-primary/30"
+                      ? "border-primary bg-muted/50"
+                      : "border-border bg-card hover:border-primary/30"
                       }`}
                   >
                     <img src={ed.image} alt={ed.name} className="h-full object-contain" />
@@ -292,8 +292,8 @@ const OrderSection = () => {
                       onClick={() => setSelectedEdition(ed.id)}
                       disabled={submitStatus === "loading"}
                       className={`w-full text-left rounded-xl p-3.5 border-2 transition-all ${selectedEdition === ed.id
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/30"
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/30"
                         } disabled:opacity-60`}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -333,8 +333,8 @@ const OrderSection = () => {
                         onClick={() => toggleAddon(addon.id)}
                         disabled={submitStatus === "loading"}
                         className={`relative rounded-xl p-2.5 text-center transition-all ${sel
-                            ? "bg-primary/10 border-2 border-primary"
-                            : "bg-muted/30 border border-border hover:border-primary/30"
+                          ? "bg-primary/10 border-2 border-primary"
+                          : "bg-muted/30 border border-border hover:border-primary/30"
                           } disabled:opacity-60`}
                       >
                         <div className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2 bg-white rounded-lg shadow-sm flex items-center justify-center p-1.5 overflow-hidden">

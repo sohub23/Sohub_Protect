@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import panelImage from "@/assets/panel-product.png";
-import hero2Image from "@/assets/afford_trans.png";
-import proNewImage from "@/assets/pro_trans.png";
+import hero2Image from "@/assets/afford_trans.jpeg";
+import proNewImage from "@/assets/pro_trans.jpeg";
 import howDevicesImage from "@/assets/how-devices.png";
 import { Check, ChevronRight, Wifi, Signal, Shield, Smartphone, Radio, Battery, X } from "lucide-react";
 import specImage from "@/assets/spec.png";
