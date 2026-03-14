@@ -5,19 +5,56 @@
  * via PHPMailer with the PDF attached.
  */
 
-require __DIR__ . '/vendor/autoload.php';
+/* ══════════════════════════════════════════════════════════════════
+   1. HEADERS & ERROR HANDLING
+   ══════════════════════════════════════════════════════════════════ */
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// Disable error display to prevent breaking JSON output with warnings/errors
+error_reporting(0);
+ini_set('display_errors', 0);
+
+// PING TEST for debugging
+if (isset($_GET['test'])) {
+    echo json_encode([
+        'success' => true,
+        'message' => 'PHP is working correctly on your server.',
+        'php_version' => PHP_VERSION,
+        'vendor_exists' => file_exists(__DIR__ . '/vendor/autoload.php'),
+        'env_exists' => file_exists(__DIR__ . '/.env')
+    ]);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   2. CHECK REQUIRED FILES
+   ══════════════════════════════════════════════════════════════════ */
+$autoloadFile = __DIR__ . '/vendor/autoload.php';
+if (!file_exists($autoloadFile)) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Backend configuration error: PHPMailer or TCPDF is not installed. Please ensure the "vendor" folder is uploaded inside the "api" directory.'
+    ]);
+    exit;
+}
+require $autoloadFile;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 /* ══════════════════════════════════════════════════════════════════
-   1. LOAD .env & ERROR HANDLING
+   3. LOAD .env
    ══════════════════════════════════════════════════════════════════ */
-// Disable error display to prevent breaking JSON output with warnings/errors
-error_reporting(0);
-ini_set('display_errors', 0);
-
 $envFile = __DIR__ . '/.env';
 if (file_exists($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -33,18 +70,6 @@ if (file_exists($envFile)) {
     }
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   2. CORS + METHOD CHECK
-   ══════════════════════════════════════════════════════════════════ */
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-}
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
@@ -52,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   3. PARSE & VALIDATE REQUEST
+   4. PARSE & VALIDATE REQUEST
    ══════════════════════════════════════════════════════════════════ */
 $input = json_decode(file_get_contents('php://input'), true);
 
@@ -82,9 +107,10 @@ if (!$edition || !$customerName || !$customerPhone || !$customerAddress) {
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   4. PRODUCT IMAGE MAPPING (for PDF)
+   5. PRODUCT IMAGE MAPPING (for PDF)
    ══════════════════════════════════════════════════════════════════ */
-$assetsDir = realpath(__DIR__ . '/../src/assets') ?: (__DIR__ . '/../src/assets');
+// Assets are now stored inside api/assets to be self-contained for production
+$assetsDir = __DIR__ . '/assets';
 
 $imageMap = [
     'sp01' => $assetsDir . '/Sp1.png',
