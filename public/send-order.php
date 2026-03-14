@@ -1,6 +1,7 @@
 <?php
 /**
- * SOHUB Protect — Order API (Refined Version)
+ * SOHUB Protect — Order API 
+ * Fixes for Email Structure, PDF Multipage Table Grid + Logo + Images
  */
 
 /* ══════════════════════════════════════════════════════════════════
@@ -14,40 +15,23 @@ header('Access-Control-Allow-Headers: Content-Type');
 error_reporting(0);
 ini_set('display_errors', 0);
 
-// PING TEST for debugging
 if (isset($_GET['test'])) {
-    $vExists = file_exists(__DIR__ . '/vendor/autoload.php') || file_exists(__DIR__ . '/api/vendor/autoload.php');
-    $eExists = file_exists(__DIR__ . '/.env') || file_exists(__DIR__ . '/api/.env');
-    echo json_encode([
-        'success' => true,
-        'message' => 'PHP is working correctly on your server.',
-        'php_version' => PHP_VERSION,
-        'vendor_exists' => $vExists,
-        'env_exists' => $eExists,
-        'script_location' => __DIR__
-    ]);
+    echo json_encode(['success' => true, 'message' => 'PHP OK']);
     exit;
 }
-
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   2. CHECK REQUIRED FILES
+   2. REQUIRE & LOAD
    ══════════════════════════════════════════════════════════════════ */
 $autoloadFile = __DIR__ . '/vendor/autoload.php';
-if (!file_exists($autoloadFile)) {
-    $autoloadFile = __DIR__ . '/api/vendor/autoload.php';
-}
-
+if (!file_exists($autoloadFile)) $autoloadFile = __DIR__ . '/api/vendor/autoload.php';
 if (!file_exists($autoloadFile)) {
     http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Backend configuration error: PHPMailer or TCPDF is not installed.'
-    ]);
+    echo json_encode(['error' => 'Dependency missing']);
     exit;
 }
 require $autoloadFile;
@@ -56,13 +40,8 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-/* ══════════════════════════════════════════════════════════════════
-   3. LOAD .env
-   ══════════════════════════════════════════════════════════════════ */
 $envFile = __DIR__ . '/.env';
-if (!file_exists($envFile)) {
-    $envFile = __DIR__ . '/api/.env';
-}
+if (!file_exists($envFile)) $envFile = __DIR__ . '/api/.env';
 
 if (file_exists($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -75,20 +54,14 @@ if (file_exists($envFile)) {
         }
     }
 }
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    exit;
-}
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') exit;
 
 /* ══════════════════════════════════════════════════════════════════
-   4. PARSE & VALIDATE REQUEST
+   3. PARSE REQUEST
    ══════════════════════════════════════════════════════════════════ */
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid JSON body']);
-    exit;
+    http_response_code(400); echo json_encode(['error' => 'Invalid JSON']); exit;
 }
 
 $edition       = $input['edition'] ?? null;
@@ -105,21 +78,18 @@ $customerAddress = trim($customer['address'] ?? '');
 $customerNote    = trim($customer['note'] ?? '');
 
 if (!$edition || !$customerName || !$customerPhone || !$customerAddress) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Missing fields']);
-    exit;
+    http_response_code(400); echo json_encode(['error' => 'Missing fields']); exit;
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   5. ASSETS PATH MAPPING
+   4. ASSETS
    ══════════════════════════════════════════════════════════════════ */
-$rootUrl = 'https://protect.sohub.com.bd'; // For email logo visibility
+$rootUrl = 'https://protect.sohub.com.bd';
 $assetsPath = __DIR__ . '/api-assets';
 if (!is_dir($assetsPath)) {
     $assetsPath = __DIR__ . '/api/assets';
 }
 
-// Absolute paths for TCPDF (PDF generation)
 $imageMap = [
     'sp01' => $assetsPath . '/Sp1.png',
     'sp05' => $assetsPath . '/panel-product.png',
@@ -136,12 +106,16 @@ $imageMap = [
 ];
 
 $logoPath = $assetsPath . '/logo-with-icon.png';
-$emailLogoUrl = $rootUrl . '/api-assets/logo-with-icon.png'; // Public URL for better email support
+$emailLogoUrl = $rootUrl . '/api-assets/logo-with-icon.png';
+
+$orderId   = 'SP-' . date('Ymd') . '-' . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
+$orderDate = date('d M Y, h:i A');
+$editionPrice = intval($edition['price'] ?? 0);
+$addonTotal   = array_reduce($addons, fn($sum, $a) => $sum + intval($a['price'] ?? 0), 0);
 
 /* ══════════════════════════════════════════════════════════════════
-   6. PDF GENERATION (TCPDF)
+   5. PDF GENERATION
    ══════════════════════════════════════════════════════════════════ */
-
 class SOHUBQuotation extends TCPDF {
     public string $logoPath = '';
     public string $orderId = '';
@@ -151,11 +125,12 @@ class SOHUBQuotation extends TCPDF {
         $this->SetFillColor(24, 144, 255);
         $this->Rect(0, 0, 210, 38, 'F');
 
+        // Simple explicit call avoids passing explicit empty/null dimensions that crash PNG reading
         if (file_exists($this->logoPath)) {
-            $this->Image($this->logoPath, 15, 6, 45, 0, '', '', '', true, 300, '', false, false, 0);
+            $this->Image($this->logoPath, 15, 6, 45); 
         }
 
-        $this->SetFont('freeserif', 'B', 20); // Unicode support (Bangla)
+        $this->SetFont('freeserif', 'B', 20);
         $this->SetTextColor(255, 255, 255);
         $this->SetXY(100, 8);
         $this->Cell(95, 10, 'QUOTATION', 0, 0, 'R');
@@ -192,164 +167,311 @@ class SOHUBQuotation extends TCPDF {
     }
 }
 
-$orderId   = 'SP-' . date('Ymd') . '-' . mt_rand(1000, 9999);
-$orderDate = date('d M Y, h:i A');
-$editionPrice = intval($edition['price'] ?? 0);
-$addonTotal   = array_reduce($addons, fn($sum, $a) => $sum + intval($a['price'] ?? 0), 0);
-
-$pdf = new SOHUBQuotation('P', 'mm', 'A4', true, 'UTF-8');
+$pdf = new SOHUBQuotation('P', 'mm', 'A4', true, 'UTF-8', false);
 $pdf->logoPath  = $logoPath;
 $pdf->orderId   = $orderId;
 $pdf->orderDate = $orderDate;
-$pdf->SetMargins(15, 42, 15);
+$pdf->SetMargins(15, 45, 15);
 $pdf->SetAutoPageBreak(true, 35);
 $pdf->AddPage();
+$pdf->SetFont('freeserif', '', 10);
 
-// Customer Section
-$pdf->SetFont('freeserif', 'B', 12);
-$pdf->SetTextColor(24, 144, 255);
-$pdf->Cell(0, 8, 'Customer Information', 0, 1, 'L');
+$pmtMethodLabel = $paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery';
 
-$pdf->SetFillColor(245, 248, 255);
-$pdf->SetDrawColor(200, 220, 255);
-$startY = $pdf->GetY();
-$pdf->RoundedRect(15, $startY, 180, 28, 3, '1111', 'DF');
+// Build PDF using HTML table layout for guaranteed page-break resilience!
+$pdfHtml = <<<EOD
+<table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+        <td style="color: #1890ff; font-weight: bold; font-size: 14pt;">Customer Information</td>
+    </tr>
+</table>
+<br>
+<table width="100%" cellpadding="6" style="background-color: #f5f8ff; border: 1px solid #c8dcff;">
+    <tr>
+        <td width="15%" style="color: #666666;"><b>Name:</b></td>
+        <td width="35%">{$customerName}</td>
+        <td width="15%" style="color: #666666;"><b>Phone:</b></td>
+        <td width="35%">{$customerPhone}</td>
+    </tr>
+    <tr>
+        <td style="color: #666666;"><b>Email:</b></td>
+        <td>{$customerEmail}</td>
+        <td style="color: #666666;"><b>Payment:</b></td>
+        <td>{$pmtMethodLabel}</td>
+    </tr>
+    <tr>
+        <td style="color: #666666;"><b>Address:</b></td>
+        <td colspan="3">{$customerAddress}</td>
+    </tr>
+</table>
+<br><br>
 
-$pdf->SetXY(20, $startY + 3);
-$pdf->SetFont('freeserif', 'B', 8);
-$pdf->SetTextColor(100, 100, 100);
-$pdf->Cell(30, 5, 'Name:', 0, 0);
-$pdf->SetFont('freeserif', '', 9);
-$pdf->SetTextColor(30, 30, 30);
-$pdf->Cell(55, 5, $customerName, 0, 0);
-$pdf->SetFont('freeserif', 'B', 8);
-$pdf->Cell(30, 5, 'Phone:', 0, 0);
-$pdf->SetFont('freeserif', '', 9);
-$pdf->Cell(55, 5, $customerPhone, 0, 1);
+<table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+        <td style="color: #1890ff; font-weight: bold; font-size: 14pt;">Order Details</td>
+    </tr>
+</table>
+<br>
+<table width="100%" cellpadding="8" border="1" style="border-collapse: collapse; border-color: #e6e6e6;">
+    <tr style="background-color: #1890ff; color: #ffffff; font-weight: bold;">
+        <th width="15%" align="center">Image</th>
+        <th width="45%" align="left">Product</th>
+        <th width="20%" align="right">Unit Price</th>
+        <th width="20%" align="right">Total</th>
+    </tr>
+EOD;
 
-$pdf->SetX(20);
-$pdf->SetFont('freeserif', 'B', 8);
-$pdf->Cell(30, 5, 'Email:', 0, 0);
-$pdf->SetFont('freeserif', '', 9);
-$pdf->Cell(55, 5, $customerEmail ?: 'N/A', 0, 0);
-$pdf->SetFont('freeserif', 'B', 8);
-$pdf->Cell(30, 5, 'Payment:', 0, 0);
-$pdf->SetFont('freeserif', '', 9);
-$pdf->Cell(55, 5, $paymentMethod, 0, 1);
-
-$pdf->SetX(20);
-$pdf->SetFont('freeserif', 'B', 8);
-$pdf->Cell(30, 5, 'Address:', 0, 0);
-$pdf->SetFont('freeserif', '', 9);
-$pdf->MultiCell(140, 5, $customerAddress, 0, 'L');
-$pdf->SetY($startY + 32);
-
-// Order Table
-$pdf->SetFont('freeserif', 'B', 12);
-$pdf->SetTextColor(24, 144, 255);
-$pdf->Cell(0, 10, 'Order Details', 0, 1, 'L');
-
-$pdf->SetFillColor(24, 144, 255);
-$pdf->SetTextColor(255, 255, 255);
-$pdf->SetFont('freeserif', 'B', 9);
-$colWidths = [25, 80, 40, 35];
-$pdf->Cell($colWidths[0], 10, 'Image', 1, 0, 'C', true);
-$pdf->Cell($colWidths[1], 10, 'Product', 1, 0, 'L', true);
-$pdf->Cell($colWidths[2], 10, 'Unit Price', 1, 0, 'R', true);
-$pdf->Cell($colWidths[3], 10, 'Total', 1, 1, 'R', true);
-
-$pdf->SetTextColor(30, 30, 30);
-$pdf->SetFont('freeserif', '', 9);
-$pdf->SetFillColor(255, 255, 255);
-
-// Edition Row
-$rowY = $pdf->GetY();
-$rowH = 22;
 $edImg = $imageMap[$edition['id']] ?? '';
-if ($edImg && file_exists($edImg)) {
-    $pdf->Image($edImg, 17, $rowY + 2, 20, 18);
-}
-$pdf->SetXY(15, $rowY);
-$pdf->Cell($colWidths[0], $rowH, '', 1, 0, 'C');
-$pdf->Cell($colWidths[1], $rowH, ($edition['nameBn'] ?? $edition['name']), 1, 0, 'L');
-$pdf->Cell($colWidths[2], $rowH, number_format($editionPrice) . ' BDT', 1, 0, 'R');
-$pdf->Cell($colWidths[3], $rowH, number_format($editionPrice) . ' BDT', 1, 1, 'R');
+$edImgTag = ($edImg && file_exists($edImg)) ? '<img src="'.$edImg.'" width="55" />' : '';
+$edNameStr = $edition['nameBn'] ?? $edition['name'];
+$edEngStr = $edition['name'];
+$edPriceF = number_format($editionPrice) . ' BDT';
 
-// Addon Rows
+$pdfHtml .= <<<EOD
+    <tr>
+        <td width="15%" align="center">{$edImgTag}</td>
+        <td width="45%"><b>{$edNameStr}</b><br><span style="color: #666666; font-size: 8pt;">{$edEngStr}</span></td>
+        <td width="20%" align="right">{$edPriceF}</td>
+        <td width="20%" align="right"><b>{$edPriceF}</b></td>
+    </tr>
+EOD;
+
 foreach ($addons as $addon) {
-    $rowY = $pdf->GetY();
     $adImg = $imageMap[$addon['id']] ?? '';
-    if ($adImg && file_exists($adImg)) {
-        $pdf->Image($adImg, 17, $rowY + 2, 20, 14);
-    }
-    $pdf->SetXY(15, $rowY);
-    $pdf->Cell($colWidths[0], 18, '', 1, 0, 'C');
-    $pdf->Cell($colWidths[1], 18, ($addon['nameBn'] ?? $addon['name']), 1, 0, 'L');
-    $pdf->Cell($colWidths[2], 18, number_format($addon['price']) . ' BDT', 1, 0, 'R');
-    $pdf->Cell($colWidths[3], 18, number_format($addon['price']) . ' BDT', 1, 1, 'R');
+    $adImgTag = ($adImg && file_exists($adImg)) ? '<img src="'.$adImg.'" width="45" />' : '';
+    $adNameStr = $addon['nameBn'] ?? $addon['name'];
+    $adEngStr = $addon['name'];
+    $adPriceF = number_format($addon['price']) . ' BDT';
+
+    $pdfHtml .= <<<EOD
+    <tr>
+        <td align="center">{$adImgTag}</td>
+        <td><b>{$adNameStr}</b><br><span style="color: #666666; font-size: 8pt;">{$adEngStr}</span></td>
+        <td align="right">{$adPriceF}</td>
+        <td align="right"><b>{$adPriceF}</b></td>
+    </tr>
+EOD;
 }
 
-// Summary
-$pdf->Ln(5);
-$pdf->SetFont('freeserif', 'B', 12);
-$pdf->Cell(145, 10, 'Total Amount:', 0, 0, 'R');
-$pdf->SetTextColor(24, 144, 255);
-$pdf->Cell(35, 10, number_format($total) . ' BDT', 0, 1, 'R');
+$pdfHtml .= <<<EOD
+</table>
+<br>
+EOD;
 
+$dlvStr = $deliveryFee === 0 ? '<span style="color:#1890ff;">FREE</span>' : number_format($deliveryFee) . ' BDT';
+$subAddonsF = number_format($addonTotal) . ' BDT';
+$totStr = number_format($total) . ' BDT';
+$cnt = count($addons);
+
+$pdfHtml .= <<<EOD
+<table width="100%" cellpadding="5">
+    <tr>
+        <td width="70%" align="right">Edition:</td>
+        <td width="30%" align="right">{$edPriceF}</td>
+    </tr>
+EOD;
+
+if ($addonTotal > 0) {
+    $pdfHtml .= <<<EOD
+    <tr>
+        <td align="right">Accessories ({$cnt}):</td>
+        <td align="right">{$subAddonsF}</td>
+    </tr>
+EOD;
+}
+
+$pdfHtml .= <<<EOD
+    <tr>
+        <td align="right">Delivery:</td>
+        <td align="right">{$dlvStr}</td>
+    </tr>
+    <tr>
+        <td align="right"></td>
+        <td align="right"><hr color="#1890ff" /></td>
+    </tr>
+    <tr>
+        <td align="right"><b style="font-size:12pt; color:#1890ff;">Total:</b></td>
+        <td align="right"><b style="font-size:12pt;">{$totStr}</b></td>
+    </tr>
+</table>
+<br><br>
+
+<table width="100%" cellpadding="8" style="background-color: #f5f8ff; border: 1px solid #c8dcff; border-radius: 5px;">
+    <tr>
+        <td>
+            <b style="color: #1890ff; font-size: 11pt;">Terms & Conditions</b><br>
+            <span style="font-size: 8.5pt; color: #555555; line-height: 1.6;">
+            • All products come with 1 year manufacturer warranty.<br>
+            • No monthly subscription fee required.<br>
+            • Free technical support and consultation included.<br>
+            • Delivery within 3-5 business days across Bangladesh.<br>
+            • Prices are inclusive of all taxes.
+            </span>
+        </td>
+    </tr>
+</table>
+EOD;
+
+$pdf->writeHTML($pdfHtml, true, false, true, false, '');
 $pdfContent = $pdf->Output('', 'S');
 
 /* ══════════════════════════════════════════════════════════════════
-   7. EMAIL CONSTRUCTION
+   6. EMAIL TEMPLATES (Exact Match to Design)
    ══════════════════════════════════════════════════════════════════ */
 $addonRowsHtml = '';
 foreach ($addons as $addon) {
-    $an = htmlspecialchars($addon['nameBn'] ?? $addon['name'] ?? '');
     $ap = number_format(intval($addon['price'] ?? 0));
-    $addonRowsHtml .= "<tr><td style='padding:10px; border-bottom:1px solid #eee;'>{$an}</td><td style='padding:10px; border-bottom:1px solid #eee; text-align:right;'>{$ap} BDT</td></tr>";
+    $an = htmlspecialchars($addon['nameBn'] ?? $addon['name'] ?? '');
+    $aEn = htmlspecialchars($addon['name'] ?? '');
+    $addonRowsHtml .= "
+        <tr>
+            <td style='padding:12px 16px; border-bottom:1px solid #f0f0f0; color:#333; font-size:14px;'>
+                {$an} <span style='color:#999; font-size:12px;'>({$aEn})</span>
+            </td>
+            <td style='padding:12px 16px; border-bottom:1px solid #f0f0f0; color:#333; font-size:14px; text-align:right; font-weight:600;'>
+                {$ap} BDT
+            </td>
+        </tr>";
 }
+
+$editionNameHtml = htmlspecialchars($edition['nameBn'] ?? $edition['name'] ?? '');
+$paymentLabel = $paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery';
+$deliveryLabel = $deliveryFee === 0 ? '<span style="color:#1890ff; font-weight:700;">FREE</span>' : number_format($deliveryFee) . ' BDT';
 
 $emailHtml = <<<HTML
 <!DOCTYPE html>
 <html>
-<body style="font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px;">
-    <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid #ddd;">
-        <div style="background: #1890ff; padding: 30px; text-align: center;">
-            <img src="{$emailLogoUrl}" alt="SOHUB Protect" width="150" style="margin-bottom:15px;">
-            <h1 style="color: #fff; margin: 0; font-size: 24px;">Order Confirmation</h1>
-        </div>
-        <div style="padding: 30px;">
-            <p>Dear <b>{$customerName}</b>,</p>
-            <p>Thank you for choosing SOHUB Protect. Your quotation is attached below.</p>
-            <table width="100%" style="border-collapse: collapse; margin: 20px 0;">
-                <tr style="background: #f8faff;"><td style="padding:10px; border-bottom:1px solid #eee;"><b>{$edition['nameBn']}</b></td><td style="padding:10px; border-bottom:1px solid #eee; text-align:right;"><b>{$editionPrice} BDT</b></td></tr>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0; padding:0; background:#f4f6f9; font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9; padding:20px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%;">
+
+    <!-- HEADER -->
+    <tr>
+        <td style="background:#1890ff; padding:35px 30px 30px; text-align:center; border-radius:16px 16px 0 0;">
+            <img src="{$emailLogoUrl}" alt="SOHUB Protect" width="160" style="margin-bottom:15px; max-width:160px;">
+            <h1 style="color:#fff; margin:0 0 6px; font-size:24px; font-weight:700; letter-spacing:0.5px;">
+                Order Confirmation
+            </h1>
+            <p style="color:rgba(255,255,255,0.85); margin:0; font-size:14px;">
+                Thank you for choosing SOHUB Protect!
+            </p>
+        </td>
+    </tr>
+
+    <!-- ORDER ID BADGE -->
+    <tr>
+        <td style="background:#fff; padding:0; text-align:center;">
+            <div style="display:inline-block; background:#e6f7ff; border:2px solid #91d5ff; padding:10px 28px; border-radius:50px; margin-top:-18px; position:relative;">
+                <span style="color:#1890ff; font-weight:700; font-size:14px; letter-spacing:0.5px;">
+                    🛡️ {$orderId}
+                </span>
+            </div>
+        </td>
+    </tr>
+
+    <!-- BODY -->
+    <tr>
+        <td style="background:#fff; padding:25px 30px 30px;">
+            <p style="color:#333; margin:0 0 20px; font-size:15px;">Dear <b>{$customerName}</b>,</p>
+            <p style="color:#555; margin:0 0 25px; line-height:1.6; font-size:14px;">
+                We've received your order for the SOHUB Protect system. Your quotation is attached to this email as a PDF. Our team will contact you shortly on <b>{$customerPhone}</b> to confirm the details.
+            </p>
+
+            <!-- Order Details -->
+            <h3 style="color:#1890ff; margin:0 0 12px; font-size:15px; font-weight:700;">
+                📦 Order Summary
+            </h3>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8; border-radius:10px; overflow:hidden; margin-bottom:20px;">
+                <tr style="background:#1890ff;">
+                    <td style="padding:10px 16px; color:#fff; font-size:13px; font-weight:600;">Product</td>
+                    <td style="padding:10px 16px; color:#fff; font-size:13px; font-weight:600; text-align:right;">Price</td>
+                </tr>
+                <tr style="background:#f0f8ff;">
+                    <td style="padding:14px 16px; border-bottom:1px solid #e8e8e8;">
+                        <span style="color:#1890ff; font-weight:700; font-size:15px;">{$editionNameHtml}</span>
+                    </td>
+                    <td style="padding:14px 16px; border-bottom:1px solid #e8e8e8; text-align:right; font-weight:700; font-size:15px; color:#333;">
+                        {$editionPrice} BDT
+                    </td>
+                </tr>
                 {$addonRowsHtml}
-                <tr style="background: #e6f7ff;"><td style="padding:15px; font-size: 18px;"><b>Total</b></td><td style="padding:15px; font-size: 18px; text-align:right; color:#1890ff;"><b>{$total} BDT</b></td></tr>
+                <tr>
+                    <td style="padding:12px 16px; color:#666; font-size:13px;">Delivery</td>
+                    <td style="padding:12px 16px; font-size:13px; text-align:right; color:#333;">{$deliveryLabel}</td>
+                </tr>
+                <tr style="background:#f9fafb;">
+                    <td style="padding:15px 16px; color:#333; font-size:18px; font-weight:800;">Total Amount</td>
+                    <td style="padding:15px 16px; color:#1890ff; font-size:20px; font-weight:800; text-align:right;">{$total} BDT</td>
+                </tr>
             </table>
-            <p>Our team will contact you at <b>{$customerPhone}</b> soon.</p>
-        </div>
-    </div>
+
+            <!-- What's Next -->
+            <table width="100%" style="background:#e6f7ff; border-radius:12px; border:1px solid #91d5ff;" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td style="padding:20px 25px; text-align:center;">
+                        <h3 style="color:#1890ff; margin:0 0 8px; font-size:16px;">🚀 What's Next?</h3>
+                        <p style="color:#555; margin:0; font-size:13px; line-height:1.6;">
+                            Our executive will call you soon to schedule the installation.<br>
+                            Need help? Call us at <strong style="color:#1890ff;">09678-076482</strong>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+
+        </td>
+    </tr>
+
+    <!-- FOOTER -->
+    <tr>
+        <td style="background:#1a1a2e; padding:25px 30px; text-align:center; border-radius:0 0 16px 16px;">
+            <p style="color:rgba(255,255,255,0.7); margin:0 0 5px; font-size:13px; font-weight:600;">
+                Solution Hub Technologies (SOHUB)
+            </p>
+            <p style="color:rgba(255,255,255,0.45); margin:0 0 8px; font-size:11px;">
+                📞 09678-076482 &nbsp;|&nbsp; 🌐 sohubprotect.com.bd
+            </p>
+        </td>
+    </tr>
+</table>
+</td></tr>
+</table>
 </body>
 </html>
 HTML;
 
-$adminHtml = <<<HTML
+
+$adminEmailHtml = <<<HTML
 <!DOCTYPE html>
 <html>
-<body>
-    <div style="font-family: Arial; padding: 20px; border: 1px solid #eee;">
-        <h2 style="color: #1890ff;">New Order: #{$orderId}</h2>
-        <p><b>Customer:</b> {$customerName}</p>
-        <p><b>Phone:</b> {$customerPhone}</p>
-        <p><b>Address:</b> {$customerAddress}</p>
-        <p><b>Total:</b> {$total} BDT</p>
-        <p>Please find the attached quotation for details.</p>
+<body style="font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px;">
+    <div style="background: #fff; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 10px; border-top: 5px solid #1890ff;">
+        <h2 style="color: #1890ff; border-bottom: 1px solid #eee; padding-bottom: 10px;">🛡️ New Order Received</h2>
+        <p><strong>Order ID:</strong> {$orderId}</p>
+        <p><strong>Edition:</strong> {$edition['name']} ({$edition['nameBn']})</p>
+        <p><strong>Total Amount:</strong> <span style="font-size: 18px; color: #d44;">{$total} BDT</span></p>
+        <p><strong>Payment:</strong> {$paymentLabel}</p>
+        
+        <div style="background: #f8f8f8; padding: 15px; border-radius: 8px; margin-top: 15px;">
+            <h3 style="margin: 0 0 10px 0; color: #333;">👤 Customer Contact</h3>
+            <p style="margin: 5px 0;"><strong>Name:</strong> {$customerName}</p>
+            <p style="margin: 5px 0;"><strong>Phone:</strong> <a href="tel:{$customerPhone}" style="color:#1890ff; font-weight:bold;">{$customerPhone}</a></p>
+            <p style="margin: 5px 0;"><strong>Email:</strong> {$customerEmail}</p>
+            <p style="margin: 5px 0;"><strong>Address:</strong> {$customerAddress}</p>
+            <p style="margin: 5px 0;"><strong>Note:</strong> {$customerNote}</p>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #999;">This is an automated sales notification from SOHUB Protect Portal.</p>
     </div>
 </body>
 </html>
 HTML;
 
+
 /* ══════════════════════════════════════════════════════════════════
-   8. SEND EMAILS
+   7. SEND EMAILS
    ══════════════════════════════════════════════════════════════════ */
 try {
     $mail = new PHPMailer(true);
@@ -370,23 +492,23 @@ try {
     // ── ADMIN EMAIL ──
     $mail->addAddress($_ENV['ADMIN_EMAIL'] ?? 'hello@sohub.com.bd');
     $mail->isHTML(true);
-    $mail->Subject = "🚨 New Order Request #{$orderId}";
-    $mail->Body    = $adminHtml;
-    $mail->addStringAttachment($pdfContent, $pdfName);
+    $mail->Subject = "🚨 [NEW ORDER] #{$orderId} from {$customerName}";
+    $mail->Body    = $adminEmailHtml;
+    $mail->addStringAttachment($pdfContent, $pdfName, 'base64', 'application/pdf');
     $mail->send();
 
     // ── CUSTOMER EMAIL ──
     if ($customerEmail && filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
         $mail->clearAddresses();
-        // Attachment is already added, no need to clear/re-add unless we want different name
+        // Since we didn't clear attachments, the PDF stays attached! No extra logo attachment anymore!
         $mail->addAddress($customerEmail, $customerName);
         $mail->Subject = "🛡️ Order Confirmation #{$orderId} — SOHUB Protect";
         $mail->Body    = $emailHtml;
         $mail->send();
     }
 
-    echo json_encode(['success' => true, 'orderId' => $orderId]);
+    echo json_encode(['success' => true, 'orderId' => $orderId, 'message' => 'Order processed!']);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => $mail->ErrorInfo]);
+    echo json_encode(['error' => 'Mail error: ' . $mail->ErrorInfo]);
 }
