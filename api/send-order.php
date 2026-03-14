@@ -12,15 +12,21 @@ use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 /* ══════════════════════════════════════════════════════════════════
-   1. LOAD .env
+   1. LOAD .env & ERROR HANDLING
    ══════════════════════════════════════════════════════════════════ */
+// Disable error display to prevent breaking JSON output with warnings/errors
+error_reporting(0);
+ini_set('display_errors', 0);
+
 $envFile = __DIR__ . '/.env';
 if (file_exists($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         $line = trim($line);
-        if ($line === '' || str_starts_with($line, '#')) continue;
-        if (str_contains($line, '=')) {
+        // Compatible with PHP < 8.0 (replaces str_starts_with)
+        if ($line === '' || strpos($line, '#') === 0) continue;
+        // Compatible with PHP < 8.0 (replaces str_contains)
+        if (strpos($line, '=') !== false) {
             [$key, $value] = explode('=', $line, 2);
             $_ENV[trim($key)] = trim($value);
         }

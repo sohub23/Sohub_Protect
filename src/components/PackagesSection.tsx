@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import panelImage from "@/assets/panel-product.png";
-import cubeImage from "@/assets/Sp1.png";
+import hero2Image from "@/assets/afford_trans.png";
+import proNewImage from "@/assets/pro_trans.png";
 import howDevicesImage from "@/assets/how-devices.png";
 import { Check, ChevronRight, Wifi, Signal, Shield, Smartphone, Radio, Battery, X } from "lucide-react";
 import specImage from "@/assets/spec.png";
@@ -29,7 +30,7 @@ const packages: Package[] = [
     tagline: "সাশ্রয়ী। নির্ভরযোগ্য।",
     model: "SP01-WiFi-Kit",
     price: 7490,
-    image: cubeImage,
+    image: hero2Image,
     connectivity: "WiFi",
     features: [
       "১টি Smart Cube Panel",
@@ -53,7 +54,7 @@ const packages: Package[] = [
     tagline: "প্রিমিয়াম। সম্পূর্ণ নিরাপত্তা।",
     model: "SP05-Smart-Panel-Kit",
     price: 15990,
-    image: howDevicesImage,
+    image: proNewImage,
     connectivity: "WiFi + 4G",
     features: [
       '১টি 5" Smart Touch Panel',
@@ -119,26 +120,25 @@ const PackagesSection = () => {
         </div>
 
         {/* Product Cards - Side by Side */}
-        <div className="grid grid-cols-2 gap-4 md:gap-8 max-w-4xl mx-auto mb-4">
+        <div className="grid grid-cols-2 gap-4 md:gap-8 max-w-4xl mx-auto mb-8">
           {packages.map((pkg) => (
             <div
               key={pkg.id}
               onClick={() => setSelected(pkg.id)}
-              className={`relative bg-card rounded-2xl md:rounded-3xl p-4 md:p-8 cursor-pointer transition-all duration-300 w-[430px] h-[380px] mx-auto ${
-                selected === pkg.id
-                  ? "border-2 border-primary shadow-sm"
-                  : "border border-border hover:border-primary/30 shadow-none"
-              }`}
+              className={`relative bg-card rounded-2xl md:rounded-3xl p-4 md:p-8 cursor-pointer transition-all duration-300 w-full lg:w-[430px] h-auto mx-auto ${selected === pkg.id
+                ? "border-2 border-primary shadow-sm"
+                : "border border-border hover:border-primary/30 shadow-none"
+                }`}
             >
               {/* Product Image */}
-              <div 
-                className="flex justify-center items-center mb-6 py-6 rounded-2xl" 
+              <div
+                className="flex justify-center items-center mb-6 py-2 rounded-2xl"
                 style={{ backgroundColor: '#fdfbf7' }}
               >
                 <img
                   src={pkg.image}
                   alt={pkg.name}
-                  className="h-32 sm:h-36 md:h-40 object-contain mix-blend-multiply"
+                  className="h-48 sm:h-56 md:h-64 object-contain"
                 />
               </div>
 
@@ -147,9 +147,8 @@ const PackagesSection = () => {
                 {packages.map((p) => (
                   <div
                     key={p.id}
-                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                      p.id === pkg.id ? "bg-primary" : "bg-border"
-                    }`}
+                    className={`w-2.5 h-2.5 rounded-full transition-colors ${p.id === pkg.id ? "bg-primary" : "bg-border"
+                      }`}
                   />
                 ))}
               </div>
@@ -175,11 +174,10 @@ const PackagesSection = () => {
               <div className="mt-3">
                 <button
                   onClick={() => handleOrder(pkg.id)}
-                  className={`inline-flex items-center justify-center gap-1.5 px-6 md:px-8 py-2.5 md:py-3 rounded-full font-medium text-xs md:text-sm transition-colors ${
-                    selected === pkg.id
-                      ? "bg-primary text-primary-foreground hover:bg-brand-dark"
-                      : "bg-muted text-foreground hover:bg-primary/10"
-                  }`}
+                  className={`inline-flex items-center justify-center gap-1.5 px-6 md:px-8 py-2.5 md:py-3 rounded-full font-medium text-xs md:text-sm transition-colors ${selected === pkg.id
+                    ? "bg-primary text-primary-foreground hover:bg-brand-dark"
+                    : "bg-muted text-foreground hover:bg-primary/10"
+                    }`}
                 >
                   অর্ডার করুন
                   <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -245,7 +243,7 @@ const PackagesSection = () => {
                 onClick={() => setShowFullSpecs(false)}
                 className="absolute inset-0 bg-black/90 backdrop-blur-md cursor-zoom-out"
               />
-              
+
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -253,16 +251,16 @@ const PackagesSection = () => {
                 className="relative z-10 w-full max-h-screen overflow-y-auto px-4 py-16 md:px-8 md:py-24 flex justify-center items-start"
               >
                 {/* Floating Close Button */}
-                <button 
+                <button
                   onClick={() => setShowFullSpecs(false)}
                   className="fixed top-4 right-4 md:top-8 md:right-8 p-3 rounded-full bg-black/50 hover:bg-black/80 text-white transition-all duration-200 border border-white/20 backdrop-blur-md z-[110]"
                 >
                   <X className="w-6 h-6 md:w-8 md:h-8" />
                 </button>
 
-                <img 
-                  src={specImage} 
-                  alt="SOHUB Protect Specifications" 
+                <img
+                  src={specImage}
+                  alt="SOHUB Protect Specifications"
                   className="w-full h-auto max-w-[80vw] lg:max-w-2xl shadow-2xl rounded-sm object-contain border border-white/10"
                   onClick={(e) => e.stopPropagation()}
                 />

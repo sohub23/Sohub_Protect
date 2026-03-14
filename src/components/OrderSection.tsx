@@ -9,7 +9,8 @@ import {
 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import panelImage from "@/assets/panel-product.png";
-import cubeImage from "@/assets/Sp1.png";
+import hero2Image from "@/assets/afford_trans.png";
+import proNewImage from "@/assets/pro_trans.png";
 import howDevicesImage from "@/assets/how-devices.png";
 import imgShutter from "@/assets/Accesories/shutter sensor.jpeg";
 import imgVibration from "@/assets/Accesories/vivration_sensor.jpeg";
@@ -30,7 +31,7 @@ const editions = [
     nameBn: "SOHUB Protect Affordable Edition",
     desc: "Smart Cube Panel, Motion Sensor, Door Sensor, Remote, Power Adapter",
     price: 7490,
-    image: cubeImage,
+    image: hero2Image,
   },
   {
     id: "sp05",
@@ -38,7 +39,7 @@ const editions = [
     nameBn: "SOHUB Protect Pro Edition",
     desc: '5" Smart Touch Panel, Motion Sensor, Door Sensor, 2x Remote, Power Adapter',
     price: 15990,
-    image: howDevicesImage,
+    image: proNewImage,
   },
 ];
 
@@ -148,17 +149,32 @@ const OrderSection = () => {
         body: JSON.stringify(orderPayload),
       });
 
+      // Check if response is okay before parsing JSON
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("Server error:", text);
+        setErrorMessage(`Server error (${response.status}). Please try WhatsApp.`);
+        setSubmitStatus("error");
+        return;
+      }
+
       const data = await response.json();
 
-      if (response.ok && data.success) {
+      if (data.success) {
         setOrderId(data.orderId || "");
         setSubmitStatus("success");
       } else {
         setErrorMessage(data.error || "Something went wrong. Please try again.");
         setSubmitStatus("error");
       }
-    } catch {
-      setErrorMessage("Network error. Please check your connection and try again.");
+    } catch (err) {
+      console.error("Order submission error:", err);
+      // If data.json() fails, it's usually a SyntaxError because the server returned HTML (error message)
+      if (err instanceof SyntaxError) {
+        setErrorMessage("Server returned an invalid response. Please contact support.");
+      } else {
+        setErrorMessage("Network error. Please check your connection and try again.");
+      }
       setSubmitStatus("error");
     }
   };
@@ -251,11 +267,10 @@ const OrderSection = () => {
                   <button
                     key={ed.id}
                     onClick={() => setSelectedEdition(ed.id)}
-                    className={`w-14 h-14 md:w-16 md:h-16 rounded-lg border-2 overflow-hidden flex items-center justify-center p-1.5 transition-colors ${
-                      selectedEdition === ed.id
+                    className={`w-14 h-14 md:w-16 md:h-16 rounded-lg border-2 overflow-hidden flex items-center justify-center p-1.5 transition-colors ${selectedEdition === ed.id
                         ? "border-primary bg-muted/50"
                         : "border-border bg-card hover:border-primary/30"
-                    }`}
+                      }`}
                   >
                     <img src={ed.image} alt={ed.name} className="h-full object-contain" />
                   </button>
@@ -276,11 +291,10 @@ const OrderSection = () => {
                       key={ed.id}
                       onClick={() => setSelectedEdition(ed.id)}
                       disabled={submitStatus === "loading"}
-                      className={`w-full text-left rounded-xl p-3.5 border-2 transition-all ${
-                        selectedEdition === ed.id
+                      className={`w-full text-left rounded-xl p-3.5 border-2 transition-all ${selectedEdition === ed.id
                           ? "border-primary bg-primary/5"
                           : "border-border hover:border-primary/30"
-                      } disabled:opacity-60`}
+                        } disabled:opacity-60`}
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
@@ -318,17 +332,16 @@ const OrderSection = () => {
                         key={addon.id}
                         onClick={() => toggleAddon(addon.id)}
                         disabled={submitStatus === "loading"}
-                        className={`relative rounded-xl p-2.5 text-center transition-all ${
-                          sel
+                        className={`relative rounded-xl p-2.5 text-center transition-all ${sel
                             ? "bg-primary/10 border-2 border-primary"
                             : "bg-muted/30 border border-border hover:border-primary/30"
-                        } disabled:opacity-60`}
+                          } disabled:opacity-60`}
                       >
                         <div className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2 bg-white rounded-lg shadow-sm flex items-center justify-center p-1.5 overflow-hidden">
-                          <img 
-                            src={addon.image} 
-                            alt={addon.nameBn} 
-                            className="max-w-full max-h-full object-contain mix-blend-multiply" 
+                          <img
+                            src={addon.image}
+                            alt={addon.nameBn}
+                            className="max-w-full max-h-full object-contain mix-blend-multiply"
                           />
                         </div>
                         <p className="text-[10px] font-medium leading-tight text-foreground">{addon.nameBn}</p>
@@ -365,14 +378,12 @@ const OrderSection = () => {
                       key={key}
                       onClick={() => setPaymentMethod(key)}
                       disabled={submitStatus === "loading"}
-                      className={`w-full flex items-center justify-between rounded-xl p-3.5 border-2 transition-all ${
-                        paymentMethod === key ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
-                      } disabled:opacity-60`}
+                      className={`w-full flex items-center justify-between rounded-xl p-3.5 border-2 transition-all ${paymentMethod === key ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
+                        } disabled:opacity-60`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                          paymentMethod === key ? "border-primary" : "border-muted-foreground"
-                        }`}>
+                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${paymentMethod === key ? "border-primary" : "border-muted-foreground"
+                          }`}>
                           {paymentMethod === key && <div className="w-2 h-2 rounded-full bg-primary" />}
                         </div>
                         <span className="text-sm font-medium text-foreground">{label}</span>
