@@ -123,38 +123,41 @@ $addonTotal = array_reduce($addons, fn($sum, $a) => $sum + intval($a['price'] ??
 
 
 /**
- * Helper: Converts Interlaced/Alpha PNGs to standard JPGs which TCPDF NEVER chokes on.
+ * Helper: Detects ACTUAL image format from file content (not extension!)
+ * and converts any PNG (even if renamed to .jpeg) into a real JPEG that TCPDF can read.
  */
 function getSafePdfImage($origPath, $isLogo = false)
 {
     if (!$origPath || !file_exists($origPath))
         return '';
-    $ext = strtolower(pathinfo($origPath, PATHINFO_EXTENSION));
 
-    if ($ext === 'png' && function_exists('imagecreatefrompng')) {
+    // Detect ACTUAL image type from file content, ignoring extension
+    $info = @getimagesize($origPath);
+    if (!$info) return '';
+    $actualType = $info[2]; // IMAGETYPE_PNG = 3, IMAGETYPE_JPEG = 2
+
+    // If it's actually a PNG (even if file is named .jpeg), convert to real JPEG
+    if ($actualType === IMAGETYPE_PNG && function_exists('imagecreatefrompng')) {
         $tmp = sys_get_temp_dir() . '/tcpdf_' . ($isLogo ? 'logo_' : 'item_') . md5($origPath) . '.jpg';
-        if (!file_exists($tmp)) {
-            $img = @imagecreatefrompng($origPath);
-            if ($img) {
-                // Remove transparency by creating a solid background
-                $bg = imagecreatetruecolor(imagesx($img), imagesy($img));
-                if ($isLogo) {
-                    // TCPDF header background is blue #1890ff (24, 144, 255)
-                    imagefill($bg, 0, 0, imagecolorallocate($bg, 24, 144, 255));
-                } else {
-                    // White background for table
-                    imagefill($bg, 0, 0, imagecolorallocate($bg, 255, 255, 255));
-                }
-                imagealphablending($bg, TRUE);
-                imagecopy($bg, $img, 0, 0, 0, 0, imagesx($img), imagesy($img));
-                imagejpeg($bg, $tmp, 95);
-                imagedestroy($bg);
-                imagedestroy($img);
+        // Always regenerate to avoid stale cache
+        $img = @imagecreatefrompng($origPath);
+        if ($img) {
+            $bg = imagecreatetruecolor(imagesx($img), imagesy($img));
+            if ($isLogo) {
+                imagefill($bg, 0, 0, imagecolorallocate($bg, 24, 144, 255));
+            } else {
+                imagefill($bg, 0, 0, imagecolorallocate($bg, 255, 255, 255));
             }
+            imagealphablending($bg, true);
+            imagecopy($bg, $img, 0, 0, 0, 0, imagesx($img), imagesy($img));
+            imagejpeg($bg, $tmp, 95);
+            imagedestroy($bg);
+            imagedestroy($img);
         }
         if (file_exists($tmp))
             return $tmp;
     }
+
     return $origPath;
 }
 
@@ -174,11 +177,10 @@ class SOHUBQuotation extends TCPDF
 
         $safeLogo = getSafePdfImage($this->logoPath, true);
         if ($safeLogo && file_exists($safeLogo)) {
-            // Embed perfectly processed safe JPG for logo!
             $this->Image($safeLogo, 15, 6, 45);
         }
 
-        $this->SetFont('freeserif', 'B', 20); // Better Bengali fallback
+        $this->SetFont('freeserif', 'B', 20);
         $this->SetTextColor(255, 255, 255);
         $this->SetXY(100, 8);
         $this->Cell(95, 10, 'QUOTATION', 0, 0, 'R');
@@ -223,50 +225,52 @@ $pdf->orderDate = $orderDate;
 $pdf->SetMargins(15, 45, 15);
 $pdf->SetAutoPageBreak(true, 35);
 $pdf->AddPage();
-// using freeserif for better Unicode fallback (resolves the question mark rectangles)
 $pdf->SetFont('freeserif', '', 10);
 
 $pmtMethodLabel = $paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery';
 
+// CRITICAL: font-family:freeserif in every style so writeHTML() uses the Bengali-capable font
+$F = 'font-family:freeserif;';
+
 $pdfHtml = <<<EOD
 <table width="100%" cellpadding="0" cellspacing="0">
     <tr>
-        <td style="color: #1890ff; font-weight: bold; font-size: 14pt;">Customer Information</td>
+        <td style="{$F} color: #1890ff; font-weight: bold; font-size: 14pt;">Customer Information</td>
     </tr>
 </table>
 <br>
-<table width="100%" cellpadding="6" style="background-color: #f5f8ff; border: 1px solid #c8dcff;">
+<table width="100%" cellpadding="6" style="{$F} background-color: #f5f8ff; border: 1px solid #c8dcff;">
     <tr>
-        <td width="15%" style="color: #666666;"><b>Name:</b></td>
-        <td width="35%">{$customerName}</td>
-        <td width="15%" style="color: #666666;"><b>Phone:</b></td>
-        <td width="35%">{$customerPhone}</td>
+        <td width="15%" style="{$F} color: #666666;"><b>Name:</b></td>
+        <td width="35%" style="{$F}">{$customerName}</td>
+        <td width="15%" style="{$F} color: #666666;"><b>Phone:</b></td>
+        <td width="35%" style="{$F}">{$customerPhone}</td>
     </tr>
     <tr>
-        <td style="color: #666666;"><b>Email:</b></td>
-        <td>{$customerEmail}</td>
-        <td style="color: #666666;"><b>Payment:</b></td>
-        <td>{$pmtMethodLabel}</td>
+        <td style="{$F} color: #666666;"><b>Email:</b></td>
+        <td style="{$F}">{$customerEmail}</td>
+        <td style="{$F} color: #666666;"><b>Payment:</b></td>
+        <td style="{$F}">{$pmtMethodLabel}</td>
     </tr>
     <tr>
-        <td style="color: #666666;"><b>Address:</b></td>
-        <td colspan="3">{$customerAddress}</td>
+        <td style="{$F} color: #666666;"><b>Address:</b></td>
+        <td colspan="3" style="{$F}">{$customerAddress}</td>
     </tr>
 </table>
 <br><br>
 
 <table width="100%" cellpadding="0" cellspacing="0">
     <tr>
-        <td style="color: #1890ff; font-weight: bold; font-size: 14pt;">Order Details</td>
+        <td style="{$F} color: #1890ff; font-weight: bold; font-size: 14pt;">Order Details</td>
     </tr>
 </table>
 <br>
-<table width="100%" cellpadding="8" border="1" style="border-collapse: collapse; border-color: #c0c0c0;">
+<table width="100%" cellpadding="8" border="1" style="{$F} border-collapse: collapse; border-color: #c0c0c0;">
     <tr style="background-color: #1890ff; color: #ffffff; font-weight: bold;">
-        <th width="15%" align="center">Image</th>
-        <th width="45%" align="left">Product</th>
-        <th width="20%" align="right">Unit Price</th>
-        <th width="20%" align="right">Total</th>
+        <th width="15%" align="center" style="{$F}">Image</th>
+        <th width="45%" align="left" style="{$F}">Product</th>
+        <th width="20%" align="right" style="{$F}">Unit Price</th>
+        <th width="20%" align="right" style="{$F}">Total</th>
     </tr>
 EOD;
 
@@ -279,10 +283,10 @@ $edPriceF = number_format($editionPrice) . ' BDT';
 
 $pdfHtml .= <<<EOD
     <tr>
-        <td width="15%" align="center">{$edImgTag}</td>
-        <td width="45%"><b>{$edNameStr}</b><br><span style="color: #666666; font-size: 8pt;">{$edEngStr}</span></td>
-        <td width="20%" align="right">{$edPriceF}</td>
-        <td width="20%" align="right"><b>{$edPriceF}</b></td>
+        <td width="15%" align="center" style="{$F}">{$edImgTag}</td>
+        <td width="45%" style="{$F}"><b>{$edNameStr}</b><br><span style="{$F} color: #666666; font-size: 8pt;">{$edEngStr}</span></td>
+        <td width="20%" align="right" style="{$F}">{$edPriceF}</td>
+        <td width="20%" align="right" style="{$F}"><b>{$edPriceF}</b></td>
     </tr>
 EOD;
 
@@ -296,10 +300,10 @@ foreach ($addons as $addon) {
 
     $pdfHtml .= <<<EOD
     <tr>
-        <td align="center">{$adImgTag}</td>
-        <td><b>{$adNameStr}</b><br><span style="color: #666666; font-size: 8pt;">{$adEngStr}</span></td>
-        <td align="right">{$adPriceF}</td>
-        <td align="right"><b>{$adPriceF}</b></td>
+        <td align="center" style="{$F}">{$adImgTag}</td>
+        <td style="{$F}"><b>{$adNameStr}</b><br><span style="{$F} color: #666666; font-size: 8pt;">{$adEngStr}</span></td>
+        <td align="right" style="{$F}">{$adPriceF}</td>
+        <td align="right" style="{$F}"><b>{$adPriceF}</b></td>
     </tr>
 EOD;
 }
@@ -309,49 +313,49 @@ $pdfHtml .= <<<EOD
 <br>
 EOD;
 
-$dlvStr = $deliveryFee === 0 ? '<span style="color:#1890ff;">FREE</span>' : number_format($deliveryFee) . ' BDT';
+$dlvStr = $deliveryFee === 0 ? '<span style="' . $F . ' color:#1890ff;">FREE</span>' : number_format($deliveryFee) . ' BDT';
 $subAddonsF = number_format($addonTotal) . ' BDT';
 $totStr = number_format($total) . ' BDT';
 $cnt = count($addons);
 
 $pdfHtml .= <<<EOD
-<table width="100%" cellpadding="5">
+<table width="100%" cellpadding="5" style="{$F}">
     <tr>
-        <td width="70%" align="right">Edition:</td>
-        <td width="30%" align="right">{$edPriceF}</td>
+        <td width="70%" align="right" style="{$F}">Edition:</td>
+        <td width="30%" align="right" style="{$F}">{$edPriceF}</td>
     </tr>
 EOD;
 
 if ($addonTotal > 0) {
     $pdfHtml .= <<<EOD
     <tr>
-        <td align="right">Accessories ({$cnt}):</td>
-        <td align="right">{$subAddonsF}</td>
+        <td align="right" style="{$F}">Accessories ({$cnt}):</td>
+        <td align="right" style="{$F}">{$subAddonsF}</td>
     </tr>
 EOD;
 }
 
 $pdfHtml .= <<<EOD
     <tr>
-        <td align="right">Delivery:</td>
-        <td align="right">{$dlvStr}</td>
+        <td align="right" style="{$F}">Delivery:</td>
+        <td align="right" style="{$F}">{$dlvStr}</td>
     </tr>
     <tr>
         <td align="right"></td>
         <td align="right"><hr color="#1890ff" /></td>
     </tr>
     <tr>
-        <td align="right"><b style="font-size:12pt; color:#1890ff;">Total:</b></td>
-        <td align="right"><b style="font-size:12pt;">{$totStr}</b></td>
+        <td align="right" style="{$F}"><b style="{$F} font-size:12pt; color:#1890ff;">Total:</b></td>
+        <td align="right" style="{$F}"><b style="{$F} font-size:12pt;">{$totStr}</b></td>
     </tr>
 </table>
 <br><br>
 
-<table width="100%" cellpadding="8" style="background-color: #f5f8ff; border: 1px solid #c8dcff; border-radius: 5px;">
+<table width="100%" cellpadding="8" style="{$F} background-color: #f5f8ff; border: 1px solid #c8dcff; border-radius: 5px;">
     <tr>
-        <td>
-            <b style="color: #1890ff; font-size: 11pt;">Terms & Conditions</b><br>
-            <span style="font-size: 8.5pt; color: #555555; line-height: 1.6;">
+        <td style="{$F}">
+            <b style="{$F} color: #1890ff; font-size: 11pt;">Terms & Conditions</b><br>
+            <span style="{$F} font-size: 8.5pt; color: #555555; line-height: 1.6;">
             • All products come with 1 year manufacturer warranty.<br>
             • No monthly subscription fee required.<br>
             • Free technical support and consultation included.<br>
