@@ -143,7 +143,7 @@ const OrderSection = () => {
     };
 
     try {
-      const response = await fetch("/api/send-order.php", {
+      const response = await fetch("/send-order.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload),

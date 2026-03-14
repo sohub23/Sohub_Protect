@@ -26,3 +26,4 @@ dist-ssr
 # API (PHP backend)
 api/.env
 api/vendor/
+public/.env
