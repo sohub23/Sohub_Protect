@@ -99,8 +99,8 @@ if (!is_dir($assetsPath)) {
 }
 
 $imageMap = [
-    'sp01' => $assetsPath . '/Sp1.png',
-    'sp05' => $assetsPath . '/panel-product.png',
+    'sp01' => $assetsPath . '/afford_trans.jpeg',
+    'sp05' => $assetsPath . '/pro_trans.jpeg',
     '1' => $assetsPath . '/Accesories/shutter sensor.jpeg',
     '2' => $assetsPath . '/Accesories/vivration_sensor.jpeg',
     '3' => $assetsPath . '/Accesories/door_sensor.jpeg',
@@ -178,12 +178,12 @@ class SOHUBQuotation extends TCPDF
             $this->Image($safeLogo, 15, 6, 45);
         }
 
-        $this->SetFont('dejavusans', 'B', 20); // Better Bengali fallback
+        $this->SetFont('freeserif', 'B', 20); // Better Bengali fallback
         $this->SetTextColor(255, 255, 255);
         $this->SetXY(100, 8);
         $this->Cell(95, 10, 'QUOTATION', 0, 0, 'R');
 
-        $this->SetFont('dejavusans', '', 9);
+        $this->SetFont('freeserif', '', 9);
         $this->SetTextColor(220, 240, 255);
         $this->SetXY(100, 18);
         $this->Cell(95, 5, 'Order: ' . $this->orderId, 0, 1, 'R');
@@ -204,11 +204,11 @@ class SOHUBQuotation extends TCPDF
         $this->Line(15, $this->GetY(), 195, $this->GetY());
 
         $this->Ln(4);
-        $this->SetFont('dejavusans', 'B', 8);
+        $this->SetFont('freeserif', 'B', 8);
         $this->SetTextColor(24, 144, 255);
         $this->Cell(0, 4, 'Solution Hub Technologies (SOHUB)', 0, 1, 'C');
 
-        $this->SetFont('dejavusans', '', 7);
+        $this->SetFont('freeserif', '', 7);
         $this->SetTextColor(130, 130, 130);
         $this->Cell(0, 4, 'Phone: 09678-076482  |  Email: hello@sohub.com.bd  |  www.sohubprotect.com.bd', 0, 1, 'C');
         $this->Cell(0, 4, '1 Year Warranty  •  No Monthly Fee  •  Free Technical Support', 0, 1, 'C');
@@ -223,8 +223,8 @@ $pdf->orderDate = $orderDate;
 $pdf->SetMargins(15, 45, 15);
 $pdf->SetAutoPageBreak(true, 35);
 $pdf->AddPage();
-// using dejavusans for better Unicode fallback (resolves the question mark rectangles)
-$pdf->SetFont('dejavusans', '', 10);
+// using freeserif for better Unicode fallback (resolves the question mark rectangles)
+$pdf->SetFont('freeserif', '', 10);
 
 $pmtMethodLabel = $paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery';
 

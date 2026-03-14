@@ -114,8 +114,8 @@ if (!$edition || !$customerName || !$customerPhone || !$customerAddress) {
 $assetsDir = __DIR__ . '/assets';
 
 $imageMap = [
-    'sp01' => $assetsDir . '/Sp1.png',
-    'sp05' => $assetsDir . '/panel-product.png',
+    'sp01' => $assetsDir . '/afford_trans.jpeg',
+    'sp05' => $assetsDir . '/pro_trans.jpeg',
     '1' => $assetsDir . '/Accesories/shutter sensor.jpeg',
     '2' => $assetsDir . '/Accesories/vivration_sensor.jpeg',
     '3' => $assetsDir . '/Accesories/door_sensor.jpeg',
@@ -160,13 +160,13 @@ class SOHUBQuotation extends TCPDF
         }
 
         // Title text
-        $this->SetFont('helvetica', 'B', 20);
+        $this->SetFont('freeserif', 'B', 20);
         $this->SetTextColor(255, 255, 255);
         $this->SetXY(100, 8);
         $this->Cell(95, 10, 'QUOTATION', 0, 0, 'R');
 
         // Order info
-        $this->SetFont('helvetica', '', 9);
+        $this->SetFont('freeserif', '', 9);
         $this->SetTextColor(220, 240, 255);
         $this->SetXY(100, 18);
         $this->Cell(95, 5, 'Order: ' . $this->orderId, 0, 1, 'R');
@@ -191,17 +191,17 @@ class SOHUBQuotation extends TCPDF
         $this->Line(15, $this->GetY(), 195, $this->GetY());
 
         $this->Ln(4);
-        $this->SetFont('helvetica', 'B', 8);
+        $this->SetFont('freeserif', 'B', 8);
         $this->SetTextColor(24, 144, 255);
         $this->Cell(0, 4, 'Solution Hub Technologies (SOHUB)', 0, 1, 'C');
 
-        $this->SetFont('helvetica', '', 7);
+        $this->SetFont('freeserif', '', 7);
         $this->SetTextColor(130, 130, 130);
         $this->Cell(0, 4, 'Phone: 09678-076482  |  Email: hello@sohub.com.bd  |  www.sohubprotect.com', 0, 1, 'C');
         $this->Cell(0, 4, '1 Year Warranty  •  No Monthly Fee  •  Free Technical Support', 0, 1, 'C');
 
         // Page number
-        $this->SetFont('helvetica', '', 7);
+        $this->SetFont('freeserif', '', 7);
         $this->Cell(0, 4, 'Page ' . $this->getAliasNumPage() . ' of ' . $this->getAliasNbPages(), 0, 0, 'C');
     }
 }
@@ -219,11 +219,11 @@ $pdf->SetAutoPageBreak(true, 35);
 $pdf->AddPage();
 
 // ── Customer Information Card ──────────────────────────────
-$pdf->SetFont('helvetica', 'B', 12);
+$pdf->SetFont('freeserif', 'B', 12);
 $pdf->SetTextColor(24, 144, 255);
 $pdf->Cell(0, 8, 'Customer Information', 0, 1, 'L');
 
-$pdf->SetFont('helvetica', '', 9);
+$pdf->SetFont('freeserif', '', 9);
 $pdf->SetTextColor(60, 60, 60);
 
 // Customer info box
@@ -233,47 +233,47 @@ $startY = $pdf->GetY();
 $pdf->RoundedRect(15, $startY, 180, 28, 3, '1111', 'DF');
 
 $pdf->SetXY(20, $startY + 3);
-$pdf->SetFont('helvetica', 'B', 8);
+$pdf->SetFont('freeserif', 'B', 8);
 $pdf->SetTextColor(100, 100, 100);
 $pdf->Cell(30, 5, 'Name:', 0, 0);
-$pdf->SetFont('helvetica', '', 9);
+$pdf->SetFont('freeserif', '', 9);
 $pdf->SetTextColor(30, 30, 30);
 $pdf->Cell(55, 5, $customerName, 0, 0);
-$pdf->SetFont('helvetica', 'B', 8);
+$pdf->SetFont('freeserif', 'B', 8);
 $pdf->SetTextColor(100, 100, 100);
 $pdf->Cell(30, 5, 'Phone:', 0, 0);
-$pdf->SetFont('helvetica', '', 9);
+$pdf->SetFont('freeserif', '', 9);
 $pdf->SetTextColor(30, 30, 30);
 $pdf->Cell(55, 5, $customerPhone, 0, 1);
 
 $pdf->SetX(20);
-$pdf->SetFont('helvetica', 'B', 8);
+$pdf->SetFont('freeserif', 'B', 8);
 $pdf->SetTextColor(100, 100, 100);
 $pdf->Cell(30, 5, 'Email:', 0, 0);
-$pdf->SetFont('helvetica', '', 9);
+$pdf->SetFont('freeserif', '', 9);
 $pdf->SetTextColor(30, 30, 30);
 $pdf->Cell(55, 5, $customerEmail ?: 'N/A', 0, 0);
-$pdf->SetFont('helvetica', 'B', 8);
+$pdf->SetFont('freeserif', 'B', 8);
 $pdf->SetTextColor(100, 100, 100);
 $pdf->Cell(30, 5, 'Payment:', 0, 0);
-$pdf->SetFont('helvetica', '', 9);
+$pdf->SetFont('freeserif', '', 9);
 $pdf->SetTextColor(30, 30, 30);
 $pdf->Cell(55, 5, $paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery', 0, 1);
 
 $pdf->SetX(20);
-$pdf->SetFont('helvetica', 'B', 8);
+$pdf->SetFont('freeserif', 'B', 8);
 $pdf->SetTextColor(100, 100, 100);
 $pdf->Cell(30, 5, 'Address:', 0, 0);
-$pdf->SetFont('helvetica', '', 9);
+$pdf->SetFont('freeserif', '', 9);
 $pdf->SetTextColor(30, 30, 30);
 $pdf->MultiCell(140, 5, $customerAddress, 0, 'L');
 
 if ($customerNote) {
     $pdf->SetX(20);
-    $pdf->SetFont('helvetica', 'B', 8);
+    $pdf->SetFont('freeserif', 'B', 8);
     $pdf->SetTextColor(100, 100, 100);
     $pdf->Cell(30, 5, 'Note:', 0, 0);
-    $pdf->SetFont('helvetica', 'I', 9);
+    $pdf->SetFont('freeserif', 'I', 9);
     $pdf->SetTextColor(30, 30, 30);
     $pdf->MultiCell(140, 5, $customerNote, 0, 'L');
 }
@@ -281,14 +281,14 @@ if ($customerNote) {
 $pdf->SetY($startY + 32);
 
 // ── Order Details Table ────────────────────────────────────
-$pdf->SetFont('helvetica', 'B', 12);
+$pdf->SetFont('freeserif', 'B', 12);
 $pdf->SetTextColor(24, 144, 255);
 $pdf->Cell(0, 10, 'Order Details', 0, 1, 'L');
 
 // Table Header
 $pdf->SetFillColor(24, 144, 255);
 $pdf->SetTextColor(255, 255, 255);
-$pdf->SetFont('helvetica', 'B', 9);
+$pdf->SetFont('freeserif', 'B', 9);
 $pdf->SetDrawColor(24, 144, 255);
 
 $colWidths = [25, 80, 35, 40]; // Image, Product, Unit Price, Subtotal
@@ -299,7 +299,7 @@ $pdf->Cell($colWidths[3], 10, 'Total', 1, 1, 'R', true);
 
 // Edition Row
 $pdf->SetTextColor(30, 30, 30);
-$pdf->SetFont('helvetica', '', 9);
+$pdf->SetFont('freeserif', '', 9);
 $pdf->SetFillColor(252, 252, 252);
 $pdf->SetDrawColor(230, 230, 230);
 
