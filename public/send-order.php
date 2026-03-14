@@ -149,7 +149,7 @@ $imageMap = [
 $logoPath = $assetsDir . '/logo-with-icon.png';
 
 /* ══════════════════════════════════════════════════════════════════
-   5. ORDER META
+   6. ORDER META
    ══════════════════════════════════════════════════════════════════ */
 $orderId   = 'SP-' . date('Ymd') . '-' . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
 $orderDate = date('d M Y, h:i A');
@@ -157,7 +157,7 @@ $editionPrice = intval($edition['price'] ?? 0);
 $addonTotal   = array_reduce($addons, fn($sum, $a) => $sum + intval($a['price'] ?? 0), 0);
 
 /* ══════════════════════════════════════════════════════════════════
-   6. GENERATE PDF QUOTATION
+   7. GENERATE PDF QUOTATION
    ══════════════════════════════════════════════════════════════════ */
 
 class SOHUBQuotation extends TCPDF {
@@ -448,7 +448,7 @@ foreach ($terms as $term) {
 $pdfContent = $pdf->Output('', 'S');
 
 /* ══════════════════════════════════════════════════════════════════
-   7. BUILD EMAIL HTML
+   8. BUILD EMAIL HTML (FOR CUSTOMER)
    ══════════════════════════════════════════════════════════════════ */
 
 // Build addon rows for email
@@ -508,39 +508,14 @@ $emailHtml = <<<HTML
     <!-- BODY -->
     <tr>
         <td style="background:#fff; padding:25px 30px 30px;">
-
-            <!-- Customer Details -->
-            <table width="100%" style="background:#f8faff; border-radius:12px; padding:5px; margin-bottom:20px;" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td style="padding:18px 20px;">
-                        <h3 style="color:#1890ff; margin:0 0 12px; font-size:15px; font-weight:700;">
-                            👤 Customer Details
-                        </h3>
-                        <table width="100%" cellpadding="0" cellspacing="0">
-                            <tr>
-                                <td style="padding:4px 0; color:#888; font-size:13px; width:80px;">Name:</td>
-                                <td style="padding:4px 0; color:#333; font-size:13px; font-weight:600;">{$customerName}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding:4px 0; color:#888; font-size:13px;">Phone:</td>
-                                <td style="padding:4px 0; color:#333; font-size:13px; font-weight:600;">{$customerPhone}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding:4px 0; color:#888; font-size:13px;">Email:</td>
-                                <td style="padding:4px 0; color:#333; font-size:13px;">{$customerEmail}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding:4px 0; color:#888; font-size:13px; vertical-align:top;">Address:</td>
-                                <td style="padding:4px 0; color:#333; font-size:13px;">{$customerAddress}</td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
+            <p style="color:#333; margin:0 0 20px; font-size:15px;">Dear <b>{$customerName}</b>,</p>
+            <p style="color:#555; margin:0 0 25px; line-height:1.6; font-size:14px;">
+                We've received your order for the SOHUB Protect system. Your quotation is attached to this email as a PDF. Our team will contact you shortly on <b>{$customerPhone}</b> to confirm the details.
+            </p>
 
             <!-- Order Details -->
             <h3 style="color:#1890ff; margin:0 0 12px; font-size:15px; font-weight:700;">
-                📦 Order Details
+                📦 Order Summary
             </h3>
             <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8; border-radius:10px; overflow:hidden; margin-bottom:20px;">
                 <tr style="background:#1890ff;">
@@ -549,71 +524,22 @@ $emailHtml = <<<HTML
                 </tr>
                 <tr style="background:#f0f8ff;">
                     <td style="padding:14px 16px; border-bottom:1px solid #e8e8e8;">
-                        <span style="color:#1890ff; font-weight:700; font-size:15px;">{$editionNameHtml}</span><br>
-                        <span style="color:#999; font-size:12px;">{$edition['desc']}</span>
+                        <span style="color:#1890ff; font-weight:700; font-size:15px;">{$editionNameHtml}</span>
                     </td>
                     <td style="padding:14px 16px; border-bottom:1px solid #e8e8e8; text-align:right; font-weight:700; font-size:15px; color:#333;">
                         {$editionPrice} BDT
                     </td>
                 </tr>
                 {$addonRowsHtml}
-            </table>
-
-            <!-- Pricing Summary -->
-            <table width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa; border-radius:10px; padding:5px; margin-bottom:20px;">
                 <tr>
-                    <td style="padding:12px 20px;">
-                        <table width="100%" cellpadding="0" cellspacing="0">
-                            <tr>
-                                <td style="padding:5px 0; color:#666; font-size:13px;">Edition</td>
-                                <td style="padding:5px 0; color:#333; font-size:13px; text-align:right;">{$editionPrice} BDT</td>
-                            </tr>
-HTML;
-
-if ($addonTotal > 0) {
-    $emailHtml .= "
-                            <tr>
-                                <td style='padding:5px 0; color:#666; font-size:13px;'>Accessories (" . count($addons) . ")</td>
-                                <td style='padding:5px 0; color:#333; font-size:13px; text-align:right;'>" . number_format($addonTotal) . " BDT</td>
-                            </tr>";
-}
-
-$emailHtml .= <<<HTML
-                            <tr>
-                                <td style="padding:5px 0; color:#666; font-size:13px;">Delivery</td>
-                                <td style="padding:5px 0; font-size:13px; text-align:right;">{$deliveryLabel}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding:5px 0; color:#666; font-size:13px;">Payment Method</td>
-                                <td style="padding:5px 0; color:#333; font-size:13px; text-align:right;">{$paymentLabel}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" style="padding:8px 0 0;">
-                                    <div style="border-top:2px solid #1890ff; padding-top:10px; display:flex; justify-content:space-between;">
-                                        <table width="100%"><tr>
-                                            <td style="color:#333; font-size:18px; font-weight:800;">Total</td>
-                                            <td style="color:#1890ff; font-size:20px; font-weight:800; text-align:right;">{$total} BDT</td>
-                                        </tr></table>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
+                    <td style="padding:12px 16px; color:#666; font-size:13px;">Delivery</td>
+                    <td style="padding:12px 16px; font-size:13px; text-align:right; color:#333;">{$deliveryLabel}</td>
+                </tr>
+                <tr style="background:#f9fafb;">
+                    <td style="padding:15px 16px; color:#333; font-size:18px; font-weight:800;">Total Amount</td>
+                    <td style="padding:15px 16px; color:#1890ff; font-size:20px; font-weight:800; text-align:right;">{$total} BDT</td>
                 </tr>
             </table>
-HTML;
-
-if ($customerNote) {
-    $emailHtml .= "
-            <table width='100%' style='background:#fff8e6; border-radius:10px; border:1px solid #ffe58f; margin-bottom:20px;' cellpadding='0' cellspacing='0'>
-                <tr><td style='padding:14px 20px;'>
-                    <strong style='color:#d48806; font-size:13px;'>📝 Customer Note:</strong><br>
-                    <span style='color:#666; font-size:13px;'>{$customerNote}</span>
-                </td></tr>
-            </table>";
-}
-
-$emailHtml .= <<<HTML
 
             <!-- What's Next -->
             <table width="100%" style="background:#e6f7ff; border-radius:12px; border:1px solid #91d5ff;" cellpadding="0" cellspacing="0">
@@ -621,8 +547,8 @@ $emailHtml .= <<<HTML
                     <td style="padding:20px 25px; text-align:center;">
                         <h3 style="color:#1890ff; margin:0 0 8px; font-size:16px;">🚀 What's Next?</h3>
                         <p style="color:#555; margin:0; font-size:13px; line-height:1.6;">
-                            Our team will contact you shortly to confirm your order and schedule delivery.<br>
-                            For any questions, call us at <strong style="color:#1890ff;">09678-076482</strong>
+                            Our executive will call you soon to schedule the installation.<br>
+                            Need help? Call us at <strong style="color:#1890ff;">09678-076482</strong>
                         </p>
                     </td>
                 </tr>
@@ -638,14 +564,10 @@ $emailHtml .= <<<HTML
                 Solution Hub Technologies (SOHUB)
             </p>
             <p style="color:rgba(255,255,255,0.45); margin:0 0 8px; font-size:11px;">
-                📞 09678-076482 &nbsp;|&nbsp; ✉️ hello@sohub.com.bd &nbsp;|&nbsp; 🌐 sohubprotect.com
-            </p>
-            <p style="color:rgba(255,255,255,0.3); margin:0; font-size:10px;">
-                © 2026 SOHUB. All rights reserved. #SecureYourPeaceOfMind
+                📞 09678-076482 &nbsp;|&nbsp; 🌐 sohubprotect.com
             </p>
         </td>
     </tr>
-
 </table>
 </td></tr>
 </table>
@@ -654,7 +576,35 @@ $emailHtml .= <<<HTML
 HTML;
 
 /* ══════════════════════════════════════════════════════════════════
-   8. SEND EMAILS VIA PHPMAILER
+   9. BUILD EMAIL HTML (FOR ADMIN / INTERNAL)
+   ══════════════════════════════════════════════════════════════════ */
+$adminEmailHtml = <<<HTML
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px;">
+    <div style="background: #fff; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 10px; border-top: 5px solid #1890ff;">
+        <h2 style="color: #1890ff; border-bottom: 1px solid #eee; padding-bottom: 10px;">🛡️ New Order Received</h2>
+        <p><strong>Order ID:</strong> {$orderId}</p>
+        <p><strong>Edition:</strong> {$edition['name']} ({$edition['nameBn']})</p>
+        <p><strong>Total Amount:</strong> <span style="font-size: 18px; color: #d44;">{$total} BDT</span></p>
+        <p><strong>Payment:</strong> {$paymentLabel}</p>
+        
+        <h3 style="background: #f8f8f8; padding: 10px; color: #333;">👤 Customer Contact</h3>
+        <p><strong>Name:</strong> {$customerName}</p>
+        <p><strong>Phone:</strong> <a href="tel:{$customerPhone}" style="color:#1890ff; font-weight:bold;">{$customerPhone}</a></p>
+        <p><strong>Email:</strong> {$customerEmail}</p>
+        <p><strong>Address:</strong> {$customerAddress}</p>
+        <p><strong>Note:</strong> {$customerNote}</p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #999;">This is an automated sales notification from SOHUB Protect Portal.</p>
+    </div>
+</body>
+</html>
+HTML;
+
+/* ══════════════════════════════════════════════════════════════════
+   10. SEND EMAILS VIA PHPMAILER
    ══════════════════════════════════════════════════════════════════ */
 try {
     $mail = new PHPMailer(true);
@@ -672,32 +622,33 @@ try {
     // From
     $mail->setFrom($_ENV['SMTP_USER'], 'SOHUB Protect');
     $mail->addReplyTo('hello@sohub.com.bd', 'SOHUB Protect');
-
-    // ── Send to Admin ──
-    $adminEmail = $_ENV['ADMIN_EMAIL'] ?? 'hello@sohub.com.bd';
-    $mail->addAddress($adminEmail);
-
-    // Embed logo for email
+    
+    // Embed logo for customer email
     if (file_exists($logoPath)) {
         $mail->addEmbeddedImage($logoPath, 'sohub_logo', 'sohub-logo.png');
     }
 
-    // Attach PDF
-    $pdfFilename = 'SOHUB-Protect-Quotation-' . $orderId . '.pdf';
-    $mail->addStringAttachment($pdfContent, $pdfFilename, 'base64', 'application/pdf');
-
+    // ── 1st Step: Send to ADMIN ──
+    $adminEmail = $_ENV['ADMIN_EMAIL'] ?? 'hello@sohub.com.bd';
+    $mail->addAddress($adminEmail);
     $mail->isHTML(true);
-    $mail->Subject = "🛡️ New Order #{$orderId} — SOHUB Protect ({$edition['name']})";
-    $mail->Body    = $emailHtml;
-    $mail->AltBody = "New Order {$orderId}\nEdition: {$edition['name']}\nCustomer: {$customerName}\nPhone: {$customerPhone}\nTotal: {$total} BDT";
-
+    $mail->Subject = "🚨 [NEW ORDER] #{$orderId} from {$customerName}";
+    $mail->Body    = $adminEmailHtml;
+    $mail->AltBody = "New Order {$orderId}\nCustomer: {$customerName}\nPhone: {$customerPhone}\nEdition: {$edition['name']}\nTotal: {$total} BDT";
     $mail->send();
 
-    // ── Send to Customer (if email provided) ──
+    // ── 2nd Step: Send to CUSTOMER ──
     if ($customerEmail && filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
         $mail->clearAddresses();
+        $mail->clearAttachments(); // Clear previous addresses if any
         $mail->addAddress($customerEmail, $customerName);
+        
+        // Attach PDF Quotation
+        $pdfFilename = 'SOHUB-Protect-Quotation-' . $orderId . '.pdf';
+        $mail->addStringAttachment($pdfContent, $pdfFilename, 'base64', 'application/pdf');
+
         $mail->Subject = "🛡️ Order Confirmation #{$orderId} — SOHUB Protect";
+        $mail->Body    = $emailHtml;
         $mail->send();
     }
 
