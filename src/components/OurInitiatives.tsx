@@ -11,7 +11,7 @@ interface Initiative {
     isActive: boolean;
 }
 
-const BASE_URL = 'https://sohub.netlify.app';
+const BASE_URL = 'https://sohub.com.bd';
 const CURRENT_SITE_ID = 'protect';
 
 /* ──────────────────────────────────────────────
@@ -165,7 +165,7 @@ const OurInitiatives = () => {
     }, []);
 
     useEffect(() => {
-        fetch('https://sohub.netlify.app/api/initiatives.json')
+        fetch('https://sohub.com.bd/api/initiatives.json')
             .then((res) => res.json())
             .then((data) => {
                 const active = (data.initiatives || [])
@@ -173,7 +173,7 @@ const OurInitiatives = () => {
                     .sort((a: Initiative, b: Initiative) => a.order - b.order);
                 setInitiatives(active);
             })
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     if (initiatives.length === 0) return null;

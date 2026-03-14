@@ -232,16 +232,7 @@ const PackagesSection = () => {
           </div>
         </div>
 
-        {/* Full Specs Button */}
-        <div className="text-center mt-10">
-          <button
-            onClick={() => setShowFullSpecs(true)}
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-full border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors"
-          >
-            Full Specifications
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
+
 
         {/* Full Specifications Image Overlay */}
         <AnimatePresence>

@@ -20,7 +20,7 @@ interface Initiative {
   isActive: boolean;
 }
 
-const INITIATIVES_API = "https://sohub.netlify.app/api/initiatives.json";
+const INITIATIVES_API = "https://sohub.com.bd/api/initiatives.json";
 const CURRENT_SITE_ID = "protect";
 
 const Navbar = () => {
@@ -52,7 +52,7 @@ const Navbar = () => {
           items.filter((i: Initiative) => i.isActive).sort((a: Initiative, b: Initiative) => a.order - b.order)
         );
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Scroll detection
@@ -64,16 +64,15 @@ const Navbar = () => {
 
   const getLogoUrl = (logoPath: string) => {
     if (logoPath.startsWith("http")) return logoPath;
-    return `https://sohub.netlify.app${logoPath}`;
+    return `https://sohub.com.bd${logoPath}`;
   };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50">
       {/* ── Top Bar — SOHUB branding + Initiatives ── */}
       <div
-        className={`bg-gray-50/80 backdrop-blur-sm border-b border-gray-200 transition-all duration-300 overflow-hidden ${
-          isScrolled ? "max-h-0 opacity-0" : "max-h-24 opacity-100"
-        }`}
+        className={`bg-gray-50/80 backdrop-blur-sm border-b border-gray-200 transition-all duration-300 overflow-hidden ${isScrolled ? "max-h-0 opacity-0" : "max-h-24 opacity-100"
+          }`}
       >
         <div className="section-container py-0 md:py-2">
           <div className="flex items-center justify-between h-7 md:h-auto">
@@ -127,11 +126,10 @@ const Navbar = () => {
                           WebkitTapHighlightColor: "transparent",
                           outline: "none",
                         }}
-                        className={`flex items-center justify-center p-4 rounded-lg border transition-colors ${
-                          isCurrent
-                            ? "border-primary bg-primary/10 ring-1 ring-primary/30"
-                            : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                        }`}
+                        className={`flex items-center justify-center p-4 rounded-lg border transition-colors ${isCurrent
+                          ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+                          : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                          }`}
                       >
                         <img
                           src={getLogoUrl(initiative.logo)}
