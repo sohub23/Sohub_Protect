@@ -19,12 +19,15 @@ ini_set('display_errors', 0);
 
 // PING TEST for debugging
 if (isset($_GET['test'])) {
+    $vExists = file_exists(__DIR__ . '/vendor/autoload.php') || file_exists(__DIR__ . '/api/vendor/autoload.php');
+    $eExists = file_exists(__DIR__ . '/.env') || file_exists(__DIR__ . '/api/.env');
     echo json_encode([
         'success' => true,
         'message' => 'PHP is working correctly on your server.',
         'php_version' => PHP_VERSION,
-        'vendor_exists' => file_exists(__DIR__ . '/vendor/autoload.php'),
-        'env_exists' => file_exists(__DIR__ . '/.env')
+        'vendor_exists' => $vExists,
+        'env_exists' => $eExists,
+        'script_location' => __DIR__
     ]);
     exit;
 }
@@ -37,12 +40,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 /* ══════════════════════════════════════════════════════════════════
    2. CHECK REQUIRED FILES
    ══════════════════════════════════════════════════════════════════ */
+// Check for vendor folder in current dir or inside 'api' folder
 $autoloadFile = __DIR__ . '/vendor/autoload.php';
+if (!file_exists($autoloadFile)) {
+    $autoloadFile = __DIR__ . '/api/vendor/autoload.php';
+}
+
 if (!file_exists($autoloadFile)) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error' => 'Backend configuration error: PHPMailer or TCPDF is not installed. Please ensure the "vendor" folder is uploaded inside the "api" directory.'
+        'error' => 'Backend configuration error: PHPMailer or TCPDF is not installed. Please ensure the "vendor" folder is uploaded to the root or inside the "api" directory.'
     ]);
     exit;
 }
@@ -56,6 +64,10 @@ use PHPMailer\PHPMailer\Exception;
    3. LOAD .env
    ══════════════════════════════════════════════════════════════════ */
 $envFile = __DIR__ . '/.env';
+if (!file_exists($envFile)) {
+    $envFile = __DIR__ . '/api/.env';
+}
+
 if (file_exists($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
@@ -115,6 +127,9 @@ if (!$edition || !$customerName || !$customerPhone || !$customerAddress) {
  * ensure you have uploaded the 'vendor' folder and '.env' file into the 'public' folder too.
  */
 $assetsDir = __DIR__ . '/api-assets';
+if (!is_dir($assetsDir)) {
+    $assetsDir = __DIR__ . '/api/assets';
+}
 
 $imageMap = [
     'sp01' => $assetsDir . '/Sp1.png',
