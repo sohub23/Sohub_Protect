@@ -1,7 +1,7 @@
 <?php
 /**
  * SOHUB Protect — Order API 
- * Fixes for Email Structure, PDF Multipage Table Grid + Logo + Images
+ * Fixes: PNG transparency conversion for TCPDF, Logo embed, Bangla Font support fallback.
  */
 
 /* ══════════════════════════════════════════════════════════════════
@@ -113,6 +113,40 @@ $orderDate = date('d M Y, h:i A');
 $editionPrice = intval($edition['price'] ?? 0);
 $addonTotal   = array_reduce($addons, fn($sum, $a) => $sum + intval($a['price'] ?? 0), 0);
 
+
+/**
+ * Helper: Converts Interlaced/Alpha PNGs to standard JPGs which TCPDF NEVER chokes on.
+ */
+function getSafePdfImage($origPath, $isLogo = false) {
+    if (!$origPath || !file_exists($origPath)) return '';
+    $ext = strtolower(pathinfo($origPath, PATHINFO_EXTENSION));
+    
+    if ($ext === 'png' && function_exists('imagecreatefrompng')) {
+        $tmp = sys_get_temp_dir() . '/tcpdf_' . ($isLogo ? 'logo_' : 'item_') . md5($origPath) . '.jpg';
+        if (!file_exists($tmp)) {
+            $img = @imagecreatefrompng($origPath);
+            if ($img) {
+                // Remove transparency by creating a solid background
+                $bg = imagecreatetruecolor(imagesx($img), imagesy($img));
+                if ($isLogo) {
+                    // TCPDF header background is blue #1890ff (24, 144, 255)
+                    imagefill($bg, 0, 0, imagecolorallocate($bg, 24, 144, 255));
+                } else {
+                    // White background for table
+                    imagefill($bg, 0, 0, imagecolorallocate($bg, 255, 255, 255));
+                }
+                imagealphablending($bg, TRUE);
+                imagecopy($bg, $img, 0, 0, 0, 0, imagesx($img), imagesy($img));
+                imagejpeg($bg, $tmp, 95);
+                imagedestroy($bg);
+                imagedestroy($img);
+            }
+        }
+        if (file_exists($tmp)) return $tmp;
+    }
+    return $origPath;
+}
+
 /* ══════════════════════════════════════════════════════════════════
    5. PDF GENERATION
    ══════════════════════════════════════════════════════════════════ */
@@ -125,17 +159,18 @@ class SOHUBQuotation extends TCPDF {
         $this->SetFillColor(24, 144, 255);
         $this->Rect(0, 0, 210, 38, 'F');
 
-        // Simple explicit call avoids passing explicit empty/null dimensions that crash PNG reading
-        if (file_exists($this->logoPath)) {
-            $this->Image($this->logoPath, 15, 6, 45); 
+        $safeLogo = getSafePdfImage($this->logoPath, true);
+        if ($safeLogo && file_exists($safeLogo)) {
+            // Embed perfectly processed safe JPG for logo!
+            $this->Image($safeLogo, 15, 6, 45); 
         }
 
-        $this->SetFont('freeserif', 'B', 20);
+        $this->SetFont('dejavusans', 'B', 20); // Better Bengali fallback
         $this->SetTextColor(255, 255, 255);
         $this->SetXY(100, 8);
         $this->Cell(95, 10, 'QUOTATION', 0, 0, 'R');
 
-        $this->SetFont('freeserif', '', 9);
+        $this->SetFont('dejavusans', '', 9);
         $this->SetTextColor(220, 240, 255);
         $this->SetXY(100, 18);
         $this->Cell(95, 5, 'Order: ' . $this->orderId, 0, 1, 'R');
@@ -155,11 +190,11 @@ class SOHUBQuotation extends TCPDF {
         $this->Line(15, $this->GetY(), 195, $this->GetY());
 
         $this->Ln(4);
-        $this->SetFont('freeserif', 'B', 8);
+        $this->SetFont('dejavusans', 'B', 8);
         $this->SetTextColor(24, 144, 255);
         $this->Cell(0, 4, 'Solution Hub Technologies (SOHUB)', 0, 1, 'C');
 
-        $this->SetFont('freeserif', '', 7);
+        $this->SetFont('dejavusans', '', 7);
         $this->SetTextColor(130, 130, 130);
         $this->Cell(0, 4, 'Phone: 09678-076482  |  Email: hello@sohub.com.bd  |  www.sohubprotect.com.bd', 0, 1, 'C');
         $this->Cell(0, 4, '1 Year Warranty  •  No Monthly Fee  •  Free Technical Support', 0, 1, 'C');
@@ -174,11 +209,11 @@ $pdf->orderDate = $orderDate;
 $pdf->SetMargins(15, 45, 15);
 $pdf->SetAutoPageBreak(true, 35);
 $pdf->AddPage();
-$pdf->SetFont('freeserif', '', 10);
+// using dejavusans for better Unicode fallback (resolves the question mark rectangles)
+$pdf->SetFont('dejavusans', '', 10);
 
 $pmtMethodLabel = $paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery';
 
-// Build PDF using HTML table layout for guaranteed page-break resilience!
 $pdfHtml = <<<EOD
 <table width="100%" cellpadding="0" cellspacing="0">
     <tr>
@@ -212,7 +247,7 @@ $pdfHtml = <<<EOD
     </tr>
 </table>
 <br>
-<table width="100%" cellpadding="8" border="1" style="border-collapse: collapse; border-color: #e6e6e6;">
+<table width="100%" cellpadding="8" border="1" style="border-collapse: collapse; border-color: #c0c0c0;">
     <tr style="background-color: #1890ff; color: #ffffff; font-weight: bold;">
         <th width="15%" align="center">Image</th>
         <th width="45%" align="left">Product</th>
@@ -221,7 +256,8 @@ $pdfHtml = <<<EOD
     </tr>
 EOD;
 
-$edImg = $imageMap[$edition['id']] ?? '';
+// Edition
+$edImg = getSafePdfImage($imageMap[$edition['id']] ?? '');
 $edImgTag = ($edImg && file_exists($edImg)) ? '<img src="'.$edImg.'" width="55" />' : '';
 $edNameStr = $edition['nameBn'] ?? $edition['name'];
 $edEngStr = $edition['name'];
@@ -236,8 +272,9 @@ $pdfHtml .= <<<EOD
     </tr>
 EOD;
 
+// Accessories
 foreach ($addons as $addon) {
-    $adImg = $imageMap[$addon['id']] ?? '';
+    $adImg = getSafePdfImage($imageMap[$addon['id']] ?? '');
     $adImgTag = ($adImg && file_exists($adImg)) ? '<img src="'.$adImg.'" width="45" />' : '';
     $adNameStr = $addon['nameBn'] ?? $addon['name'];
     $adEngStr = $addon['name'];
@@ -398,7 +435,7 @@ $emailHtml = <<<HTML
                 </tr>
                 {$addonRowsHtml}
                 <tr>
-                    <td style="padding:12px 16px; color:#666; font-size:13px;">Delivery</td>
+                    <td style="padding:12px 16px; color:#333; font-size:13px;">Delivery</td>
                     <td style="padding:12px 16px; font-size:13px; text-align:right; color:#333;">{$deliveryLabel}</td>
                 </tr>
                 <tr style="background:#f9fafb;">
