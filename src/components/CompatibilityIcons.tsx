@@ -11,14 +11,14 @@ const CompatibilityIcons = ({ variant = "light" }: CompatibilityIconsProps) => {
   const iconColor = variant === "light" ? "text-primary-foreground/70" : "text-primary";
 
   const platforms = [
+    { icon: Home, label: "Google Home" },
     { icon: Mic, label: "Amazon Alexa" },
-    { icon: Home, label: "Google Assistant" },
     { icon: Smartphone, label: "Smart Life" },
   ];
 
   return (
     <div className="flex flex-wrap items-center gap-5">
-      
+
       {platforms.map((p) => (
         <div key={p.label} className="flex items-center gap-2">
           <div className={`w-8 h-8 rounded-lg ${iconBg} flex items-center justify-center`}>

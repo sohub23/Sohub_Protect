@@ -34,7 +34,7 @@ const Navbar = () => {
 
   const navLinks = [
     { label: "কেন প্রটেক্ট?", href: "#why", isHash: true },
-    { label: "কিভাবে কাজ করে", href: "#how", isHash: true },
+    { label: "প্যাকেজ", href: "#packages", isHash: true },
     { label: "পণ্যের বিবরণ", href: "/product-details", isRoute: true },
     { label: "পার্টনারশিপ", href: "/partnership", isRoute: true },
   ];
@@ -90,7 +90,7 @@ const Navbar = () => {
               />
               <p className="text-[10px] md:text-[13px] text-gray-500 font-medium tracking-tight">
                 <span className="hidden md:inline">
-                  Solution Hub Technologies(SOHUB) Owned & Operated
+                  Solution Hub Technologies (SOHUB) Owned & Operated
                 </span>
                 <span className="md:hidden">SOHUB Owned & Operated</span>
               </p>

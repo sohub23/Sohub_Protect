@@ -1,14 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, X, ChevronLeft, ChevronRight } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Video {
   id: string;
   title: string;
 }
 
-const videos: Video[] = [
+const API_KEY = "AIzaSyBWGorxS2K4lutpZc1bR2uJhWATQfwMvZM";
+const CHANNEL_ID = "UCfMyX0fJd8tINcEDAvcCgAg";
+
+const fallbackVideos: Video[] = [
   { id: "2jh58viBn2g", title: "SOHUB Protect Demo | স্মার্ট সিকিউরিটি সিস্টেম" },
   { id: "HEsKgZqQh_w", title: "চোর কখনো আগে বলে আসে না । SOHUB Protect" },
   { id: "j39ol1TT84I", title: "SOHUB Protect Installation Guide | স্মার্ট হোম সিকিউরিটি সিস্টেম সেটআপ" },
@@ -20,32 +22,45 @@ const videos: Video[] = [
 
 const YouTubeCarousel = () => {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
-  const isMobile = useIsMobile();
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [videos, setVideos] = useState<Video[]>(fallbackVideos);
+  const [category, setCategory] = useState<"All" | "Video Guide">("All");
+  const [visibleCount, setVisibleCount] = useState(4);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const checkScroll = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 10);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
-  };
-
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", checkScroll);
-    checkScroll();
-    return () => el.removeEventListener("scroll", checkScroll);
+    const fetchVideos = async () => {
+      try {
+        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet,id&order=date&maxResults=50&type=video`);
+        const data = await response.json();
+        if (data.items) {
+          const fetchedVideos = data.items
+            .filter((item: any) => item.id.kind === 'youtube#video')
+            .map((item: any) => ({
+              id: item.id.videoId,
+              title: item.snippet.title,
+            }));
+          if (fetchedVideos.length > 0) {
+            setVideos(fetchedVideos);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching YouTube videos:", error);
+      }
+    };
+    fetchVideos();
   }, []);
 
-  const scroll = (dir: "left" | "right") => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const cardWidth = el.querySelector("div")?.offsetWidth || 300;
-    el.scrollBy({ left: dir === "left" ? -cardWidth : cardWidth, behavior: "smooth" });
-  };
+  const filteredVideos = videos.filter(video => {
+    if (category === "All") return true;
+    const t = video.title.toLowerCase();
+    return t.includes('guide') || 
+           t.includes('installation') || 
+           t.includes('setup') || 
+           t.includes('tutorial') ||
+           t.includes('pairing') ||
+           t.includes('কীভাবে') ||
+           t.includes('কিভাবে');
+  });
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -67,7 +82,7 @@ const YouTubeCarousel = () => {
       viewport={{ once: true }}
       transition={{ delay: i * 0.06 }}
       onClick={() => setSelectedVideo(video)}
-      className="block rounded-2xl overflow-hidden border-2 border-border/60 hover:border-primary/40 shadow-sm hover:shadow-md transition-all group cursor-pointer"
+      className="block rounded-2xl overflow-hidden border-2 border-border/60 hover:border-primary/40 shadow-sm hover:shadow-md transition-all group cursor-pointer h-full"
     >
       {/* Thumbnail + Play button overlay */}
       <div className="aspect-video relative overflow-hidden bg-secondary">
@@ -86,9 +101,9 @@ const YouTubeCarousel = () => {
       </div>
 
       {/* Title strip at bottom */}
-      <div className="px-4 py-2.5 bg-primary">
+      <div className="px-4 py-2.5 bg-primary h-full">
         <p
-          className="text-xs md:text-sm text-primary-foreground font-medium truncate"
+          className="text-xs md:text-sm text-primary-foreground font-medium line-clamp-2"
           title={video.title}
         >
           {video.title}
@@ -100,10 +115,7 @@ const YouTubeCarousel = () => {
   return (
     <section className="py-16 lg:py-24 bg-card border-y border-border" id="videos">
       <div className="section-container">
-        <div className="text-center mb-10">
-          <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
-            ভিডিও গাইড
-          </p>
+        <div className="text-center mb-8">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
             দেখুন কিভাবে কাজ করে
           </h2>
@@ -112,39 +124,50 @@ const YouTubeCarousel = () => {
           </p>
         </div>
 
-        {/* Carousel with side buttons */}
-        <div className="relative">
-          {/* Left button */}
+        {/* Categories */}
+        <div className="flex justify-center gap-3 mb-10">
           <button
-            onClick={() => scroll("left")}
-            disabled={!canScrollLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 rounded-full bg-card border-2 border-border flex items-center justify-center hover:bg-muted hover:border-primary transition-all shadow-lg disabled:opacity-30 disabled:cursor-not-allowed"
+            onClick={() => setCategory("All")}
+            className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
+              category === "All"
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
+            }`}
           >
-            <ChevronLeft className="w-6 h-6 text-foreground" />
+            All
           </button>
-
-          {/* Right button */}
           <button
-            onClick={() => scroll("right")}
-            disabled={!canScrollRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 rounded-full bg-card border-2 border-border flex items-center justify-center hover:bg-muted hover:border-primary transition-all shadow-lg disabled:opacity-30 disabled:cursor-not-allowed"
+            onClick={() => setCategory("Video Guide")}
+            className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
+              category === "Video Guide"
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
+            }`}
           >
-            <ChevronRight className="w-6 h-6 text-foreground" />
+            Video Guide
           </button>
-
-          {/* Carousel */}
-          <div
-            ref={scrollRef}
-            className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {videos.map((video, i) => (
-              <div key={video.id} className="w-[calc(25%-12px)] shrink-0 snap-start">
-                {renderVideoCard(video, i)}
-              </div>
-            ))}
-          </div>
         </div>
+
+        {/* Video Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          {filteredVideos.slice(0, visibleCount).map((video, i) => (
+            <div key={video.id} className="h-full">
+              {renderVideoCard(video, i)}
+            </div>
+          ))}
+        </div>
+
+        {/* Load More Button */}
+        {visibleCount < filteredVideos.length && (
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={() => setVisibleCount((prev) => prev + 4)}
+              className="px-8 py-3 rounded-full bg-secondary hover:bg-secondary/80 text-secondary-foreground font-semibold shadow-sm transition-all border border-border"
+            >
+              আরো দেখুন
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Video Modal */}
@@ -173,7 +196,7 @@ const YouTubeCarousel = () => {
               {/* Close button */}
               <button
                 onClick={() => setSelectedVideo(null)}
-                className="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                className="absolute -top-12 right-0 md:-right-12 xl:-top-12 xl:-right-12 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
                 aria-label="Close"
               >
                 <X className="w-5 h-5 text-white" />

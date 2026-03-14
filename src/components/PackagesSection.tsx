@@ -131,33 +131,18 @@ const PackagesSection = () => {
                 }`}
             >
               {/* Product Image */}
-              <div
-                className="flex justify-center items-center mb-6 py-2 rounded-2xl"
-                style={{ backgroundColor: '#fdfbf7' }}
-              >
+              <div className="flex justify-center items-center mb-6 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 h-[220px] sm:h-[280px] md:h-[320px] overflow-hidden rounded-t-2xl md:rounded-t-3xl">
                 <img
                   src={pkg.image}
                   alt={pkg.name}
-                  className="h-48 sm:h-56 md:h-64 object-contain"
+                  className="w-full h-full object-cover scale-[0.90] mix-blend-multiply origin-center"
                 />
               </div>
 
-              {/* Selection Dots */}
-              <div className="flex justify-center gap-1.5 mb-4">
-                {packages.map((p) => (
-                  <div
-                    key={p.id}
-                    className={`w-2.5 h-2.5 rounded-full transition-colors ${p.id === pkg.id ? "bg-primary" : "bg-border"
-                      }`}
-                  />
-                ))}
-              </div>
-
               {/* Product Name */}
-              <div className="text-center">
+              <div className="text-center mt-2">
                 <h3 className="text-lg font-bold text-foreground">{pkg.nameBn}</h3>
                 <p className="text-sm text-primary font-medium">{pkg.name}</p>
-                <p className="text-sm text-muted-foreground mt-1 italic">{pkg.tagline}</p>
               </div>
             </div>
           ))}
@@ -167,7 +152,7 @@ const PackagesSection = () => {
         <div className="grid grid-cols-2 gap-4 md:gap-8 max-w-4xl mx-auto mb-8">
           {packages.map((pkg) => (
             <div key={pkg.id} className="text-center py-4">
-              <span className="text-2xl md:text-4xl font-bold text-foreground">
+              <span className="text-lg md:text-xl font-bold text-foreground">
                 {pkg.price.toLocaleString()} BDT
               </span>
               <span className="text-muted-foreground text-xs md:text-sm ml-1">/ one-time</span>

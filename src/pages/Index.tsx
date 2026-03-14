@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import ProblemSection from "@/components/ProblemSection";
+import SolutionSection from "@/components/SolutionSection";
 import YouTubeCarousel from "@/components/YouTubeCarousel";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import PackagesSection from "@/components/PackagesSection";
@@ -18,8 +19,9 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <ProblemSection />
-      <YouTubeCarousel />
       <HowItWorksSection />
+      <YouTubeCarousel />
+      <SolutionSection />
       <PackagesSection />
       <AddonsSection />
       <FeaturesSection />

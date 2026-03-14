@@ -1,6 +1,8 @@
 import { Shield, Eye, Bell, TrendingUp, TrendingDown, AlertTriangle, Globe, BarChart3, Building2, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import fbiImage from "@/assets/FBI.png";
+import crimeStatsImage from "@/assets/crime_stats.png";
+import smartHomeStatsImage from "@/assets/smart_home_stats.png";
 
 const useInView = (threshold = 0.2) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -83,30 +85,13 @@ const ProblemSection = () => {
               ))}
             </div>
 
-            {/* Right - animated stats */}
-            <div className="bg-card rounded-2xl border border-border p-8 shadow-sm">
-              <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-destructive" />
-                বাংলাদেশে অপরাধের পরিসংখ্যান
-              </h3>
-              <div className="space-y-5">
-                <div className="text-center p-6 bg-destructive/5 rounded-xl border border-destructive/10">
-                  <div className="text-4xl md:text-5xl font-bold text-destructive">
-                    <AnimatedCounter end={67} suffix="%" />
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">বাসিন্দা নিরাপত্তা নিয়ে উদ্বিগ্ন</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-muted/50 rounded-xl">
-                    <div className="text-2xl font-bold text-foreground"><AnimatedCounter end={82} suffix="%" /></div>
-                    <p className="text-xs text-muted-foreground mt-1">CCTV শুধু রেকর্ড করে</p>
-                  </div>
-                  <div className="text-center p-4 bg-muted/50 rounded-xl">
-                    <div className="text-2xl font-bold text-foreground"><AnimatedCounter end={3} suffix="x" /></div>
-                    <p className="text-xs text-muted-foreground mt-1">চুরির হার বৃদ্ধি</p>
-                  </div>
-                </div>
-              </div>
+            {/* Right - animated stats replaced with image */}
+            <div className="bg-card rounded-2xl border border-border p-4 md:p-6 overflow-hidden shadow-sm flex items-center justify-center">
+              <img 
+                src={crimeStatsImage} 
+                alt="বাংলাদেশে অপরাধের পরিসংখ্যান" 
+                className="w-full h-auto object-contain rounded-lg"
+              />
             </div>
           </div>
         </div>
@@ -153,39 +138,27 @@ const ProblemSection = () => {
                 </div>
               </div>
 
-              {/* Right - FBI style chart mockup */}
-              <div className="bg-foreground rounded-2xl p-6 text-primary-foreground">
-                <div className="flex items-center gap-3 mb-6">
-                  <Shield className="w-8 h-8 text-primary" />
-                  <div>
-                    <p className="font-bold text-lg">Security System Impact</p>
-                    <p className="text-xs text-primary-foreground/60">Crime Rate Reduction with Security Systems</p>
-                  </div>
+              {/* Right - FBI style chart replaced with image and link */}
+              <div className="flex flex-col gap-4">
+                <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm flex items-center justify-center p-2">
+                  <img
+                    src={fbiImage}
+                    alt="Security System Impact"
+                    className="w-[105%] h-auto object-contain rounded-lg shadow-md hover:scale-[1.02] transition-transform duration-300"
+                  />
                 </div>
-                <div className="space-y-4">
-                  {[
-                    { year: "নিরাপত্তা ব্যবস্থা ছাড়া", val: 95, color: "bg-destructive" },
-                    { year: "বেসিক CCTV", val: 70, color: "bg-accent" },
-                    { year: "স্মার্ট সিকিউরিটি", val: 35, color: "bg-primary" },
-                    { year: "SOHUB Protect", val: 15, color: "bg-green-500" },
-                  ].map((item, i) => (
-                    <div key={i}>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-primary-foreground/80">{item.year}</span>
-                        <span className="font-semibold">{item.val}%</span>
-                      </div>
-                      <div className="h-3 bg-primary-foreground/10 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${item.color} transition-all duration-1000 ease-out`}
-                          style={{ width: section2.inView ? `${item.val}%` : '0%', transitionDelay: `${i * 200}ms` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6 pt-4 border-t border-primary-foreground/10 flex items-center gap-2">
-                  <TrendingDown className="w-4 h-4 text-primary" />
-                  <p className="text-xs text-primary-foreground/60">নিরাপত্তা ব্যবস্থা থাকলে অপরাধের হার <span className="text-primary font-semibold">৮৫% পর্যন্ত কমে</span></p>
+                <div className="flex justify-center pt-1">
+                  <p className="text-xs md:text-sm text-foreground font-medium">
+                    Reference :{" "}
+                    <a 
+                      href="https://www.youtube.com/watch?v=0DiLan7Knw4" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:opacity-80 transition-opacity border-b border-transparent hover:border-primary pb-0.5"
+                    >
+                      Youtube Link From Modern MBA
+                    </a>
+                  </p>
                 </div>
               </div>
             </div>
@@ -237,34 +210,22 @@ const ProblemSection = () => {
 
             {/* Right - FBI image and stats */}
             <div className="space-y-6">
-              {/* FBI Image */}
-              <div className="flex justify-center items-center">
+              {/* Smart Home Stats Image */}
+              <div className="bg-card rounded-2xl border border-border p-2 shadow-sm overflow-hidden flex items-center justify-center">
                 <img
-                  src={fbiImage}
-                  alt="Global Market Statistics"
-                  className="w-full max-w-lg rounded-2xl shadow-lg"
+                  src={smartHomeStatsImage}
+                  alt="U.S. Leads the World in Smart Home Security Adoption"
+                  className="w-full h-auto object-contain rounded-lg"
                 />
               </div>
 
-              {/* Market Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-primary text-primary-foreground rounded-2xl p-6 text-center">
-                  <div className="text-3xl font-bold mb-1">$<AnimatedCounter end={52} />B</div>
-                  <p className="text-xs text-primary-foreground/80">মার্কেট সাইজ ২০২১</p>
-                </div>
-                <div className="bg-accent text-accent-foreground rounded-2xl p-6 text-center">
-                  <div className="text-3xl font-bold mb-1">$<AnimatedCounter end={78} />B</div>
-                  <p className="text-xs text-accent-foreground/80">প্রত্যাশিত ২০২৭</p>
-                </div>
-              </div>
-
               {/* Bangladesh Opportunity */}
-              <div className="bg-primary/5 border border-primary/10 rounded-2xl p-6">
+              <div className="bg-[#E9F3F7] border border-border/40 rounded-2xl p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <Building2 className="w-6 h-6 text-primary" />
                   <h4 className="font-semibold text-foreground">বাংলাদেশের সুযোগ</h4>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-sm text-foreground/80 leading-relaxed font-medium">
                   সঠিক দামে এবং উচ্চ মানের পণ্য সরবরাহ করে বাজারে নেতৃত্ব দানের সুযোগ। SOHUB Protect
                   বাংলাদেশের প্রেক্ষাপটে তৈরি একটি সম্পূর্ণ নিরাপত্তা সমাধান।
                 </p>
@@ -274,32 +235,6 @@ const ProblemSection = () => {
         </div>
       </div>
 
-      {/* === Original 3 Pillars === */}
-      <div className="section-container">
-        <div className="max-w-3xl mx-auto text-center mb-16">
-          <p className="text-sm uppercase tracking-widest text-primary font-medium mb-4">
-            সমাধান
-          </p>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-6">
-            SOHUB Protect কিভাবে<br className="hidden md:block" /> আপনাকে রক্ষা করে?
-          </h2>
-        </div>
-        <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-          {[
-            { icon: Eye, title: "Senses — সনাক্ত করে", desc: "SOHUB Protect ২৪/৭ আপনার বাসা-বাড়ি মনিটর করে অনুপ্রবেশ ও অস্বাভাবিক গতিবিধি সনাক্ত করে।" },
-            { icon: Bell, title: "Alerts — সতর্ক করে", desc: "সম্ভাব্য ঝুঁকির বিষয়ে তাৎক্ষণিক মোবাইল নোটিফিকেশনের মাধ্যমে আপনাকে সতর্ক করে।" },
-            { icon: Shield, title: "Prevents — প্রতিরোধ করে", desc: "বিল্ট-ইন সাইরেন সিস্টেমের মাধ্যমে অনুপ্রবেশকারীদের ঠেকায় এবং বিপদ প্রতিরোধ করে।" },
-          ].map((item, i) => (
-            <div key={i} className="text-center p-8 rounded-2xl bg-card border border-border hover:shadow-lg transition-shadow">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                <item.icon className="w-7 h-7 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">{item.title}</h3>
-              <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
     </section>
   );
 };
