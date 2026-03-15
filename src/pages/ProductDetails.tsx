@@ -212,7 +212,7 @@ const ProductDetails = () => {
       <section className="py-8 border-b border-border bg-card">
         <div className="section-container grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {[
-            { label: "European Standard", sub: "উচ্চমানের সিস্টেম" },
+            { label: "European Standard Hardware  ", sub: "উচ্চমানের হার্ডওয়্যার সিস্টেম" },
             { label: "No Monthly Fee", sub: "কোনো মাসিক ফি নেই" },
             { label: "Homes & Offices", sub: "বাড়ি, অফিস, ফ্যাক্টরি" },
             { label: "Crime Reduction", sub: "অপরাধ প্রতিরোধে কার্যকর" },
