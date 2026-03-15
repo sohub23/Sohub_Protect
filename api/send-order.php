@@ -21,10 +21,11 @@ ini_set('display_errors', 0);
 if (isset($_GET['test'])) {
     echo json_encode([
         'success' => true,
-        'message' => 'PHP is working correctly on your server.',
+        'message' => 'PHP API is reachable',
         'php_version' => PHP_VERSION,
         'vendor_exists' => file_exists(__DIR__ . '/vendor/autoload.php'),
-        'env_exists' => file_exists(__DIR__ . '/.env')
+        'env_exists' => file_exists(__DIR__ . '/.env'),
+        'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown'
     ]);
     exit;
 }
@@ -39,10 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
    ══════════════════════════════════════════════════════════════════ */
 $autoloadFile = __DIR__ . '/vendor/autoload.php';
 if (!file_exists($autoloadFile)) {
-    http_response_code(500);
+    // Return success:false but keep 200 OK to prevent server from overriding with HTML
     echo json_encode([
         'success' => false,
-        'error' => 'Backend configuration error: PHPMailer or TCPDF is not installed. Please ensure the "vendor" folder is uploaded inside the "api" directory.'
+        'error' => 'Backend Error: "vendor" folder not found. Please upload PHPMailer/TCPDF dependencies inside your "api" directory.'
     ]);
     exit;
 }

@@ -41,8 +41,7 @@ if (file_exists($envFile)) {
 $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid JSON body']);
+    echo json_encode(['success' => false, 'error' => 'Invalid JSON body']);
     exit;
 }
 
@@ -55,8 +54,7 @@ $customerPhone = trim($input['customerPhone'] ?? '');
 $customerAddress = trim($input['customerAddress'] ?? '');
 
 if ($amount <= 0) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid amount']);
+    echo json_encode(['success' => false, 'error' => 'Invalid amount']);
     exit;
 }
 
@@ -77,8 +75,10 @@ if ($gateway === 'sslcommerz') {
     $isSandbox = ($_ENV['SSL_IS_SANDBOX'] ?? 'false') === 'true';
 
     if (!$storeId || !$storePassword) {
-        http_response_code(500);
-        echo json_encode(['error' => 'SSLCommerz credentials not configured']);
+        echo json_encode([
+            'success' => false,
+            'error' => 'SSLCommerz credentials not found in api/.env. Please configure them.'
+        ]);
         exit;
     }
 
@@ -134,16 +134,14 @@ if ($gateway === 'sslcommerz') {
     curl_close($ch);
 
     if ($curlError) {
-        http_response_code(500);
-        echo json_encode(['error' => 'SSLCommerz connection failed: ' . $curlError]);
+        echo json_encode(['success' => false, 'error' => 'SSLCommerz connection failed: ' . $curlError]);
         exit;
     }
 
     $result = json_decode($response, true);
 
     if (!$result) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Invalid response from SSLCommerz']);
+        echo json_encode(['success' => false, 'error' => 'Invalid response from SSLCommerz']);
         exit;
     }
 
@@ -156,8 +154,8 @@ if ($gateway === 'sslcommerz') {
             'tranId' => $orderId,
         ]);
     } else {
-        http_response_code(400);
         echo json_encode([
+            'success' => false,
             'error' => $result['failedreason'] ?? 'SSLCommerz session creation failed',
             'details' => $result,
         ]);
@@ -166,5 +164,4 @@ if ($gateway === 'sslcommerz') {
 }
 
 /* ── Unknown Gateway ── */
-http_response_code(400);
-echo json_encode(['error' => 'Unknown gateway or bKash disabled. Use "sslcommerz"']);
+echo json_encode(['success' => false, 'error' => 'Payment gateway disabled or unknown.']);
