@@ -104,7 +104,7 @@ const PackagesSection = () => {
   };
 
   return (
-    <section id="packages" className="py-24 lg:py-32 bg-white">
+    <section id="packages" className="py-24 lg:pb-32 lg:pt-24 bg-white scroll-mt-20 md:scroll-mt-0">
       <div className="section-container">
         {/* Header */}
         <div className="text-center mb-16">
@@ -120,7 +120,7 @@ const PackagesSection = () => {
         </div>
 
         {/* Product Cards - Side by Side */}
-        <div className="grid grid-cols-2 gap-4 md:gap-8 max-w-4xl mx-auto mb-8">
+        <div className="grid grid-cols-2 gap-4 md:gap-8 max-w-4xl mx-auto mb-0">
           {packages.map((pkg) => (
             <div
               key={pkg.id}
@@ -131,7 +131,7 @@ const PackagesSection = () => {
                 }`}
             >
               {/* Product Image */}
-              <div className="flex justify-center items-center mb-6 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 h-[220px] sm:h-[280px] md:h-[320px] overflow-hidden rounded-t-2xl md:rounded-t-3xl">
+              <div className="flex justify-center items-center mb-1 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 h-[220px] sm:h-[280px] md:h-[320px] overflow-hidden rounded-t-2xl md:rounded-t-3xl">
                 <img
                   src={pkg.image}
                   alt={pkg.name}
@@ -140,7 +140,7 @@ const PackagesSection = () => {
               </div>
 
               {/* Product Name */}
-              <div className="text-center mt-2">
+              <div className="text-center mt-1">
                 <h3 className="text-lg font-bold text-foreground">{pkg.nameBn}</h3>
                 <p className="text-sm text-primary font-medium">{pkg.name}</p>
               </div>
@@ -151,12 +151,12 @@ const PackagesSection = () => {
         {/* Price Row */}
         <div className="grid grid-cols-2 gap-4 md:gap-8 max-w-4xl mx-auto mb-8">
           {packages.map((pkg) => (
-            <div key={pkg.id} className="text-center py-4">
-              <span className="text-lg md:text-xl font-bold text-foreground">
+            <div key={pkg.id} className="text-center pt-5 md:pt-7 pb-4">
+              <span className="text-sm md:text-base font-bold text-foreground">
                 {pkg.price.toLocaleString()} BDT
               </span>
-              <span className="text-muted-foreground text-xs md:text-sm ml-1">/ one-time</span>
-              <div className="mt-3">
+              <span className="text-muted-foreground text-[10px] md:text-xs ml-1">/ one-time</span>
+              <div className="mt-1.5">
                 <button
                   onClick={() => handleOrder(pkg.id)}
                   className={`inline-flex items-center justify-center gap-1.5 px-6 md:px-8 py-2.5 md:py-3 rounded-full font-medium text-xs md:text-sm transition-colors ${selected === pkg.id

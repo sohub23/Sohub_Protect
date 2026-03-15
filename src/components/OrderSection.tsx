@@ -6,11 +6,12 @@ import {
   CheckCircle2,
   AlertCircle,
   Send,
+  X,
 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import panelImage from "@/assets/panel-product.png";
 import hero2Image from "@/assets/afford_trans.jpeg";
-import proNewImage from "@/assets/pro_trans.jpeg";
+import proNewImage from "@/assets/pro_combo_new.png";
 import howDevicesImage from "@/assets/how-devices.png";
 import imgShutter from "@/assets/Accesories/shutter sensor.jpeg";
 import imgVibration from "@/assets/Accesories/vivration_sensor.jpeg";
@@ -22,13 +23,14 @@ import imgSignal from "@/assets/Accesories/signal_extender.jpeg";
 import imgSos from "@/assets/Accesories/sos_band.jpeg";
 import imgSiren from "@/assets/Accesories/wireless_siren.jpeg";
 import imgAiCamera from "@/assets/Accesories/ai_camera.jpeg";
+import sslLogo from "@/assets/sslcommerz.png";
 
 /* ─── Data ─── */
 const editions = [
   {
     id: "sp01",
     name: "Affordable Edition",
-    nameBn: "SOHUB Protect Affordable Edition",
+    nameBn: "Protect Affordable Edition",
     desc: "Smart Cube Panel, Motion Sensor, Door Sensor, Remote, Power Adapter",
     price: 7490,
     image: hero2Image,
@@ -36,7 +38,7 @@ const editions = [
   {
     id: "sp05",
     name: "Pro Edition",
-    nameBn: "SOHUB Protect Pro Edition",
+    nameBn: "Protect Pro Edition",
     desc: '5" Smart Touch Panel, Motion Sensor, Door Sensor, 2x Remote, Power Adapter',
     price: 15990,
     image: proNewImage,
@@ -64,7 +66,7 @@ const OrderSection = () => {
   const editionParam = searchParams.get('edition');
   const initialEdition = editions.find(e => e.id === editionParam)?.id || "sp05";
   const [selectedEdition, setSelectedEdition] = useState(initialEdition);
-  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+  const [selectedAddons, setSelectedAddons] = useState<Record<string, number>>({});
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("online");
   const [formData, setFormData] = useState({
     name: "",
@@ -77,6 +79,7 @@ const OrderSection = () => {
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
   const [orderId, setOrderId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [activePreview, setActivePreview] = useState<string | null>(null);
 
   // Update edition when URL param changes (from PackagesSection)
   useEffect(() => {
@@ -87,14 +90,43 @@ const OrderSection = () => {
 
   const edition = editions.find((e) => e.id === selectedEdition)!;
 
+  const increaseAddon = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedAddons((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+  };
+
+  const decreaseAddon = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedAddons((prev) => {
+      const qty = prev[id] || 0;
+      if (qty <= 1) {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      }
+      return { ...prev, [id]: qty - 1 };
+    });
+  };
+
+  const removeFromSummary = (id: string) => {
+    setSelectedAddons((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  };
+
   const toggleAddon = (id: string) => {
-    setSelectedAddons((prev) =>
-      prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]
-    );
+    setSelectedAddons((prev) => {
+      if (prev[id]) {
+        return prev;
+      }
+      return { ...prev, [id]: 1 };
+    });
   };
 
   const addonTotal = useMemo(
-    () => selectedAddons.reduce((sum, id) => sum + (addons.find((x) => x.id === id)?.price ?? 0), 0),
+    () => Object.entries(selectedAddons).reduce((sum, [id, qty]) => sum + (addons.find((x) => x.id === id)?.price ?? 0) * qty, 0),
     [selectedAddons]
   );
 
@@ -113,11 +145,11 @@ const OrderSection = () => {
     setSubmitStatus("loading");
     setErrorMessage("");
 
-    const selectedAddonDetails = selectedAddons
-      .map((id) => {
+    const selectedAddonDetails = Object.entries(selectedAddons)
+      .map(([id, qty]) => {
         const addon = addons.find((a) => a.id === id);
         if (!addon) return null;
-        return { id: addon.id, name: addon.name, nameBn: addon.nameBn, price: addon.price };
+        return { id: addon.id, name: addon.name, nameBn: addon.nameBn, price: addon.price, quantity: qty };
       })
       .filter(Boolean);
 
@@ -130,7 +162,7 @@ const OrderSection = () => {
         price: edition.price,
       },
       addons: selectedAddonDetails,
-      paymentMethod,
+      paymentMethod: paymentMethod === "online" ? "sslcommerz" : "cod",
       deliveryFee,
       total,
       customer: {
@@ -143,13 +175,13 @@ const OrderSection = () => {
     };
 
     try {
-      const response = await fetch("/send-order.php", {
+      // Step 1: Submit order to backend
+      const response = await fetch("/api/send-order.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload),
       });
 
-      // Check if response is okay before parsing JSON
       if (!response.ok) {
         const text = await response.text();
         console.error("Server error:", text);
@@ -160,16 +192,70 @@ const OrderSection = () => {
 
       const data = await response.json();
 
-      if (data.success) {
-        setOrderId(data.orderId || "");
-        setSubmitStatus("success");
-      } else {
+      if (!data.success) {
         setErrorMessage(data.error || "Something went wrong. Please try again.");
         setSubmitStatus("error");
+        return;
       }
+
+      const serverOrderId = data.orderId || "";
+      setOrderId(serverOrderId);
+
+      // Step 2: If online payment, initiate payment gateway
+      if (paymentMethod === "online") {
+        try {
+          const payResponse = await fetch("/api/init-payment.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              gateway: "sslcommerz",
+              amount: total,
+              orderId: serverOrderId,
+              customerName: formData.name.trim(),
+              customerEmail: formData.email.trim(),
+              customerPhone: formData.phone.trim(),
+              customerAddress: formData.address.trim(),
+              callbackBase: window.location.origin,
+            }),
+          });
+
+          if (!payResponse.ok) {
+            const errText = await payResponse.text();
+            console.error("Payment init error:", errText);
+            // Order was placed but payment failed to init — show success with note
+            setSubmitStatus("success");
+            return;
+          }
+
+          const payData = await payResponse.json();
+
+          if (payData.success && payData.redirectUrl) {
+            // Store order info in sessionStorage so we can retrieve after redirect
+            sessionStorage.setItem('pending_order', JSON.stringify({
+              orderId: serverOrderId,
+              gateway: "sslcommerz",
+            }));
+            // Redirect to payment gateway
+            window.location.href = payData.redirectUrl;
+            return;
+          } else {
+            // Payment init failed but order placed
+            console.error("Payment init failed:", payData);
+            setSubmitStatus("success");
+            return;
+          }
+        } catch (payErr) {
+          console.error("Payment init network error:", payErr);
+          // Order was placed, payment couldn't be initiated
+          setSubmitStatus("success");
+          return;
+        }
+      }
+
+      // COD — just show success
+      setSubmitStatus("success");
     } catch (err) {
       console.error("Order submission error:", err);
-      // If data.json() fails, it's usually a SyntaxError because the server returned HTML (error message)
       if (err instanceof SyntaxError) {
         setErrorMessage("Server returned an invalid response. Please contact support.");
       } else {
@@ -180,7 +266,13 @@ const OrderSection = () => {
   };
 
   const handleWhatsAppFallback = () => {
-    const addonNames = selectedAddons.map((id) => addons.find((a) => a.id === id)?.name).filter(Boolean).join(", ");
+    const addonNames = Object.entries(selectedAddons)
+      .map(([id, qty]) => {
+        const a = addons.find((x) => x.id === id);
+        return a ? `${a.name} x${qty}` : null;
+      })
+      .filter(Boolean)
+      .join(", ");
     const message = [
       `*Order — SOHUB Protect*`,
       `Edition: ${edition.nameBn}`,
@@ -243,7 +335,7 @@ const OrderSection = () => {
               onClick={() => {
                 setSubmitStatus("idle");
                 setFormData({ name: "", phone: "", email: "", address: "", note: "" });
-                setSelectedAddons([]);
+                setSelectedAddons({});
               }}
               className="text-primary text-sm font-medium hover:underline"
             >
@@ -254,27 +346,54 @@ const OrderSection = () => {
           <div className="grid lg:grid-cols-[1fr_420px] gap-8 lg:gap-12 items-start max-w-5xl mx-auto">
             {/* Left — Product preview */}
             <div className="lg:sticky lg:top-20">
-              <div className="rounded-2xl md:rounded-3xl p-6 md:p-10 flex items-center justify-center h-[280px] md:h-[420px] border border-black/20" style={{ background: 'linear-gradient(180deg, #1890ff 0%, #52c7ff 50%, #e6f7ff 100%)' }}>
+              <div className="overflow-hidden w-full h-[300px] md:h-[400px] flex items-center justify-center border border-border bg-white rounded-3xl p-8 lg:p-12 shadow-xl relative group">
                 <img
-                  src={edition.image}
+                  src={activePreview || edition.image}
                   alt={edition.name}
-                  className="max-h-[240px] md:max-h-[400px] object-contain transition-all duration-500"
+                  className={`relative w-full h-full object-contain transition-all duration-500 mix-blend-multiply brightness-[1.03] contrast-[1.05] ${
+                    (activePreview === proNewImage || (!activePreview && selectedEdition === "sp05")) 
+                    ? "scale-[0.9]" // Zoom out Pro Edition
+                    : "scale-[1.1]" // Default scale for others
+                  }`}
+                  key={activePreview || selectedEdition}
                 />
               </div>
               {/* Thumbnails */}
-              <div className="flex gap-2 mt-4">
-                {editions.map((ed) => (
-                  <button
-                    key={ed.id}
-                    onClick={() => setSelectedEdition(ed.id)}
-                    className={`w-14 h-14 md:w-16 md:h-16 rounded-lg border-2 overflow-hidden flex items-center justify-center p-1.5 transition-colors ${selectedEdition === ed.id
-                      ? "border-primary bg-muted/50"
-                      : "border-border bg-card hover:border-primary/30"
-                      }`}
-                  >
-                    <img src={ed.image} alt={ed.name} className="h-full object-contain" />
-                  </button>
-                ))}
+              <div className="mt-4">
+                <div className="flex flex-wrap gap-2">
+                  {/* Editions */}
+                  {editions.map((ed) => (
+                    <button
+                      key={ed.id}
+                      onClick={() => {
+                        setSelectedEdition(ed.id);
+                        setActivePreview(ed.image);
+                      }}
+                      onMouseEnter={() => {
+                        setSelectedEdition(ed.id);
+                        setActivePreview(ed.image);
+                      }}
+                      className={`w-12 h-12 md:w-14 md:h-14 rounded-lg border-2 overflow-hidden flex items-center justify-center p-1.5 transition-all ${selectedEdition === ed.id && (activePreview === ed.image || !activePreview)
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border bg-card hover:border-primary/50"
+                        }`}
+                    >
+                      <img src={ed.image} alt={ed.name} className="h-full object-contain" />
+                    </button>
+                  ))}
+                  
+                  {/* Addons */}
+                  {addons.map((addon) => (
+                    <button
+                      key={addon.id}
+                      onClick={() => setActivePreview(addon.image)}
+                      onMouseEnter={() => setActivePreview(addon.image)}
+                      className={`w-12 h-12 md:w-14 md:h-14 rounded-lg border-2 bg-card transition-all flex items-center justify-center p-1.5 cursor-pointer ${activePreview === addon.image ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/50"}`}
+                    >
+                      <img src={addon.image} alt={addon.nameBn} className="h-full object-contain mix-blend-multiply brightness-[1.03] contrast-[1.05]" />
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -289,12 +408,19 @@ const OrderSection = () => {
                   {editions.map((ed) => (
                     <button
                       key={ed.id}
-                      onClick={() => setSelectedEdition(ed.id)}
+                      onClick={() => {
+                        setSelectedEdition(ed.id);
+                        setActivePreview(null);
+                      }}
+                      onMouseEnter={() => {
+                        setSelectedEdition(ed.id);
+                        setActivePreview(null);
+                      }}
                       disabled={submitStatus === "loading"}
                       className={`w-full text-left rounded-xl p-3.5 border-2 transition-all ${selectedEdition === ed.id
                         ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/30"
-                        } disabled:opacity-60`}
+                        : "border-border hover:border-primary/30 shadow-md scale-[1.01]"
+                        } hover:border-primary/50 disabled:opacity-60`}
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
@@ -326,42 +452,60 @@ const OrderSection = () => {
                 <p className="text-[11px] text-muted-foreground mb-3">প্রয়োজন অনুযায়ী এক্সেসরিজ যোগ করুন</p>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
                   {addons.map((addon) => {
-                    const sel = selectedAddons.includes(addon.id);
+                    const qty = selectedAddons[addon.id] || 0;
+                    const sel = qty > 0;
                     return (
-                      <button
+                      <div
                         key={addon.id}
-                        onClick={() => toggleAddon(addon.id)}
-                        disabled={submitStatus === "loading"}
-                        className={`relative rounded-xl p-2.5 text-center transition-all ${sel
-                          ? "bg-primary/10 border-2 border-primary"
+                        className={`relative rounded-xl overflow-hidden text-center transition-all flex flex-col ${sel
+                          ? "bg-primary/5 border-2 border-primary"
                           : "bg-muted/30 border border-border hover:border-primary/30"
-                          } disabled:opacity-60`}
+                          }`}
                       >
-                        <div className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2 bg-white rounded-lg shadow-sm flex items-center justify-center p-1.5 overflow-hidden">
-                          <img
-                            src={addon.image}
-                            alt={addon.nameBn}
-                            className="max-w-full max-h-full object-contain mix-blend-multiply"
-                          />
-                        </div>
-                        <p className="text-[10px] font-medium leading-tight text-foreground">{addon.nameBn}</p>
-                        <p className={`text-[10px] mt-0.5 font-semibold ${sel ? "text-primary" : "text-muted-foreground"}`}>
-                          +{addon.price} BDT
-                        </p>
+                        <button
+                          onClick={() => toggleAddon(addon.id)}
+                          disabled={submitStatus === "loading"}
+                          className={`flex-1 p-2 w-full flex flex-col items-center disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer`}
+                        >
+                          <div className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-1.5 bg-white rounded-lg shadow-sm flex items-center justify-center p-1.5 overflow-hidden">
+                            <img
+                              src={addon.image}
+                              alt={addon.nameBn}
+                              className="max-w-full max-h-full object-contain mix-blend-multiply"
+                            />
+                          </div>
+                          <p className="text-[10px] font-medium leading-tight text-foreground">{addon.nameBn}</p>
+                          <p className={`text-[10px] mt-0.5 font-semibold ${sel ? "text-primary" : "text-muted-foreground"}`}>
+                            +{addon.price.toLocaleString()} BDT
+                          </p>
+                        </button>
+
                         {sel && (
-                          <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center">
+                          <div className="bg-primary/10 border-t border-primary/20 p-1 flex items-center justify-between px-1.5 w-full">
+                            <button
+                              onClick={(e) => decreaseAddon(addon.id, e)}
+                              className="w-5 h-5 rounded bg-white text-primary border border-primary/30 flex items-center justify-center hover:bg-primary hover:text-white transition-colors"
+                            >
+                              -
+                            </button>
+                            <span className="text-[11px] font-bold text-foreground w-4 text-center">{qty}</span>
+                            <button
+                              onClick={(e) => increaseAddon(addon.id, e)}
+                              className="w-5 h-5 rounded bg-white text-primary border border-primary/30 flex items-center justify-center hover:bg-primary hover:text-white transition-colors"
+                            >
+                              +
+                            </button>
+                          </div>
+                        )}
+                        {sel && (
+                          <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center pointer-events-none">
                             <Check className="w-2 h-2 text-primary-foreground" />
                           </div>
                         )}
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
-                {selectedAddons.length > 0 && (
-                  <p className="text-[11px] text-muted-foreground mt-2.5 text-center">
-                    {selectedAddons.length}টি নির্বাচিত • +{addonTotal.toLocaleString()} BDT
-                  </p>
-                )}
               </div>
 
               {/* Step 3 — Payment */}
@@ -370,27 +514,42 @@ const OrderSection = () => {
                   <span className="text-primary">3.</span> Payment Method
                 </h3>
                 <div className="space-y-2.5">
-                  {([
-                    { key: "online" as const, label: "Online Payment", extra: <span className="text-[11px] font-semibold text-primary">FREE Delivery</span> },
-                    { key: "cod" as const, label: "Cash on Delivery", extra: <span className="text-[11px] text-muted-foreground">+100 BDT</span> },
-                  ]).map(({ key, label, extra }) => (
-                    <button
-                      key={key}
-                      onClick={() => setPaymentMethod(key)}
-                      disabled={submitStatus === "loading"}
-                      className={`w-full flex items-center justify-between rounded-xl p-3.5 border-2 transition-all ${paymentMethod === key ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
-                        } disabled:opacity-60`}
-                    >
+                  {/* Online Payment */}
+                  <button
+                    onClick={() => setPaymentMethod("online")}
+                    disabled={submitStatus === "loading"}
+                    className={`w-full text-left rounded-xl p-3.5 border-2 transition-all ${paymentMethod === "online" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
+                      } disabled:opacity-60`}
+                  >
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${paymentMethod === key ? "border-primary" : "border-muted-foreground"
-                          }`}>
-                          {paymentMethod === key && <div className="w-2 h-2 rounded-full bg-primary" />}
+                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${paymentMethod === "online" ? "border-primary" : "border-muted-foreground"}`}>
+                          {paymentMethod === "online" && <div className="w-2 h-2 rounded-full bg-primary" />}
                         </div>
-                        <span className="text-sm font-medium text-foreground">{label}</span>
+                        <div className="text-left">
+                          <span className="text-sm font-medium text-foreground block">Online Payment</span>
+                          <span className="text-[10px] text-muted-foreground">Visa, MasterCard, Mobile Banking (SSLCommerz)</span>
+                        </div>
                       </div>
-                      {extra}
-                    </button>
-                  ))}
+                      <span className="text-[11px] font-semibold text-primary">FREE Delivery</span>
+                    </div>
+                  </button>
+
+                  {/* Cash on Delivery */}
+                  <button
+                    onClick={() => setPaymentMethod("cod")}
+                    disabled={submitStatus === "loading"}
+                    className={`w-full flex items-center justify-between rounded-xl p-3.5 border-2 transition-all ${paymentMethod === "cod" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
+                      } disabled:opacity-60`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${paymentMethod === "cod" ? "border-primary" : "border-muted-foreground"}`}>
+                        {paymentMethod === "cod" && <div className="w-2 h-2 rounded-full bg-primary" />}
+                      </div>
+                      <span className="text-sm font-medium text-foreground">Cash on Delivery</span>
+                    </div>
+                    <span className="text-[11px] text-muted-foreground">+100 BDT</span>
+                  </button>
                 </div>
               </div>
 
@@ -403,7 +562,7 @@ const OrderSection = () => {
                   {([
                     { name: "name", label: "Name", placeholder: "আপনার নাম", required: true, type: "text", max: 100 },
                     { name: "phone", label: "Phone Number", placeholder: "01712345678", required: true, type: "tel", max: 15 },
-                    { name: "email", label: "Email", placeholder: "your@email.com (কোটেশন পেতে)", required: false, type: "email", max: 255 },
+                    { name: "email", label: "Email", placeholder: "your@email.com (ইনভয়েস ও কোটেশন পেতে)", required: false, type: "email", max: 255 },
                   ] as const).map((field) => (
                     <div key={field.name}>
                       <label className="text-[11px] font-medium text-foreground mb-1 block">
@@ -462,10 +621,33 @@ const OrderSection = () => {
                     <span className="text-muted-foreground">{edition.name}</span>
                     <span className="text-foreground font-medium">{edition.price.toLocaleString()} BDT</span>
                   </div>
-                  {selectedAddons.length > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Accessories ({selectedAddons.length})</span>
-                      <span className="text-foreground font-medium">{addonTotal.toLocaleString()} BDT</span>
+                  {Object.keys(selectedAddons).length > 0 && (
+                    <div className="border-t border-border/50 pt-2.5 mt-2.5">
+                      <div className="flex justify-between mb-2">
+                        <span className="text-muted-foreground font-medium">Accessories ({Object.values(selectedAddons).reduce((a, b) => a + b, 0)})</span>
+                        <span className="text-foreground font-medium">{addonTotal.toLocaleString()} BDT</span>
+                      </div>
+                      <div className="space-y-1.5 pl-2 border-l-2 border-primary/20">
+                        {Object.entries(selectedAddons).map(([id, qty]) => {
+                          const addon = addons.find(a => a.id === id);
+                          if (!addon) return null;
+                          return (
+                            <div key={id} className="flex justify-between items-center text-[11px] group">
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => removeFromSummary(id)}
+                                  className="text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-destructive/10 rounded"
+                                  title="Remove All"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                                <span className="text-muted-foreground">{addon.nameBn} <span className="font-semibold text-foreground bg-muted px-1.5 py-0.5 rounded ml-1">x{qty}</span></span>
+                              </div>
+                              <span className="font-medium text-muted-foreground">{(addon.price * qty).toLocaleString()} BDT</span>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                   <div className="flex justify-between">

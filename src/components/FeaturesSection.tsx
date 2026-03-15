@@ -1,31 +1,36 @@
-import { Battery, Wifi, Shield, Headphones, CreditCard } from "lucide-react";
+import { Battery, Wifi, Shield, Headphones, CreditCard, LayoutGrid, Smartphone } from "lucide-react";
 import CompatibilityIcons from "./CompatibilityIcons";
 
 const features = [
   {
+    icon: CreditCard,
+    title: "কোনো মাসিক ফি নেই",
+    desc: "একবার সেটআপ করলেই ব্যবহার করতে পারবেন। কোনো মাসিক সাবস্ক্রিপশন ফি নেই।",
+  },
+  {
+    icon: LayoutGrid,
+    title: "সম্পূর্ণ নিরাপত্তা সমাধান",
+    desc: "একাধিক সেন্সর, সাইরেন, ক্যামেরা এবং সিগন্যাল এক্সটেন্ডার যুক্ত করে আপনার প্রয়োজন অনুযায়ী পুরো সিস্টেমটি সহজেই বাড়ানো যায়।",
+  },
+  {
     icon: Wifi,
     title: "স্মার্ট ইন্টিগ্রেশন",
-    desc: "Google Home, Alexa এবং অন্যান্য স্মার্ট হোম ইকোসিস্টেমের সাথে সহজেই যুক্ত হয়।",
+    desc: "Google Home, Amazon Alexa এবং অন্যান্য স্মার্ট হোম প্ল্যাটফর্মের সাথে সহজেই সংযুক্ত করা যায়।",
   },
   {
     icon: Battery,
-    title: "ব্যাটারি ব্যাকআপ",
-    desc: "নিরবিচ্ছিন্ন নিরাপত্তা নিশ্চিত করার জন্য বিল্ট-ইন ব্যাটারি ব্যাকআপ।",
-  },
-  {
-    icon: CreditCard,
-    title: "কোনো মাসিক ফি নেই",
-    desc: "একবার কিনুন, চিরকাল ব্যবহার করুন। কোনো প্রকার মাসিক সাবস্ক্রিপশন ফি নেই।",
+    title: "ব্যাটারি ও 4G সিম ব্যাকআপ",
+    desc: "বিদ্যুৎ বা ইন্টারনেট সংযোগ বন্ধ হয়ে গেলেও ব্যাটারি এবং 4G সিম ব্যাকআপের মাধ্যমে সিস্টেম সচল থাকে।",
   },
   {
     icon: Shield,
     title: "১ বছরের ওয়ারেন্টি",
-    desc: "সকল পণ্যে এক বছরের ওয়ারেন্টি সুবিধা।",
+    desc: "সকল পণ্যের সাথে রয়েছে এক বছরের ওয়ারেন্টি সুবিধা।",
   },
   {
-    icon: Headphones,
-    title: "ফ্রি টেকনিক্যাল সাপোর্ট",
-    desc: "ফ্রি পরামর্শ এবং টেকনিক্যাল সাপোর্ট, কোনো অতিরিক্ত খরচ ছাড়াই।",
+    icon: Smartphone,
+    title: "নিরাপত্তা নিশ্চিত করুন",
+    desc: "ফ্রি পরামর্শ নিন এবং আপনার প্রয়োজন অনুযায়ী সঠিক সিকিউরিটি সলিউশন বেছে নিন।",
   },
 ];
 
@@ -38,11 +43,11 @@ const FeaturesSection = () => {
             অন্যান্য সুবিধা
           </p>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            কেন SOHUB Protect আলাদা?
+            SOHUB Protect কেন বেছে নেবেন
           </h2>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {features.map((f, i) => (
             <div
               key={i}

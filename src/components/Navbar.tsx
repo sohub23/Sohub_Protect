@@ -28,6 +28,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [initiatives, setInitiatives] = useState<Initiative[]>([]);
   const [initiativesOpen, setInitiativesOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
   const location = useLocation();
 
   const isHome = location.pathname === "/";
@@ -55,11 +56,42 @@ const Navbar = () => {
       .catch(() => { });
   }, []);
 
-  // Scroll detection
+  // Scroll detection + Active section tracking
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    // Intersection Observer for active section highlighting
+    const observerOptions = {
+      root: null,
+      rootMargin: "-40% 0px -50% 0px", // Detect section when it's roughly in the middle of the viewport
+      threshold: 0
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(`#${entry.target.id}`);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    
+    // Sections to observe
+    const sections = ["why", "packages", "how", "order"];
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      sections.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) observer.unobserve(el);
+      });
+    };
   }, []);
 
   const getLogoUrl = (logoPath: string) => {
@@ -67,15 +99,35 @@ const Navbar = () => {
     return `https://sohub.com.bd${logoPath}`;
   };
 
+  const handlePackageScroll = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
+    if (!isHome) return;
+    
+    e.preventDefault();
+    const element = document.getElementById("packages");
+    if (element) {
+      const offset = -32; // Scroll past the 96px padding so the text starts right at the navbar (64px)
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+      setIsOpen(false);
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50">
       {/* ── Top Bar — SOHUB branding + Initiatives ── */}
       <div
-        className={`bg-gray-50/80 backdrop-blur-sm border-b border-gray-200 transition-all duration-300 overflow-hidden ${isScrolled ? "max-h-0 opacity-0" : "max-h-24 opacity-100"
+        className={`bg-[#f6fafc] backdrop-blur-sm transition-all duration-300 overflow-hidden ${isScrolled ? "max-h-0 opacity-0 border-none" : "max-h-24 opacity-100 border-b border-gray-200"
           }`}
       >
-        <div className="section-container py-0 md:py-2">
-          <div className="flex items-center justify-between h-7 md:h-auto">
+        <div className={`section-container transition-all duration-300 ${isScrolled ? "py-0" : "py-0.5 md:py-1"}`}>
+          <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? "h-0" : "h-6 md:h-8"}`}>
             {/* Left — SOHUB branding */}
             <a
               href="https://sohub.com.bd/"
@@ -126,10 +178,7 @@ const Navbar = () => {
                           WebkitTapHighlightColor: "transparent",
                           outline: "none",
                         }}
-                        className={`flex items-center justify-center p-4 rounded-lg border transition-colors ${isCurrent
-                          ? "border-primary bg-primary/10 ring-1 ring-primary/30"
-                          : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                          }`}
+                        className="flex items-center justify-center p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
                       >
                         <img
                           src={getLogoUrl(initiative.logo)}
@@ -169,12 +218,18 @@ const Navbar = () => {
 
           {/* Desktop */}
           <div className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) =>
-              link.isRoute ? (
+            {navLinks.map((link) => {
+              const isActive = activeSection === link.href || (location.pathname === link.href && !activeSection);
+              
+              return link.isRoute ? (
                 <Link
                   key={link.href}
                   to={link.href}
-                  className="text-sm text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  className={`text-sm transition-colors ${
+                    location.pathname === link.href 
+                      ? "text-primary-foreground font-semibold" 
+                      : "text-primary-foreground/70 hover:text-primary-foreground"
+                  }`}
                 >
                   {link.label}
                 </Link>
@@ -182,7 +237,12 @@ const Navbar = () => {
                 <a
                   key={link.href}
                   href={link.href}
-                  className="text-sm text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  onClick={link.href === "#packages" ? handlePackageScroll : undefined}
+                  className={`text-sm transition-colors ${
+                    activeSection === link.href 
+                      ? "text-primary-foreground font-semibold" 
+                      : "text-primary-foreground/70 hover:text-primary-foreground"
+                  }`}
                 >
                   {link.label}
                 </a>
@@ -190,12 +250,12 @@ const Navbar = () => {
                 <Link
                   key={link.href}
                   to={`/${link.href}`}
-                  className="text-sm text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
                 >
                   {link.label}
                 </Link>
-              )
-            )}
+              );
+            })}
           </div>
 
           {isHome ? (
@@ -233,36 +293,42 @@ const Navbar = () => {
         {isOpen && (
           <div className="md:hidden bg-primary/98 border-t border-primary-foreground/10 pb-6">
             <div className="section-container flex flex-col gap-4 pt-4">
-              {navLinks.map((link) =>
-                link.isRoute ? (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    className="text-primary-foreground/80 hover:text-primary-foreground py-2"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
-                ) : isHome ? (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    className="text-primary-foreground/80 hover:text-primary-foreground py-2"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {link.label}
-                  </a>
-                ) : (
-                  <Link
-                    key={link.href}
-                    to={`/${link.href}`}
-                    className="text-primary-foreground/80 hover:text-primary-foreground py-2"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
-                )
-              )}
+                {navLinks.map((link) =>
+                  link.isRoute ? (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      className="text-primary-foreground/80 hover:text-primary-foreground py-2"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ) : isHome ? (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      className="text-primary-foreground/80 hover:text-primary-foreground py-2"
+                      onClick={(e) => {
+                        if (link.href === "#packages") {
+                          handlePackageScroll(e);
+                        } else {
+                          setIsOpen(false);
+                        }
+                      }}
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      key={link.href}
+                      to={`/${link.href}`}
+                      className="text-primary-foreground/80 hover:text-primary-foreground py-2"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  )
+                )}
               <a
                 href="#order"
                 className="flex items-center justify-center gap-2 bg-primary-foreground text-primary px-5 py-3 rounded-full text-sm font-medium mt-2"

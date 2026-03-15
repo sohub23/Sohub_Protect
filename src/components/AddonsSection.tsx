@@ -31,16 +31,16 @@ const addons: Addon[] = [
 
 const AddonsSection = () => {
   return (
-    <section id="addons" className="py-24 lg:py-32 terracotta-section">
+    <section id="addons" className="py-24 lg:py-32" style={{ backgroundColor: '#1f98d1' }}>
       <div className="section-container">
         <div className="text-center mb-16">
-          <p className="text-sm uppercase tracking-widest text-primary font-medium mb-4">
+          <p className="text-sm uppercase tracking-widest text-white/80 font-medium mb-4">
             Addons Module
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             আপনার সিস্টেমে যোগ করুন
           </h2>
-          <p className="text-muted-foreground max-w-lg mx-auto">
+          <p className="text-white/80 max-w-lg mx-auto">
             প্রয়োজন অনুযায়ী একাধিক সেন্সর এবং এক্সেসরিজ সংযুক্ত করুন। আপনার
             নিরাপত্তা, আপনার মতো করে।
           </p>

@@ -1,4 +1,4 @@
-import panelImage from "@/assets/how-devices.png";
+import panelImage from "@/assets/full_combo.png";
 import { Smartphone, Wifi, BellRing, Settings } from "lucide-react";
 
 const HowItWorksSection = () => {
@@ -34,12 +34,12 @@ const HowItWorksSection = () => {
       <div className="section-container">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Product image */}
-          <div className="flex justify-center">
-            <div className="rounded-3xl p-8 md:p-12 shadow-lg overflow-hidden" style={{ backgroundColor: '#f5e8e0' }}>
+          <div className="flex justify-center w-full">
+            <div className="overflow-hidden w-full flex items-center justify-center border-[6px] border-white rounded-none bg-white p-0 shadow-2xl">
               <img
                 src={panelImage}
-                alt="SOHUB Protect Smart Panel"
-                className="w-full max-w-lg scale-125"
+                alt="SOHUB Protect Full Combo"
+                className="w-full h-auto object-cover max-h-[600px]"
               />
             </div>
           </div>

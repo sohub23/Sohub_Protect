@@ -8,6 +8,7 @@ import Checkout from "./pages/Checkout.tsx";
 import ProductDetails from "./pages/ProductDetails.tsx";
 import Partnership from "./pages/Partnership.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/checkout" element={<Checkout />} />

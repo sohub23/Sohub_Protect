@@ -17,41 +17,6 @@ const useInView = (threshold = 0.2) => {
   return { ref, inView };
 };
 
-const AnimatedCounter = ({ end, suffix = "", duration = 2000 }: { end: number; suffix?: string; duration?: number }) => {
-  const [count, setCount] = useState(0);
-  const { ref, inView } = useInView();
-  useEffect(() => {
-    if (!inView) return;
-    let start = 0;
-    const step = end / (duration / 16);
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= end) { setCount(end); clearInterval(timer); }
-      else setCount(Math.floor(start));
-    }, 16);
-    return () => clearInterval(timer);
-  }, [inView, end, duration]);
-  return <span ref={ref}>{count}{suffix}</span>;
-};
-
-const StatBar = ({ label, value, max, color, flag }: { label: string; value: string; max: number; color: string; flag: string }) => {
-  const { ref, inView } = useInView();
-  return (
-    <div ref={ref} className="flex items-center gap-3 mb-3">
-      <span className="text-lg">{flag}</span>
-      <span className="text-sm text-foreground w-24 shrink-0">{label}</span>
-      <div className="flex-1 bg-muted rounded-full h-6 overflow-hidden">
-        <div
-          className={`h-full rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2 ${color}`}
-          style={{ width: inView ? `${max}%` : '0%' }}
-        >
-          <span className="text-xs font-semibold text-primary-foreground">{value}</span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const ProblemSection = () => {
   const section1 = useInView();
   const section2 = useInView();

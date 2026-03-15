@@ -13,7 +13,47 @@ import FAQSection from "@/components/FAQSection";
 import OurInitiatives from "@/components/OurInitiatives";
 import Footer from "@/components/Footer";
 
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
+
 const Index = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    const status = searchParams.get("status");
+    const paymentID = searchParams.get("paymentID");
+    const tranId = searchParams.get("tran_id");
+
+    if (payment && status) {
+      // Clear search params after reading
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("payment");
+      newParams.delete("status");
+      newParams.delete("paymentID");
+      newParams.delete("tran_id");
+      newParams.delete("val_id");
+      setSearchParams(newParams, { replace: true });
+
+      if (status === "success") {
+        toast.success("Payment Successful!", {
+          description: tranId ? `Order: ${tranId}` : "Your order is being processed.",
+        });
+        sessionStorage.removeItem('pending_order');
+      }
+ else if (status === "cancel") {
+        toast.info("Payment Cancelled", {
+          description: "You can try again or choose another method.",
+        });
+      } else {
+        toast.error("Payment Failed", {
+          description: "Please check your details and try again.",
+        });
+      }
+    }
+  }, [searchParams, setSearchParams]);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -26,7 +66,6 @@ const Index = () => {
       <AddonsSection />
       <FeaturesSection />
       <OrderSection />
-      <ContactSection />
       <FAQSection />
       <OurInitiatives />
       <Footer />

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import panelImage from "@/assets/panel-product.png";
+import fullComboImage from "@/assets/full_combo.png";
 import cubeImage from "@/assets/Sp1.png";
 import shieldBadge from "@/assets/shield-badge.png";
 import CompatibilityIcons from "@/components/CompatibilityIcons";
@@ -252,13 +253,13 @@ const ProductDetails = () => {
       </section>
 
       {/* ── Why SOHUB Protect ─────────────────────── */}
-      <section className="py-20 lg:py-28 terracotta-section">
+      <section className="py-20 lg:py-28" style={{ backgroundColor: '#1f98d1' }}>
         <div className="section-container">
           <div className="text-center mb-14">
-            <p className="text-sm uppercase tracking-widest text-primary font-medium mb-3">
+            <p className="text-sm uppercase tracking-widest text-white/80 font-medium mb-3">
               কেন সোহাব প্রটেক্ট?
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
               নিরাপত্তা কোনো বিলাসিতা নয়, এটি একটি মৌলিক অধিকার
             </h2>
           </div>
@@ -267,7 +268,7 @@ const ProductDetails = () => {
             {whyFeatures.map((f, i) => (
               <div
                 key={i}
-                className="flex gap-5 p-6 rounded-2xl bg-card border border-border hover:border-primary/30 transition-colors"
+                className="flex gap-5 p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                   <f.icon className="w-6 h-6 text-primary" />
@@ -295,12 +296,14 @@ const ProductDetails = () => {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
-            <div className="flex justify-center">
-              <img
-                src={panelImage}
-                alt="SOHUB Protect Panel"
-                className="w-full max-w-sm"
-              />
+            <div className="flex justify-center w-full">
+              <div className="overflow-hidden w-full flex items-center justify-center border-[6px] border-white rounded-none bg-white p-0 shadow-2xl">
+                <img
+                  src={fullComboImage}
+                  alt="SOHUB Protect Full Combo"
+                  className="w-full h-auto object-cover max-h-[500px]"
+                />
+              </div>
             </div>
             <div className="grid sm:grid-cols-2 gap-5">
               {ecosystem.map((item, i) => (
@@ -375,16 +378,16 @@ const ProductDetails = () => {
       </section>
 
       {/* ── Extra Benefits ────────────────────────── */}
-      <section className="py-20 lg:py-28 terracotta-section">
+      <section className="py-20 lg:py-28" style={{ backgroundColor: '#1f98d1' }}>
         <div className="section-container">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
               অন্যান্য সুবিধা
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-4xl mx-auto">
             {extraBenefits.map((b, i) => (
-              <div key={i} className="p-6 rounded-2xl bg-card border border-border text-center">
+              <div key={i} className="p-6 rounded-2xl bg-white shadow-lg text-center">
                 <b.icon className="w-8 h-8 text-primary mx-auto mb-3" />
                 <h3 className="text-sm font-bold text-foreground mb-1">{b.title}</h3>
                 <p className="text-xs text-muted-foreground">{b.desc}</p>
@@ -393,23 +396,23 @@ const ProductDetails = () => {
           </div>
 
           <div className="mt-12 flex justify-center">
-            <CompatibilityIcons variant="dark" />
+            <CompatibilityIcons variant="light" />
           </div>
         </div>
       </section>
 
       {/* ── CTA ───────────────────────────────────── */}
-      <section className="py-20 lg:py-28 bg-primary text-primary-foreground text-center">
+      <section className="py-20 lg:py-28 bg-white text-center">
         <div className="section-container">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             আজই আপনার নিরাপত্তা নিশ্চিত করুন
           </h2>
-          <p className="text-primary-foreground/70 max-w-lg mx-auto mb-8">
+          <p className="text-muted-foreground max-w-lg mx-auto mb-8">
             সঠিক দামে উচ্চমানের পণ্য। European-Standard সিকিউরিটি সিস্টেম এখন বাংলাদেশে।
           </p>
           <Link
             to="/#order"
-            className="inline-flex items-center gap-2 bg-primary-foreground text-primary px-10 py-4 rounded-full font-medium text-base hover:bg-primary-foreground/90 transition-colors"
+            className="inline-flex items-center gap-2 bg-primary text-white px-10 py-4 rounded-full font-medium text-base hover:bg-primary/90 transition-colors shadow-lg"
           >
             অর্ডার করুন
             <ChevronRight className="w-5 h-5" />

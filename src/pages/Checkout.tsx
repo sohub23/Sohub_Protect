@@ -167,6 +167,12 @@ const Checkout = () => {
         body: JSON.stringify(orderPayload),
       });
 
+      if (!response.ok) {
+        setErrorMessage(`Server error (${response.status}). Please try again later.`);
+        setSubmitStatus("error");
+        return;
+      }
+
       const data = await response.json();
 
       if (response.ok && data.success) {
