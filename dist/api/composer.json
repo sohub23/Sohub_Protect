@@ -1,0 +1,8 @@
+{
+    "name": "sohub/protect-order-api",
+    "description": "SOHUB Protect Order API - PHPMailer + TCPDF",
+    "require": {
+        "phpmailer/phpmailer": "^6.9",
+        "tecnickcom/tcpdf": "^6.7"
+    }
+}
