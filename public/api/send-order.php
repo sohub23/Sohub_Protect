@@ -129,11 +129,6 @@ try {
         '10' => $assetsDir . '/Accesories/ai_camera.jpeg',
     ];
     $logoCandidates = [
-        // Prioritize white logos since header background is solid blue
-        $assetsDir . '/logo-white.png',
-        __DIR__ . '/../api-assets/logo-white.png',
-        __DIR__ . '/../logo.png',                 // Try root public folder for navbar logo
-        __DIR__ . '/../assets/logo.png',          // Try root assets folder
         $assetsDir . '/logo-with-icon.png',
         __DIR__ . '/../api-assets/logo-with-icon.png',
         $assetsDir . '/logo-white.png',
@@ -174,8 +169,6 @@ try {
                 $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
                 $imgType = ($ext === 'png') ? 'PNG' : (($ext === 'jpg') ? 'JPG' : (($ext === 'jpeg') ? 'JPEG' : ''));
                 $this->Image($logoPath, 15, 6, 42, 0, $imgType, '', 'T', false, 300, '', false, false, 0);
-                // Simplified Image call to let TCPDF autodetect the format properly
-                $this->Image($logoPath, 15, 6, 42);
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -328,7 +321,6 @@ try {
     }
 
     // Total Quantity Row
-    // Summary Row (Grand Total & Total Quantity in one row)
     $pdf->SetFont('helvetica', 'B', 10);
     $pdf->SetFillColor(245, 248, 255);
     $pdf->SetTextColor(30, 30, 30);
@@ -343,14 +335,6 @@ try {
     $pdf->Cell($colWidths[0] + $colWidths[1], 10, '', 1, 0, 'C', true);
     // 'Grand Total' label centered in Qty + Unit Price columns
     $pdf->Cell($colWidths[2] + $colWidths[3], 10, 'Grand Total', 1, 0, 'C', true);
-    
-    // Empty space + "Grand Total" label (Col 0 + 1)
-    $pdf->Cell($colWidths[0] + $colWidths[1], 10, 'Grand Total', 1, 0, 'R', true);
-    // Total Qty exactly under Qty column (Col 2)
-    $pdf->Cell($colWidths[2], 10, $totalQuantity, 1, 0, 'C', true);
-    // Empty space for Unit Price (Col 3)
-    $pdf->Cell($colWidths[3], 10, '', 1, 0, 'C', true);
-    // Grand Total exactly under Total column (Col 4)
     $pdf->SetTextColor(24, 144, 255);
     $totalAmount = floatval($total);
     $pdf->Cell($colWidths[4], 10, number_format($totalAmount) . ' BDT', 1, 1, 'C', true);
