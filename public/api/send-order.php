@@ -146,11 +146,11 @@ try {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
 
-            // LOGO (Match Navbar)
+            // LOGO (Navbar version with Shield Icon)
             $logo = __DIR__ . '/assets/logo-with-icon.png';
             if (file_exists($logo)) {
-                // Use a slightly larger width and allow auto-resize (true) for better rendering
-                $this->Image($logo, 15, 6, 42, 0, '', '', 'T', true, 300, '', false, false, 0);
+                // Use most compatible parameters for PNG rendering in Header
+                $this->Image($logo, 15, 8, 38, 0, 'PNG', '', 'N', false, 300, '', false, false, 0);
             }
 
             $this->SetFont('helvetica', 'B', 20);
