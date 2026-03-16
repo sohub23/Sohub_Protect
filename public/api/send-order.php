@@ -146,11 +146,11 @@ try {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
 
-            // LOGO (Navbar version with Shield Icon)
-            $logo = __DIR__ . '/assets/logo-with-icon.png';
-            if (file_exists($logo)) {
-                // Using empty string for type and T for alignment with false for resize
-                $this->Image($logo, 15, 7, 40, 0, 'PNG', '', 'T', false, 300, '', false, false, 0, false, false, false);
+            // LOGO (Direct Binary Embedding to fix visibility)
+            $logoPath = __DIR__ . '/assets/logo-with-icon.png';
+            if (file_exists($logoPath)) {
+                $imgdata = file_get_contents($logoPath);
+                $this->Image('@' . $imgdata, 15, 6, 42, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -231,14 +231,15 @@ try {
     $pdf->Cell(0, 10, 'Order Details', 0, 1, 'L');
     $pdf->SetFillColor(24, 144, 255);
     $pdf->SetTextColor(255, 255, 255);
-    $colWidths = [25, 80, 35, 40];
+    $colWidths = [25, 65, 20, 35, 35]; // Total 180
     $pdf->Cell($colWidths[0], 10, 'Image', 1, 0, 'C', true);
     $pdf->Cell($colWidths[1], 10, 'Product', 1, 0, 'L', true);
-    $pdf->Cell($colWidths[2], 10, 'Unit Price', 1, 0, 'C', true);
-    $pdf->Cell($colWidths[3], 10, 'Total', 1, 1, 'C', true);
+    $pdf->Cell($colWidths[2], 10, 'Qty', 1, 0, 'C', true);
+    $pdf->Cell($colWidths[3], 10, 'Unit Price', 1, 0, 'C', true);
+    $pdf->Cell($colWidths[4], 10, 'Total', 1, 1, 'C', true);
 
     // Row drawing function for No-Break logic
-    $drawRow = function ($pdf, $img, $name, $desc, $price, $total, $colWidths, $imageMap) {
+    $drawRow = function ($pdf, $img, $name, $desc, $qty, $price, $total, $colWidths, $imageMap) {
         $rowHeight = 22;
         // Check for page break
         if ($pdf->GetY() + $rowHeight > $pdf->getPageHeight() - 35) {
@@ -249,8 +250,9 @@ try {
             $pdf->SetFont('helvetica', 'B', 10);
             $pdf->Cell($colWidths[0], 10, 'Image', 1, 0, 'C', true);
             $pdf->Cell($colWidths[1], 10, 'Product', 1, 0, 'L', true);
-            $pdf->Cell($colWidths[2], 10, 'Unit Price', 1, 0, 'R', true);
-            $pdf->Cell($colWidths[3], 10, 'Total', 1, 1, 'R', true);
+            $pdf->Cell($colWidths[2], 10, 'Qty', 1, 0, 'C', true);
+            $pdf->Cell($colWidths[3], 10, 'Unit Price', 1, 0, 'C', true);
+            $pdf->Cell($colWidths[4], 10, 'Total', 1, 1, 'C', true);
         }
 
         $y = $pdf->GetY();
@@ -258,7 +260,6 @@ try {
 
         // Col 0: Image
         if ($img && file_exists($img)) {
-            // Use empty string for type to let TCPDF auto-detect (fix for jpeg-extension PNGs)
             $pdf->Image($img, 17, $y + 2, 20, 18, '', '', 'T', true, 300, '', false, false, 0);
         }
         $pdf->SetXY(15, $y);
@@ -267,30 +268,46 @@ try {
         // Col 1: Name & Desc
         $pdf->SetXY(15 + $colWidths[0], $y);
         $pdf->Rect(15 + $colWidths[0], $y, $colWidths[1], $rowHeight);
-        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->SetFont('helvetica', 'B', 9);
         $pdf->SetXY(15 + $colWidths[0] + 2, $y + 4);
         $pdf->Cell($colWidths[1] - 4, 6, $name, 0, 1);
         $pdf->SetFont('helvetica', '', 7);
         $pdf->SetX(15 + $colWidths[0] + 2);
         $pdf->MultiCell($colWidths[1] - 4, 3, $desc, 0, 'L');
 
-        // Col 2 & 3: Prices
+        // Col 2: Qty
         $pdf->SetXY(15 + $colWidths[0] + $colWidths[1], $y);
         $pdf->SetFont('helvetica', '', 9);
-        $pdf->Cell($colWidths[2], $rowHeight, number_format($price) . ' BDT', 1, 0, 'C');
+        $pdf->Cell($colWidths[2], $rowHeight, $qty, 1, 0, 'C');
+
+        // Col 3 & 4: Prices
+        $pdf->SetXY(15 + $colWidths[0] + $colWidths[1] + $colWidths[2], $y);
+        $pdf->SetFont('helvetica', '', 9);
+        $pdf->Cell($colWidths[3], $rowHeight, number_format($price) . ' BDT', 1, 0, 'C');
         $pdf->SetFont('helvetica', 'B', 9);
-        $pdf->Cell($colWidths[3], $rowHeight, number_format($total) . ' BDT', 1, 1, 'C');
+        $pdf->Cell($colWidths[4], $rowHeight, number_format($total) . ' BDT', 1, 1, 'C');
     };
 
-    // Draw Edition Row (English only)
+    // Draw Edition Row (Quantity is always 1)
     $editionImgPath = $imageMap[$edition['id']] ?? '';
-    $drawRow($pdf, $editionImgPath, $edition['name'], $edition['desc'], $editionPrice, $editionPrice, $colWidths, $imageMap);
+    $drawRow($pdf, $editionImgPath, $edition['name'], $edition['desc'], 1, $editionPrice, $editionPrice, $colWidths, $imageMap);
 
-    // Draw Addon Rows (English only)
+    // Draw Addon Rows
     foreach ($addons as $addon) {
         $addonImg = $imageMap[$addon['id']] ?? '';
-        $drawRow($pdf, $addonImg, $addon['name'], '', intval($addon['price']), intval($addon['price']), $colWidths, $imageMap);
+        $qty = intval($addon['quantity'] ?? 1);
+        $price = intval($addon['price'] ?? 0);
+        $rowTotal = $price * $qty;
+        $drawRow($pdf, $addonImg, $addon['name'], '', $qty, $price, $rowTotal, $colWidths, $imageMap);
     }
+
+    // Grand Total Row
+    $pdf->SetFont('helvetica', 'B', 10);
+    $pdf->SetFillColor(245, 248, 255);
+    $pdf->Cell($colWidths[0] + $colWidths[1] + $colWidths[2] + $colWidths[3], 10, 'Grand Total', 1, 0, 'R', true);
+    $pdf->SetTextColor(24, 144, 255);
+    $totalAmount = floatval($total);
+    $pdf->Cell($colWidths[4], 10, number_format($totalAmount) . ' BDT', 1, 1, 'C', true);
 
     $pdfContent = $pdf->Output('', 'S');
 
