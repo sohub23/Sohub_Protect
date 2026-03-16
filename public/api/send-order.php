@@ -128,11 +128,28 @@ try {
         '9' => $assetsDir . '/Accesories/wireless_siren.png',
         '10' => $assetsDir . '/Accesories/ai_camera.jpeg',
     ];
-    $logoPath = $assetsDir . '/logo-with-icon.png';
+    $logoCandidates = [
+        $assetsDir . '/logo-with-icon.png',
+        __DIR__ . '/../api-assets/logo-with-icon.png',
+        $assetsDir . '/logo-white.png',
+        __DIR__ . '/../api-assets/logo-white.png',
+    ];
+    $logoPath = '';
+    foreach ($logoCandidates as $candidate) {
+        $resolved = realpath($candidate);
+        if ($resolved && file_exists($resolved)) {
+            $logoPath = $resolved;
+            break;
+        }
+    }
     $orderId = 'SP-' . date('Ymd') . '-' . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
     $orderDate = date('d M Y, h:i A');
     $editionPrice = intval($edition['price'] ?? 0);
     $addonTotal = array_reduce($addons, fn($sum, $a) => $sum + intval($a['price'] ?? 0), 0);
+    $totalQuantity = 1;
+    foreach ($addons as $addon) {
+        $totalQuantity += intval($addon['quantity'] ?? 1);
+    }
 
     // PDF Class Definition
     class SOHUBQuotation extends TCPDF
@@ -146,10 +163,12 @@ try {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
 
-            // LOGO (Using realpath for reliability)
-            $logoPath = realpath(__DIR__ . '/assets/logo-with-icon.png');
+            // LOGO (Use resolved path from caller)
+            $logoPath = $this->logoPath;
             if ($logoPath && file_exists($logoPath)) {
-                $this->Image($logoPath, 15, 6, 42, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
+                $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
+                $imgType = ($ext === 'png') ? 'PNG' : (($ext === 'jpg') ? 'JPG' : (($ext === 'jpeg') ? 'JPEG' : ''));
+                $this->Image($logoPath, 15, 6, 42, 0, $imgType, '', 'T', false, 300, '', false, false, 0);
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -193,6 +212,7 @@ try {
     $pdf = new SOHUBQuotation('P', 'mm', 'A4', true, 'UTF-8');
     $pdf->orderId = $orderId;
     $pdf->orderDate = $orderDate;
+    $pdf->logoPath = $logoPath;
     $pdf->SetCreator('SOHUB Protect');
     $pdf->SetTitle('Quotation ' . $orderId);
     $pdf->SetMargins(15, 42, 15);
@@ -299,6 +319,14 @@ try {
         $rowTotal = $price * $qty;
         $drawRow($pdf, $addonImg, $addon['name'], '', $qty, $price, $rowTotal, $colWidths, $imageMap);
     }
+
+    // Total Quantity Row
+    $pdf->SetFont('helvetica', 'B', 10);
+    $pdf->SetFillColor(245, 248, 255);
+    $pdf->SetTextColor(30, 30, 30);
+    $pdf->Cell($colWidths[0] + $colWidths[1], 10, '', 1, 0, 'C', true);
+    $pdf->Cell($colWidths[2] + $colWidths[3], 10, 'Total Quantity', 1, 0, 'C', true);
+    $pdf->Cell($colWidths[4], 10, $totalQuantity, 1, 1, 'C', true);
 
     // Grand Total Row
     $pdf->SetFont('helvetica', 'B', 10);
