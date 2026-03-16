@@ -31,7 +31,7 @@ const HeroSection = () => {
           <img
             src={shieldBadge}
             alt="SOHUB Protect"
-            className="h-12 md:h-20 mb-6 md:mb-8 opacity-0 animate-fade-in"
+            className="h-12 md:h-20 mb-6 md:mb-8 opacity-0 animate-fade-in scale-[1.3] origin-left md:scale-100"
             style={{ animationDelay: "0.2s" }} />
 
           <div className="opacity-0 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
@@ -49,20 +49,20 @@ const HeroSection = () => {
           </p>
 
           <div
-            className="flex flex-col sm:flex-row flex-wrap items-center sm:gap-5 gap-4 opacity-0 animate-fade-in-up"
+            className="flex flex-row items-center justify-start gap-2 md:gap-5 opacity-0 animate-fade-in-up"
             style={{ animationDelay: "1s" }}>
 
             <a
               href="#order"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary-foreground text-primary px-8 md:px-10 py-3 md:py-3.5 rounded-full font-bold text-sm md:text-base hover:bg-primary-foreground/90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="w-auto flex items-center justify-center gap-1.5 bg-primary-foreground text-primary px-4 md:px-10 py-2 md:py-3.5 rounded-full font-bold text-[11px] md:text-base hover:bg-primary-foreground/90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
             >
-              <ShoppingBag className="w-4 h-4 md:w-5 md:h-5" />
+              <ShoppingBag className="w-3 h-3 md:w-5 md:h-5" />
               অর্ডার করুন
             </a>
 
             <a
               href="#how"
-              className="w-full sm:w-auto border border-primary-foreground/30 text-primary-foreground px-8 md:px-10 py-3 md:py-3.5 rounded-full font-medium text-sm md:text-base hover:bg-primary-foreground/10 transition-colors text-center shadow-lg"
+              className="w-auto border border-primary-foreground/30 text-primary-foreground px-4 md:px-10 py-2 md:py-3.5 rounded-full font-medium text-[11px] md:text-base hover:bg-primary-foreground/10 transition-colors text-center shadow-lg whitespace-nowrap"
             >
               কিভাবে কাজ করে
             </a>

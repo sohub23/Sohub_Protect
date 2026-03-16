@@ -33,8 +33,8 @@ const HowItWorksSection = () => {
     <section id="how" className="py-24 lg:py-32" style={{ backgroundColor: '#1f98d1' }}>
       <div className="section-container">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Product image */}
-          <div className="flex justify-center w-full">
+          {/* Product image - Moved to bottom on mobile */}
+          <div className="flex justify-center w-full order-last lg:order-none">
             <div className="overflow-hidden w-full flex items-center justify-center border-[6px] border-white rounded-none bg-white p-0 shadow-2xl">
               <img
                 src={panelImage}
