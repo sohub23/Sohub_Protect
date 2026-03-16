@@ -149,8 +149,8 @@ try {
             // LOGO (Navbar version with Shield Icon)
             $logo = __DIR__ . '/assets/logo-with-icon.png';
             if (file_exists($logo)) {
-                // Use most compatible parameters for PNG rendering in Header
-                $this->Image($logo, 15, 8, 38, 0, 'PNG', '', 'N', false, 300, '', false, false, 0);
+                // Using empty string for type and T for alignment with false for resize
+                $this->Image($logo, 15, 7, 40, 0, 'PNG', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -234,8 +234,8 @@ try {
     $colWidths = [25, 80, 35, 40];
     $pdf->Cell($colWidths[0], 10, 'Image', 1, 0, 'C', true);
     $pdf->Cell($colWidths[1], 10, 'Product', 1, 0, 'L', true);
-    $pdf->Cell($colWidths[2], 10, 'Unit Price', 1, 0, 'R', true);
-    $pdf->Cell($colWidths[3], 10, 'Total', 1, 1, 'R', true);
+    $pdf->Cell($colWidths[2], 10, 'Unit Price', 1, 0, 'C', true);
+    $pdf->Cell($colWidths[3], 10, 'Total', 1, 1, 'C', true);
 
     // Row drawing function for No-Break logic
     $drawRow = function ($pdf, $img, $name, $desc, $price, $total, $colWidths, $imageMap) {
@@ -277,9 +277,9 @@ try {
         // Col 2 & 3: Prices
         $pdf->SetXY(15 + $colWidths[0] + $colWidths[1], $y);
         $pdf->SetFont('helvetica', '', 9);
-        $pdf->Cell($colWidths[2], $rowHeight, number_format($price) . ' BDT', 1, 0, 'R');
+        $pdf->Cell($colWidths[2], $rowHeight, number_format($price) . ' BDT', 1, 0, 'C');
         $pdf->SetFont('helvetica', 'B', 9);
-        $pdf->Cell($colWidths[3], $rowHeight, number_format($total) . ' BDT', 1, 1, 'R');
+        $pdf->Cell($colWidths[3], $rowHeight, number_format($total) . ' BDT', 1, 1, 'C');
     };
 
     // Draw Edition Row (English only)
