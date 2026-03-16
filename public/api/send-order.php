@@ -13,7 +13,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
 // Global Error Handler to catch fatal errors and return JSON
-register_shutdown_function(function() {
+register_shutdown_function(function () {
     $error = error_get_last();
     if ($error !== NULL && ($error['type'] === E_ERROR || $error['type'] === E_PARSE || $error['type'] === E_COMPILE_ERROR)) {
         echo json_encode([
@@ -74,7 +74,8 @@ try {
         $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($lines as $line) {
             $line = trim($line);
-            if ($line === '' || strpos($line, '#') === 0) continue;
+            if ($line === '' || strpos($line, '#') === 0)
+                continue;
             if (strpos($line, '=') !== false) {
                 [$key, $value] = explode('=', $line, 2);
                 $_ENV[trim($key)] = trim($value);
@@ -134,40 +135,43 @@ try {
     $addonTotal = array_reduce($addons, fn($sum, $a) => $sum + intval($a['price'] ?? 0), 0);
 
     // PDF Class Definition
-    class SOHUBQuotation extends TCPDF {
+    class SOHUBQuotation extends TCPDF
+    {
         public string $logoPath = '';
         public string $orderId = '';
         public string $orderDate = '';
-        
-        public function Header() {
+
+        public function Header()
+        {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
-            
+
             // LOGO
             $logo = __DIR__ . '/assets/logo-white.png';
             if (file_exists($logo)) {
-                $this->Image($logo, 15, 6, 45, 0, 'PNG', '', '', true, 300, '', false, false, 0);
+                $this->Image($logo, 15, 6, 45, 0, 'PNG', '', 'T', true, 300, '', false, false, 0);
             }
-            
+
             $this->SetFont('helvetica', 'B', 20);
             $this->SetTextColor(255, 255, 255);
             $this->SetXY(100, 8);
             $this->Cell(95, 10, 'QUOTATION', 0, 0, 'R');
-            
+
             $this->SetFont('helvetica', '', 9);
             $this->SetTextColor(220, 240, 255);
             $this->SetXY(100, 18);
             $this->Cell(95, 5, 'Order: ' . $this->orderId, 0, 1, 'R');
             $this->SetX(100);
             $this->Cell(95, 5, 'Date: ' . $this->orderDate, 0, 1, 'R');
-            
+
             $this->SetDrawColor(255, 193, 7);
             $this->SetLineWidth(0.8);
             $this->Line(15, 38, 195, 38);
             $this->SetY(42);
         }
 
-        public function Footer() {
+        public function Footer()
+        {
             $this->SetY(-30);
             $this->SetDrawColor(24, 144, 255);
             $this->SetLineWidth(0.3);
@@ -178,7 +182,7 @@ try {
             $this->Cell(0, 4, 'Solution Hub Technologies (SOHUB)', 0, 1, 'C');
             $this->SetFont('helvetica', '', 7);
             $this->SetTextColor(130, 130, 130);
-            $this->Cell(0, 4, 'Phone: 09678-076482  |  Email: hello@sohub.com.bd  |  www.sohubprotect.com', 0, 1, 'C');
+            $this->Cell(0, 4, 'Phone: 09678-076482  |  Email: hello@sohub.com.bd  |  protect.sohub.com.bd', 0, 1, 'C');
             $this->Cell(0, 4, '1 Year Warranty  •  No Monthly Fee  •  Free Technical Support', 0, 1, 'C');
             $this->SetY(-10);
             $this->SetFont('helvetica', '', 7);
@@ -205,19 +209,26 @@ try {
     $startY = $pdf->GetY();
     $pdf->RoundedRect(15, $startY, 180, 28, 3, '1111', 'DF');
     $pdf->SetXY(20, $startY + 3);
-    $pdf->Cell(30, 5, 'Name:', 0, 0); $pdf->Cell(55, 5, $customerName, 0, 0);
-    $pdf->Cell(30, 5, 'Phone:', 0, 0); $pdf->Cell(55, 5, $customerPhone, 0, 1);
+    $pdf->Cell(30, 5, 'Name:', 0, 0);
+    $pdf->Cell(55, 5, $customerName, 0, 0);
+    $pdf->Cell(30, 5, 'Phone:', 0, 0);
+    $pdf->Cell(55, 5, $customerPhone, 0, 1);
     $pdf->SetX(20);
-    $pdf->Cell(30, 5, 'Email:', 0, 0); $pdf->Cell(55, 5, $customerEmail ?: 'N/A', 0, 0);
-    $pdf->Cell(30, 5, 'Payment:', 0, 0); $pdf->Cell(55, 5, $paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery', 0, 1);
+    $pdf->Cell(30, 5, 'Email:', 0, 0);
+    $pdf->Cell(55, 5, $customerEmail ?: 'N/A', 0, 0);
+    $pdf->Cell(30, 5, 'Payment:', 0, 0);
+    $pdf->Cell(55, 5, $paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery', 0, 1);
     $pdf->SetX(20);
-    $pdf->Cell(30, 5, 'Address:', 0, 0); $pdf->MultiCell(140, 5, $customerAddress, 0, 'L');
+    $pdf->Cell(30, 5, 'Address:', 0, 0);
+    $pdf->MultiCell(140, 5, $customerAddress, 0, 'L');
     $pdf->SetY($startY + 32);
 
     // Order Table Header
-    $pdf->SetFont('helvetica', 'B', 12); $pdf->SetTextColor(24, 144, 255);
+    $pdf->SetFont('helvetica', 'B', 12);
+    $pdf->SetTextColor(24, 144, 255);
     $pdf->Cell(0, 10, 'Order Details', 0, 1, 'L');
-    $pdf->SetFillColor(24, 144, 255); $pdf->SetTextColor(255, 255, 255);
+    $pdf->SetFillColor(24, 144, 255);
+    $pdf->SetTextColor(255, 255, 255);
     $colWidths = [25, 80, 35, 40];
     $pdf->Cell($colWidths[0], 10, 'Image', 1, 0, 'C', true);
     $pdf->Cell($colWidths[1], 10, 'Product', 1, 0, 'L', true);
@@ -225,13 +236,14 @@ try {
     $pdf->Cell($colWidths[3], 10, 'Total', 1, 1, 'R', true);
 
     // Row drawing function for No-Break logic
-    $drawRow = function($pdf, $img, $name, $desc, $price, $total, $colWidths, $imageMap) {
+    $drawRow = function ($pdf, $img, $name, $desc, $price, $total, $colWidths, $imageMap) {
         $rowHeight = 22;
         // Check for page break
         if ($pdf->GetY() + $rowHeight > $pdf->getPageHeight() - 35) {
             $pdf->AddPage();
             // Redraw table header on new page
-            $pdf->SetFillColor(24, 144, 255); $pdf->SetTextColor(255, 255, 255);
+            $pdf->SetFillColor(24, 144, 255);
+            $pdf->SetTextColor(255, 255, 255);
             $pdf->SetFont('helvetica', 'B', 10);
             $pdf->Cell($colWidths[0], 10, 'Image', 1, 0, 'C', true);
             $pdf->Cell($colWidths[1], 10, 'Product', 1, 0, 'L', true);
@@ -241,13 +253,14 @@ try {
 
         $y = $pdf->GetY();
         $pdf->SetTextColor(30, 30, 30);
-        
+
         // Col 0: Image
         if ($img && file_exists($img)) {
             $pdf->Image($img, 17, $y + 2, 20, 18);
         }
-        $pdf->SetXY(15, $y); $pdf->Cell($colWidths[0], $rowHeight, '', 1, 0, 'C');
-        
+        $pdf->SetXY(15, $y);
+        $pdf->Cell($colWidths[0], $rowHeight, '', 1, 0, 'C');
+
         // Col 1: Name & Desc
         $pdf->SetXY(15 + $colWidths[0], $y);
         $pdf->Rect(15 + $colWidths[0], $y, $colWidths[1], $rowHeight);
@@ -257,12 +270,12 @@ try {
         $pdf->SetFont('helvetica', '', 7);
         $pdf->SetX(15 + $colWidths[0] + 2);
         $pdf->MultiCell($colWidths[1] - 4, 3, $desc, 0, 'L');
-        
+
         // Col 2 & 3: Prices
         $pdf->SetXY(15 + $colWidths[0] + $colWidths[1], $y);
-        $pdf->SetFont('helvetica', '', 9); 
+        $pdf->SetFont('helvetica', '', 9);
         $pdf->Cell($colWidths[2], $rowHeight, number_format($price) . ' BDT', 1, 0, 'R');
-        $pdf->SetFont('helvetica', 'B', 9); 
+        $pdf->SetFont('helvetica', 'B', 9);
         $pdf->Cell($colWidths[3], $rowHeight, number_format($total) . ' BDT', 1, 1, 'R');
     };
 
@@ -290,17 +303,25 @@ try {
     $mail->CharSet = 'UTF-8';
     $mail->setFrom($_ENV['SMTP_USER'], 'SOHUB Protect');
     $mail->addAddress($_ENV['ADMIN_EMAIL'] ?? 'hello@sohub.com.bd');
-    if ($customerEmail) { $mail->addAddress($customerEmail, $customerName); }
+    if ($customerEmail) {
+        $mail->addAddress($customerEmail, $customerName);
+    }
     $mail->addStringAttachment($pdfContent, 'Quotation-' . $orderId . '.pdf', 'base64', 'application/pdf');
     $mail->isHTML(true);
+
+    // Embed Logo for Email Bodies
+    $logoEmbedPath = __DIR__ . '/assets/logo-white.png';
+    if (file_exists($logoEmbedPath)) {
+        $mail->addEmbeddedImage($logoEmbedPath, 'logo_white');
+    }
     /* ── Send Admin Email ── */
     $mail->clearAddresses();
     $mail->addAddress($_ENV['ADMIN_EMAIL'] ?? 'hello@sohub.com.bd');
     $mail->Subject = "New Order Recieved: #{$orderId}";
-    
+
     $editionName = $edition['name'] ?? 'SOHUB Protect';
     $paymentLabel = ($paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery');
-    
+
     $mail->Body = "
     <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; border: 1px solid #eee; border-top: 4px solid #1890ff; border-radius: 8px; padding: 30px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
         <h2 style='color: #1890ff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 22px;'>
@@ -310,7 +331,7 @@ try {
         <div style='color: #333; line-height: 1.8; font-size: 15px;'>
             <p style='margin-bottom: 10px;'><strong>Order ID:</strong> <span style='font-family: monospace;'>{$orderId}</span></p>
             <p style='margin-bottom: 10px;'><strong>Edition:</strong> {$editionName} (SOHUB Protect {$editionName})</p>
-            <p style='margin-bottom: 10px;'><strong>Total Amount:</strong> <span style='color: #e53e3e; font-weight: bold; font-size: 18px;'>".number_format($total)." BDT</span></p>
+            <p style='margin-bottom: 10px;'><strong>Total Amount:</strong> <span style='color: #e53e3e; font-weight: bold; font-size: 18px;'>" . number_format($total) . " BDT</span></p>
             <p style='margin-bottom: 25px;'><strong>Payment:</strong> {$paymentLabel}</p>
         </div>
         <div style='background-color: #f8fafc; border-radius: 12px; padding: 25px; border: 1px solid #edf2f7;'>
@@ -320,9 +341,9 @@ try {
             <table style='width: 100%; font-size: 14px; border-collapse: collapse; color: #4a5568;'>
                 <tr><td style='padding: 5px 0; font-weight: bold; width: 80px;'>Name:</td><td style='padding: 5px 0;'>{$customerName}</td></tr>
                 <tr><td style='padding: 5px 0; font-weight: bold;'>Phone:</td><td style='padding: 5px 0;'><a href='tel:{$customerPhone}' style='color: #1890ff; text-decoration: none;'>{$customerPhone}</a></td></tr>
-                <tr><td style='padding: 5px 0; font-weight: bold;'>Email:</td><td style='padding: 5px 0;'><a href='mailto:{$customerEmail}' style='color: #1890ff; text-decoration: none;'>".($customerEmail ?: 'N/A')."</a></td></tr>
+                <tr><td style='padding: 5px 0; font-weight: bold;'>Email:</td><td style='padding: 5px 0;'><a href='mailto:{$customerEmail}' style='color: #1890ff; text-decoration: none;'>" . ($customerEmail ?: 'N/A') . "</a></td></tr>
                 <tr><td style='padding: 5px 0; font-weight: bold;'>Address:</td><td style='padding: 5px 0;'>{$customerAddress}</td></tr>
-                <tr><td style='padding: 5px 0; font-weight: bold;'>Note:</td><td style='padding: 5px 0;'>".($customerNote ?: 'N/A')."</td></tr>
+                <tr><td style='padding: 5px 0; font-weight: bold;'>Note:</td><td style='padding: 5px 0;'>" . ($customerNote ?: 'N/A') . "</td></tr>
             </table>
         </div>
         <div style='margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: left;'>
@@ -336,7 +357,7 @@ try {
         $mail->clearAddresses();
         $mail->addAddress($customerEmail, $customerName);
         $mail->Subject = "Order Confirmation: #{$orderId} — SOHUB Protect";
-        
+
         // Build Addon Rows
         $addonRows = "";
         foreach ($addons as $addon) {
@@ -344,7 +365,7 @@ try {
             $addonRows .= "
                 <tr>
                     <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7;'>{$name}</td>
-                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; text-align: right;'>".number_format($addon['price'])." BDT</td>
+                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; text-align: right;'>" . number_format($addon['price']) . " BDT</td>
                 </tr>";
         }
 
@@ -354,7 +375,7 @@ try {
         
         <!-- Blue Header -->
         <div style='background-color: #1890ff; padding: 40px 20px; text-align: center; color: #ffffff;'>
-            <img src='https://sohub.com.bd/assets/images/logo-white.png' alt='SOHUB Protect' style='height: 40px; margin-bottom: 20px;'>
+            <img src='cid:logo_white' alt='SOHUB Protect' style='height: 40px; margin-bottom: 20px;'>
             <h1 style='margin: 0; font-size: 28px; font-weight: bold;'>Order Confirmation</h1>
             <p style='margin: 10px 0 0; opacity: 0.9;'>Thank you for choosing SOHUB Protect!</p>
         </div>
@@ -383,16 +404,16 @@ try {
                 </tr>
                 <tr>
                     <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: bold; color: #1890ff;'>SOHUB Protect {$editionName}</td>
-                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: bold; text-align: right;'>".number_format($editionPrice)." BDT</td>
+                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: bold; text-align: right;'>" . number_format($editionPrice) . " BDT</td>
                 </tr>
                 {$addonRows}
                 <tr>
                     <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; color: #718096;'>Delivery</td>
-                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; text-align: right;'>".number_format($deliveryFee)." BDT</td>
+                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; text-align: right;'>" . number_format($deliveryFee) . " BDT</td>
                 </tr>
                 <tr style='background-color: #f8fafc;'>
                     <td style='padding: 15px; font-weight: bold; font-size: 18px; color: #2d3748;'>Total Amount</td>
-                    <td style='padding: 15px; font-weight: bold; font-size: 18px; color: #1890ff; text-align: right;'>".number_format($total)." BDT</td>
+                    <td style='padding: 15px; font-weight: bold; font-size: 18px; color: #1890ff; text-align: right;'>" . number_format($total) . " BDT</td>
                 </tr>
             </table>
 
@@ -408,7 +429,7 @@ try {
         <div style='background-color: #1a202c; padding: 30px; text-align: center; color: #ffffff;'>
             <p style='margin: 0; font-size: 14px; font-weight: bold;'>Solution Hub Technologies (SOHUB)</p>
             <div style='margin: 15px 0; font-size: 12px; color: #a0aec0;'>
-                📞 09678-076482 | 🌐 <a href='https://sohubprotect.com.bd' style='color: #1890ff; text-decoration: none;'>sohubprotect.com.bd</a>
+                📞 09678-076482 | 🌐 <a href='https://protect.sohub.com.bd' style='color: #1890ff; text-decoration: none;'>sohubprotect.com.bd</a>
             </div>
         </div>
     </div>

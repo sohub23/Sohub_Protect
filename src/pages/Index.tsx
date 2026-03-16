@@ -21,6 +21,7 @@ const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
+    document.title = "SOHUB Protect";
     const payment = searchParams.get("payment");
     const status = searchParams.get("status");
     const paymentID = searchParams.get("paymentID");

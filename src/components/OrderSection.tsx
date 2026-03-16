@@ -315,34 +315,36 @@ const OrderSection = () => {
 
         {/* Success State */}
         {submitStatus === "success" ? (
-          <div className="max-w-md mx-auto text-center py-12">
-            <div className="relative mx-auto w-20 h-20 mb-6">
+          <div className="max-w-md mx-auto text-center py-20 min-h-[600px] flex flex-col items-center justify-center">
+            <div className="relative mx-auto w-20 h-20 mb-8">
               <div className="absolute inset-0 rounded-full bg-primary/10 animate-ping" style={{ animationDuration: '2s' }} />
               <div className="relative w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
                 <CheckCircle2 className="w-10 h-10 text-primary" />
               </div>
             </div>
-            <h3 className="text-xl md:text-2xl font-bold text-foreground mb-2">
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
               অর্ডার সফলভাবে সম্পন্ন হয়েছে! 🎉
             </h3>
             {orderId && (
-              <div className="inline-block bg-primary/10 border border-primary/20 px-4 py-2 rounded-full mb-3">
-                <span className="text-primary font-bold text-sm">🛡️ Order #{orderId}</span>
+              <div className="inline-block bg-primary/10 border border-primary/20 px-6 py-3 rounded-full mb-6">
+                <span className="text-primary font-bold text-lg">🛡️ Order #{orderId}</span>
               </div>
             )}
-            <p className="text-muted-foreground text-sm mb-1">
-              আপনার ইমেইলে কোটেশন পিডিএফ পাঠানো হয়েছে।
-            </p>
-            <p className="text-muted-foreground text-xs mb-6">
-              আমাদের টিম শিগগিরই আপনার সাথে যোগাযোগ করবে।
-            </p>
+            <div className="space-y-2 mb-8">
+              <p className="text-muted-foreground text-base">
+                আপনার ইমেইলে কোটেশন পিডিএফ পাঠানো হয়েছে।
+              </p>
+              <p className="text-muted-foreground text-sm">
+                আমাদের টিম শিগগিরই আপনার সাথে যোগাযোগ করবে।
+              </p>
+            </div>
             <button
               onClick={() => {
                 setSubmitStatus("idle");
                 setFormData({ name: "", phone: "", email: "", address: "", note: "" });
                 setSelectedAddons({});
               }}
-              className="text-primary text-sm font-medium hover:underline"
+              className="px-8 py-3 bg-primary text-primary-foreground rounded-full font-bold hover:bg-brand-dark transition-all shadow-lg hover:shadow-primary/25"
             >
               নতুন অর্ডার করুন →
             </button>
