@@ -146,11 +146,10 @@ try {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
 
-            // LOGO (Direct Binary Embedding to fix visibility)
-            $logoPath = __DIR__ . '/assets/logo-with-icon.png';
-            if (file_exists($logoPath)) {
-                $imgdata = file_get_contents($logoPath);
-                $this->Image('@' . $imgdata, 15, 6, 42, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
+            // LOGO (Using realpath for reliability)
+            $logoPath = realpath(__DIR__ . '/assets/logo-with-icon.png');
+            if ($logoPath && file_exists($logoPath)) {
+                $this->Image($logoPath, 15, 6, 42, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -304,7 +303,10 @@ try {
     // Grand Total Row
     $pdf->SetFont('helvetica', 'B', 10);
     $pdf->SetFillColor(245, 248, 255);
-    $pdf->Cell($colWidths[0] + $colWidths[1] + $colWidths[2] + $colWidths[3], 10, 'Grand Total', 1, 0, 'R', true);
+    // Empty space for Image + Product
+    $pdf->Cell($colWidths[0] + $colWidths[1], 10, '', 1, 0, 'C', true);
+    // 'Grand Total' label centered in Qty + Unit Price columns
+    $pdf->Cell($colWidths[2] + $colWidths[3], 10, 'Grand Total', 1, 0, 'C', true);
     $pdf->SetTextColor(24, 144, 255);
     $totalAmount = floatval($total);
     $pdf->Cell($colWidths[4], 10, number_format($totalAmount) . ' BDT', 1, 1, 'C', true);
