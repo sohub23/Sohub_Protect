@@ -128,27 +128,11 @@ try {
         '9' => $assetsDir . '/Accesories/wireless_siren.png',
         '10' => $assetsDir . '/Accesories/ai_camera.jpeg',
     ];
-    // Logo Path Resolution - Multiple Fallbacks
-    $logoCandidates = [
-        $assetsDir . '/logo-with-icon.png',
-        $assetsDir . '\\logo-with-icon.png',
-        __DIR__ . '/assets/logo-with-icon.png',
-        __DIR__ . '\\assets\\logo-with-icon.png',
-        __DIR__ . '/../api-assets/logo-with-icon.png',
-        __DIR__ . '\\..\\api-assets\\logo-with-icon.png',
-    ];
-    $logoPath = '';
-    foreach ($logoCandidates as $candidate) {
-        // Try both realpath and direct file_exists
-        if (file_exists($candidate)) {
-            $logoPath = $candidate;
-            break;
-        }
-        $resolved = realpath($candidate);
-        if ($resolved && file_exists($resolved)) {
-            $logoPath = $resolved;
-            break;
-        }
+    // Logo for PDF - uses blue-background version (TCPDF can't handle PNG transparency)
+    // The original logo-with-icon.png is white text on transparent bg, invisible on blue header
+    $logoPath = $assetsDir . '/logo-for-pdf.png';
+    if (!file_exists($logoPath)) {
+        $logoPath = __DIR__ . '/assets/logo-for-pdf.png';
     }
     $orderId = 'SP-' . date('Ymd') . '-' . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
     $orderDate = date('d M Y, h:i A');
@@ -172,9 +156,9 @@ try {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
 
-            // LOGO - Only on first page (page 1), top left corner
-            if ($this->PageNo() === 1 && !empty($this->logoPath) && file_exists($this->logoPath)) {
-                @$this->Image($this->logoPath, 10, 8, 35, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
+            // LOGO - Blue background version (no transparency issues)
+            if (!empty($this->logoPath) && file_exists($this->logoPath)) {
+                $this->Image($this->logoPath, 10, 5, 45, 0, 'PNG');
             }
 
             $this->SetFont('helvetica', 'B', 20);
