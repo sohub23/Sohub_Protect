@@ -165,21 +165,16 @@ try {
         public string $logoPath = '';
         public string $orderId = '';
         public string $orderDate = '';
-        public bool $isFirstPage = true;
+        private int $pageCount = 0;
 
         public function Header()
         {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
 
-            // LOGO - Only on first page, top left corner
-            if ($this->isFirstPage && $this->logoPath && file_exists($this->logoPath)) {
-                try {
-                    // Position: X=10mm, Y=8mm, Width=35mm (auto height)
-                    $this->Image($this->logoPath, 10, 8, 35, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
-                } catch (Exception $e) {
-                    // Silent fail - no logo
-                }
+            // LOGO - Only on first page (page 1), top left corner
+            if ($this->PageNo() === 1 && !empty($this->logoPath) && file_exists($this->logoPath)) {
+                @$this->Image($this->logoPath, 10, 8, 35, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -198,13 +193,6 @@ try {
             $this->SetLineWidth(0.8);
             $this->Line(15, 38, 195, 38);
             $this->SetY(42);
-        }
-        
-        public function AddPage($orientation = '', $format = '', $keepmargins = false, $tocpage = false)
-        {
-            parent::AddPage($orientation, $format, $keepmargins, $tocpage);
-            // After first page, disable logo
-            $this->isFirstPage = false;
         }
 
         public function Footer()
