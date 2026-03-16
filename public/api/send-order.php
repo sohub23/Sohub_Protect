@@ -163,12 +163,10 @@ try {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
 
-            // LOGO (Use resolved path from caller)
+            // LOGO (Draw on top of Rect)
             $logoPath = $this->logoPath;
             if ($logoPath && file_exists($logoPath)) {
-                $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
-                $imgType = ($ext === 'png') ? 'PNG' : (($ext === 'jpg') ? 'JPG' : (($ext === 'jpeg') ? 'JPEG' : ''));
-                $this->Image($logoPath, 15, 6, 42, 0, $imgType, '', 'T', false, 300, '', false, false, 0);
+                $this->Image($logoPath, 15, 6, 42, 0, '', '', 'T', false, 300, '', false, false, 0);
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -218,6 +216,12 @@ try {
     $pdf->SetMargins(15, 42, 15);
     $pdf->SetAutoPageBreak(true, 35);
     $pdf->AddPage();
+
+    // Body Logo Fallback (If header fails or for extra branding)
+    if ($logoPath && file_exists($logoPath)) {
+        $pdf->Image($logoPath, 15, $pdf->GetY(), 45, 0, '', '', 'T', false, 300, '', false, false, 0);
+        $pdf->Ln(15);
+    }
 
     // Customer Info Card
     $pdf->SetFont('helvetica', 'B', 12);
@@ -320,21 +324,17 @@ try {
         $drawRow($pdf, $addonImg, $addon['name'], '', $qty, $price, $rowTotal, $colWidths, $imageMap);
     }
 
-    // Total Quantity Row
+    // Unified Summary Row (Total Qty + Grand Total)
     $pdf->SetFont('helvetica', 'B', 10);
     $pdf->SetFillColor(245, 248, 255);
     $pdf->SetTextColor(30, 30, 30);
-    $pdf->Cell($colWidths[0] + $colWidths[1], 10, '', 1, 0, 'C', true);
-    $pdf->Cell($colWidths[2] + $colWidths[3], 10, 'Total Quantity', 1, 0, 'C', true);
-    $pdf->Cell($colWidths[4], 10, $totalQuantity, 1, 1, 'C', true);
-
-    // Grand Total Row
-    $pdf->SetFont('helvetica', 'B', 10);
-    $pdf->SetFillColor(245, 248, 255);
-    // Empty space for Image + Product
-    $pdf->Cell($colWidths[0] + $colWidths[1], 10, '', 1, 0, 'C', true);
-    // 'Grand Total' label centered in Qty + Unit Price columns
-    $pdf->Cell($colWidths[2] + $colWidths[3], 10, 'Grand Total', 1, 0, 'C', true);
+    // [Image + Product] columns: Total Quantity label
+    $pdf->Cell($colWidths[0] + $colWidths[1], 10, 'Total Quantity', 1, 0, 'R', true);
+    // [Qty] column: Value
+    $pdf->Cell($colWidths[2], 10, $totalQuantity, 1, 0, 'C', true);
+    // [Unit Price] column: Grand Total label
+    $pdf->Cell($colWidths[3], 10, 'Grand Total', 1, 0, 'C', true);
+    // [Total] column: Total Value
     $pdf->SetTextColor(24, 144, 255);
     $totalAmount = floatval($total);
     $pdf->Cell($colWidths[4], 10, number_format($totalAmount) . ' BDT', 1, 1, 'C', true);
