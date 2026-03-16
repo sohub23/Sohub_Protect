@@ -123,9 +123,9 @@ try {
         '4' => $assetsDir . '/Accesories/fire_alarm.jpeg',
         '5' => $assetsDir . '/Accesories/gas_sensor.jpeg',
         '6' => $assetsDir . '/Accesories/motion_sensor.jpeg',
-        '7' => $assetsDir . '/Accesories/signal_extender.jpeg',
+        '7' => $assetsDir . '/Accesories/signal_extender.png',
         '8' => $assetsDir . '/Accesories/sos_band.jpeg',
-        '9' => $assetsDir . '/Accesories/wireless_siren.jpeg',
+        '9' => $assetsDir . '/Accesories/wireless_siren.png',
         '10' => $assetsDir . '/Accesories/ai_camera.jpeg',
     ];
     $logoPath = $assetsDir . '/logo-with-icon.png';
@@ -149,7 +149,8 @@ try {
             // LOGO (Match Navbar)
             $logo = __DIR__ . '/assets/logo-with-icon.png';
             if (file_exists($logo)) {
-                $this->Image($logo, 15, 6, 38, 0, '', '', 'T', false, 300, '', false, false, 0);
+                // Use a slightly larger width and allow auto-resize (true) for better rendering
+                $this->Image($logo, 15, 6, 42, 0, '', '', 'T', true, 300, '', false, false, 0);
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -258,7 +259,7 @@ try {
         // Col 0: Image
         if ($img && file_exists($img)) {
             // Use empty string for type to let TCPDF auto-detect (fix for jpeg-extension PNGs)
-            $pdf->Image($img, 17, $y + 2, 20, 18, '', '', 'T', false, 300, '', false, false, 0);
+            $pdf->Image($img, 17, $y + 2, 20, 18, '', '', 'T', true, 300, '', false, false, 0);
         }
         $pdf->SetXY(15, $y);
         $pdf->Cell($colWidths[0], $rowHeight, '', 1, 0, 'C');
