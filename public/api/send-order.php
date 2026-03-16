@@ -138,47 +138,55 @@ try {
         public string $logoPath = '';
         public string $orderId = '';
         public string $orderDate = '';
+        
         public function Header() {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
-            if (file_exists($this->logoPath)) {
-                $this->Image($this->logoPath, 15, 6, 45, 0, '', '', '', true, 300, '', false, false, 0);
+            
+            // LOGO
+            $logo = __DIR__ . '/assets/logo-white.png';
+            if (file_exists($logo)) {
+                $this->Image($logo, 15, 6, 45, 0, 'PNG', '', '', true, 300, '', false, false, 0);
             }
-            $this->SetFont('freeserif', 'B', 20);
+            
+            $this->SetFont('helvetica', 'B', 20);
             $this->SetTextColor(255, 255, 255);
             $this->SetXY(100, 8);
             $this->Cell(95, 10, 'QUOTATION', 0, 0, 'R');
-            $this->SetFont('freeserif', '', 9);
+            
+            $this->SetFont('helvetica', '', 9);
             $this->SetTextColor(220, 240, 255);
             $this->SetXY(100, 18);
             $this->Cell(95, 5, 'Order: ' . $this->orderId, 0, 1, 'R');
             $this->SetX(100);
             $this->Cell(95, 5, 'Date: ' . $this->orderDate, 0, 1, 'R');
+            
             $this->SetDrawColor(255, 193, 7);
             $this->SetLineWidth(0.8);
             $this->Line(15, 38, 195, 38);
             $this->SetY(42);
         }
+
         public function Footer() {
             $this->SetY(-30);
             $this->SetDrawColor(24, 144, 255);
             $this->SetLineWidth(0.3);
             $this->Line(15, $this->GetY(), 195, $this->GetY());
             $this->Ln(4);
-            $this->SetFont('freeserif', 'B', 8);
+            $this->SetFont('helvetica', 'B', 8);
             $this->SetTextColor(24, 144, 255);
             $this->Cell(0, 4, 'Solution Hub Technologies (SOHUB)', 0, 1, 'C');
-            $this->SetFont('freeserif', '', 7);
+            $this->SetFont('helvetica', '', 7);
             $this->SetTextColor(130, 130, 130);
             $this->Cell(0, 4, 'Phone: 09678-076482  |  Email: hello@sohub.com.bd  |  www.sohubprotect.com', 0, 1, 'C');
             $this->Cell(0, 4, '1 Year Warranty  •  No Monthly Fee  •  Free Technical Support', 0, 1, 'C');
-            $this->SetFont('freeserif', '', 7);
+            $this->SetY(-10);
+            $this->SetFont('helvetica', '', 7);
             $this->Cell(0, 4, 'Page ' . $this->getAliasNumPage() . ' of ' . $this->getAliasNbPages(), 0, 0, 'C');
         }
     }
 
     $pdf = new SOHUBQuotation('P', 'mm', 'A4', true, 'UTF-8');
-    $pdf->logoPath = $logoPath;
     $pdf->orderId = $orderId;
     $pdf->orderDate = $orderDate;
     $pdf->SetCreator('SOHUB Protect');
@@ -188,10 +196,10 @@ try {
     $pdf->AddPage();
 
     // Customer Info Card
-    $pdf->SetFont('freeserif', 'B', 12);
+    $pdf->SetFont('helvetica', 'B', 12);
     $pdf->SetTextColor(24, 144, 255);
     $pdf->Cell(0, 8, 'Customer Information', 0, 1, 'L');
-    $pdf->SetFont('freeserif', '', 9);
+    $pdf->SetFont('helvetica', '', 9);
     $pdf->SetFillColor(245, 248, 255);
     $pdf->SetDrawColor(200, 220, 255);
     $startY = $pdf->GetY();
@@ -206,40 +214,66 @@ try {
     $pdf->Cell(30, 5, 'Address:', 0, 0); $pdf->MultiCell(140, 5, $customerAddress, 0, 'L');
     $pdf->SetY($startY + 32);
 
-    // Order Table
-    $pdf->SetFont('freeserif', 'B', 12); $pdf->SetTextColor(24, 144, 255);
+    // Order Table Header
+    $pdf->SetFont('helvetica', 'B', 12); $pdf->SetTextColor(24, 144, 255);
     $pdf->Cell(0, 10, 'Order Details', 0, 1, 'L');
     $pdf->SetFillColor(24, 144, 255); $pdf->SetTextColor(255, 255, 255);
     $colWidths = [25, 80, 35, 40];
-    $pdf->Cell($colWidths[0], 10, '', 1, 0, 'C', true);
+    $pdf->Cell($colWidths[0], 10, 'Image', 1, 0, 'C', true);
     $pdf->Cell($colWidths[1], 10, 'Product', 1, 0, 'L', true);
     $pdf->Cell($colWidths[2], 10, 'Unit Price', 1, 0, 'R', true);
     $pdf->Cell($colWidths[3], 10, 'Total', 1, 1, 'R', true);
 
-    // Edition Row
-    $rowY = $pdf->GetY();
-    $editionImgPath = $imageMap[$edition['id']] ?? '';
-    if (file_exists($editionImgPath)) { $pdf->Image($editionImgPath, 17, $rowY + 2, 20, 18); }
-    $pdf->SetXY(15, $rowY); $pdf->Cell($colWidths[0], 22, '', 1, 0, 'C', false);
-    $pdf->SetXY(15 + $colWidths[0], $rowY);
-    $pdf->SetFont('helvetica', 'B', 10); $pdf->SetTextColor(30, 30, 30);
-    $pdf->Cell($colWidths[1], 7, $edition['nameBn'] ?? $edition['name'], 0, 1);
-    $pdf->SetX(15 + $colWidths[0]); $pdf->SetFont('helvetica', '', 7);
-    $pdf->MultiCell($colWidths[1] - 5, 4, $edition['desc'] ?? '', 0, 'L');
-    $pdf->Rect(15 + $colWidths[0], $rowY, $colWidths[1], 22);
-    $pdf->SetXY(15 + $colWidths[0] + $colWidths[1], $rowY);
-    $pdf->SetFont('helvetica', '', 9); $pdf->Cell($colWidths[2], 22, number_format($editionPrice) . ' BDT', 1, 0, 'R');
-    $pdf->SetFont('helvetica', 'B', 9); $pdf->Cell($colWidths[3], 22, number_format($editionPrice) . ' BDT', 1, 1, 'R');
+    // Row drawing function for No-Break logic
+    $drawRow = function($pdf, $img, $name, $desc, $price, $total, $colWidths, $imageMap) {
+        $rowHeight = 22;
+        // Check for page break
+        if ($pdf->GetY() + $rowHeight > $pdf->getPageHeight() - 35) {
+            $pdf->AddPage();
+            // Redraw table header on new page
+            $pdf->SetFillColor(24, 144, 255); $pdf->SetTextColor(255, 255, 255);
+            $pdf->SetFont('helvetica', 'B', 10);
+            $pdf->Cell($colWidths[0], 10, 'Image', 1, 0, 'C', true);
+            $pdf->Cell($colWidths[1], 10, 'Product', 1, 0, 'L', true);
+            $pdf->Cell($colWidths[2], 10, 'Unit Price', 1, 0, 'R', true);
+            $pdf->Cell($colWidths[3], 10, 'Total', 1, 1, 'R', true);
+        }
 
-    // Addons
+        $y = $pdf->GetY();
+        $pdf->SetTextColor(30, 30, 30);
+        
+        // Col 0: Image
+        if ($img && file_exists($img)) {
+            $pdf->Image($img, 17, $y + 2, 20, 18);
+        }
+        $pdf->SetXY(15, $y); $pdf->Cell($colWidths[0], $rowHeight, '', 1, 0, 'C');
+        
+        // Col 1: Name & Desc
+        $pdf->SetXY(15 + $colWidths[0], $y);
+        $pdf->Rect(15 + $colWidths[0], $y, $colWidths[1], $rowHeight);
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->SetXY(15 + $colWidths[0] + 2, $y + 4);
+        $pdf->Cell($colWidths[1] - 4, 6, $name, 0, 1);
+        $pdf->SetFont('helvetica', '', 7);
+        $pdf->SetX(15 + $colWidths[0] + 2);
+        $pdf->MultiCell($colWidths[1] - 4, 3, $desc, 0, 'L');
+        
+        // Col 2 & 3: Prices
+        $pdf->SetXY(15 + $colWidths[0] + $colWidths[1], $y);
+        $pdf->SetFont('helvetica', '', 9); 
+        $pdf->Cell($colWidths[2], $rowHeight, number_format($price) . ' BDT', 1, 0, 'R');
+        $pdf->SetFont('helvetica', 'B', 9); 
+        $pdf->Cell($colWidths[3], $rowHeight, number_format($total) . ' BDT', 1, 1, 'R');
+    };
+
+    // Draw Edition Row (English only)
+    $editionImgPath = $imageMap[$edition['id']] ?? '';
+    $drawRow($pdf, $editionImgPath, $edition['name'], $edition['desc'], $editionPrice, $editionPrice, $colWidths, $imageMap);
+
+    // Draw Addon Rows (English only)
     foreach ($addons as $addon) {
-        $addonY = $pdf->GetY();
         $addonImg = $imageMap[$addon['id']] ?? '';
-        if (file_exists($addonImg)) { $pdf->Image($addonImg, 18, $addonY + 2, 16, 14); }
-        $pdf->SetXY(15, $addonY); $pdf->Cell($colWidths[0], 18, '', 1, 0);
-        $pdf->Cell($colWidths[1], 18, ($addon['nameBn'] ?? $addon['name']), 1, 0);
-        $pdf->SetFont('helvetica', '', 9); $pdf->Cell($colWidths[2], 18, number_format($addon['price']) . ' BDT', 1, 0, 'R');
-        $pdf->SetFont('helvetica', 'B', 9); $pdf->Cell($colWidths[3], 18, number_format($addon['price']) . ' BDT', 1, 1, 'R');
+        $drawRow($pdf, $addonImg, $addon['name'], '', intval($addon['price']), intval($addon['price']), $colWidths, $imageMap);
     }
 
     $pdfContent = $pdf->Output('', 'S');

@@ -254,6 +254,11 @@ const OrderSection = () => {
 
       // COD — just show success
       setSubmitStatus("success");
+      // Scroll to top of order section so user sees success message
+      const orderSection = document.getElementById("order");
+      if (orderSection) {
+        orderSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     } catch (err) {
       console.error("Order submission error:", err);
       if (err instanceof SyntaxError) {
