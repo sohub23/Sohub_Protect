@@ -89,6 +89,25 @@ const OrderSection = () => {
     }
   }, [editionParam]);
 
+  // Handle redirect back from payment gateway
+  useEffect(() => {
+    const status = searchParams.get('status');
+    const payment = searchParams.get('payment');
+    const tranId = searchParams.get('tran_id');
+
+    if (payment === 'ssl' && status === 'success' && tranId) {
+      setSubmitStatus('success');
+      setOrderId(tranId);
+      // Wait a bit then scroll to success message
+      setTimeout(() => {
+        const orderSection = document.getElementById("order");
+        if (orderSection) {
+          orderSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+    }
+  }, [searchParams]);
+
   const edition = editions.find((e) => e.id === selectedEdition)!;
 
   const increaseAddon = (id: string, e: React.MouseEvent) => {

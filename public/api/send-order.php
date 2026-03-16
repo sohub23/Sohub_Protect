@@ -97,7 +97,7 @@ try {
 
     $edition = $input['edition'] ?? null;
     $addons = $input['addons'] ?? [];
-    $paymentMethod = $input['paymentMethod'] ?? 'online';
+    $paymentMethod = $input['paymentMethod'] ?? 'online'; // cod or sslcommerz
     $deliveryFee = intval($input['deliveryFee'] ?? 0);
     $total = intval($input['total'] ?? 0);
     $customer = $input['customer'] ?? [];
@@ -230,7 +230,7 @@ try {
     $pdf->Cell(30, 5, 'Email:', 0, 0);
     $pdf->Cell(55, 5, $customerEmail ?: 'N/A', 0, 0);
     $pdf->Cell(30, 5, 'Payment:', 0, 0);
-    $pdf->Cell(55, 5, $paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery', 0, 1);
+    $pdf->Cell(55, 5, $paymentMethod === 'sslcommerz' ? 'Online Payment (Paid)' : 'Cash on Delivery', 0, 1);
     $pdf->SetX(20);
     $pdf->Cell(30, 5, 'Address:', 0, 0);
     $pdf->MultiCell(140, 5, $customerAddress, 0, 'L');
@@ -352,7 +352,7 @@ try {
     $mail->Subject = "New Order Recieved: #{$orderId}";
 
     $editionName = $edition['name'] ?? 'SOHUB Protect';
-    $paymentLabel = ($paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery');
+    $paymentLabel = ($paymentMethod === 'sslcommerz' ? 'Online Payment (Paid)' : 'Cash on Delivery');
 
     $mail->Body = "
     <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; border: 1px solid #eee; border-top: 4px solid #1890ff; border-radius: 8px; padding: 30px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
@@ -465,6 +465,10 @@ try {
                     <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: bold; text-align: right;'>" . number_format($editionPrice) . " BDT</td>
                 </tr>
                 {$addonRows}
+                <tr>
+                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; color: #718096;'>Payment</td>
+                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold; color: " . ($paymentMethod === 'sslcommerz' ? '#38a169' : '#e53e3e') . ";'>{$paymentLabel}</td>
+                </tr>
                 <tr>
                     <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; color: #718096;'>Delivery</td>
                     <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; text-align: right;'>" . number_format($deliveryFee) . " BDT</td>

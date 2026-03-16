@@ -15,21 +15,23 @@ $status = $_GET['status'] ?? $_POST['status'] ?? 'unknown';
 $tranId = $_POST['tran_id'] ?? $_GET['tran_id'] ?? '';
 $valId = $_POST['val_id'] ?? '';
 
-// Determine the frontend redirect URL
-$siteUrl = 'https://sohubprotect.com'; // Change in production
+// Determine the frontend redirect URL dynamically
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+$siteUrl = $protocol . '://' . $host;
 
-// Check if we're in dev mode
-if (strpos($_SERVER['HTTP_HOST'] ?? '', 'localhost') !== false) {
-    $siteUrl = 'http://localhost:8080';
+// If we are on localhost, port might be different (e.g. 5173 for Vite)
+if (strpos($host, 'localhost') !== false) {
+    $siteUrl = 'http://localhost:5173';
 }
 
 // SSLCommerz callback
-if ($status === 'success' || strtolower($status) === 'valid') {
-    $redirectUrl = $siteUrl . '/?payment=ssl&status=success&tran_id=' . urlencode($tranId) . '&val_id=' . urlencode($valId);
+if ($status === 'success' || strtolower($status) === 'valid' || strtolower($status) === 'success') {
+    $redirectUrl = $siteUrl . '/?payment=ssl&status=success&tran_id=' . urlencode($tranId) . '&val_id=' . urlencode($valId) . '#order';
 } elseif ($status === 'cancel') {
-    $redirectUrl = $siteUrl . '/?payment=ssl&status=cancel';
+    $redirectUrl = $siteUrl . '/?payment=ssl&status=cancel#order';
 } else {
-    $redirectUrl = $siteUrl . '/?payment=ssl&status=fail';
+    $redirectUrl = $siteUrl . '/?payment=ssl&status=fail#order';
 }
 
 header('Location: ' . $redirectUrl);
