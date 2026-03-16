@@ -128,14 +128,22 @@ try {
         '9' => $assetsDir . '/Accesories/wireless_siren.png',
         '10' => $assetsDir . '/Accesories/ai_camera.jpeg',
     ];
+    // Logo Path Resolution - Multiple Fallbacks
     $logoCandidates = [
         $assetsDir . '/logo-with-icon.png',
+        $assetsDir . '\\logo-with-icon.png',
+        __DIR__ . '/assets/logo-with-icon.png',
+        __DIR__ . '\\assets\\logo-with-icon.png',
         __DIR__ . '/../api-assets/logo-with-icon.png',
-        $assetsDir . '/logo-white.png',
-        __DIR__ . '/../api-assets/logo-white.png',
+        __DIR__ . '\\..\\api-assets\\logo-with-icon.png',
     ];
     $logoPath = '';
     foreach ($logoCandidates as $candidate) {
+        // Try both realpath and direct file_exists
+        if (file_exists($candidate)) {
+            $logoPath = $candidate;
+            break;
+        }
         $resolved = realpath($candidate);
         if ($resolved && file_exists($resolved)) {
             $logoPath = $resolved;
@@ -163,18 +171,39 @@ try {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
 
-            // LOGO (Draw on top of Rect - Hyper-robust path)
+            // LOGO - Multiple fallback attempts
+            $logoAdded = false;
             $paths = [
                 $this->logoPath,
                 __DIR__ . '/assets/logo-with-icon.png',
-                __DIR__ . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'logo-with-icon.png'
+                __DIR__ . '\\assets\\logo-with-icon.png',
+                __DIR__ . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'logo-with-icon.png',
+                dirname(__DIR__) . '/api-assets/logo-with-icon.png',
+                dirname(__DIR__) . '\\api-assets\\logo-with-icon.png'
             ];
             
             foreach ($paths as $lp) {
                 if ($lp && file_exists($lp)) {
-                    $this->Image($lp, 15, 6, 42, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
-                    break;
+                    try {
+                        $this->Image($lp, 15, 6, 42, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
+                        $logoAdded = true;
+                        break;
+                    } catch (Exception $e) {
+                        // Try next path
+                        continue;
+                    }
                 }
+            }
+            
+            // Fallback: Draw text logo if image fails
+            if (!$logoAdded) {
+                $this->SetFont('helvetica', 'B', 16);
+                $this->SetTextColor(255, 255, 255);
+                $this->SetXY(15, 10);
+                $this->Cell(42, 10, 'SOHUB', 0, 0, 'C');
+                $this->SetFont('helvetica', '', 8);
+                $this->SetXY(15, 20);
+                $this->Cell(42, 5, 'Protect', 0, 0, 'C');
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -225,11 +254,31 @@ try {
     $pdf->SetAutoPageBreak(true, 35);
     $pdf->AddPage();
 
-    // Body Logo Fallback (If header fails or for extra branding)
-    $finalLogo = $logoPath ?: __DIR__ . '/assets/logo-with-icon.png';
-    if (file_exists($finalLogo)) {
-        $pdf->Image($finalLogo, 15, $pdf->GetY(), 40, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
-        $pdf->Ln(15);
+    // Body Logo - Guaranteed to show
+    $bodyLogoPaths = [
+        $logoPath,
+        __DIR__ . '/assets/logo-with-icon.png',
+        __DIR__ . '\\assets\\logo-with-icon.png',
+        __DIR__ . '/../api-assets/logo-with-icon.png'
+    ];
+    
+    $bodyLogoAdded = false;
+    foreach ($bodyLogoPaths as $blp) {
+        if ($blp && file_exists($blp)) {
+            try {
+                $pdf->Image($blp, 15, $pdf->GetY(), 40, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
+                $pdf->Ln(15);
+                $bodyLogoAdded = true;
+                break;
+            } catch (Exception $e) {
+                continue;
+            }
+        }
+    }
+    
+    // If no logo added, just add spacing
+    if (!$bodyLogoAdded) {
+        $pdf->Ln(5);
     }
 
     // Customer Info Card
@@ -411,11 +460,31 @@ try {
         $mail->addAddress($customerEmail, $customerName);
         $mail->Subject = "Order Confirmation: #{$orderId} — SOHUB Protect";
 
-        // Embed Logo specifically for Customer Email (so it doesn't show as attachment in Admin mail)
-        $logoEmbedPath = __DIR__ . '/assets/logo-with-icon.png';
-        if (file_exists($logoEmbedPath)) {
-            $mail->addEmbeddedImage($logoEmbedPath, 'logo_with_icon');
+        // Embed Logo for Customer Email - Multiple fallback paths
+        $logoEmbedPaths = [
+            __DIR__ . '/assets/logo-with-icon.png',
+            __DIR__ . '\\assets\\logo-with-icon.png',
+            __DIR__ . '/../api-assets/logo-with-icon.png',
+            $logoPath
+        ];
+        
+        $logoEmbedded = false;
+        foreach ($logoEmbedPaths as $lep) {
+            if ($lep && file_exists($lep)) {
+                try {
+                    $mail->addEmbeddedImage($lep, 'logo_with_icon');
+                    $logoEmbedded = true;
+                    break;
+                } catch (Exception $e) {
+                    continue;
+                }
+            }
         }
+        
+        // Use text fallback if logo embedding fails
+        $logoHtml = $logoEmbedded 
+            ? "<img src='cid:logo_with_icon' alt='SOHUB Protect' style='height: 45px; margin-bottom: 20px;'>" 
+            : "<div style='font-size: 24px; font-weight: bold; color: white; margin-bottom: 20px;'>SOHUB Protect</div>";
 
         // Build Addon Rows
         $addonRows = "";
@@ -434,7 +503,7 @@ try {
         
         <!-- Blue Header -->
         <div style='background-color: #1890ff; padding: 40px 20px; text-align: center; color: #ffffff;'>
-            <img src='cid:logo_with_icon' alt='SOHUB Protect' style='height: 45px; margin-bottom: 20px;'>
+            {$logoHtml}
             <h1 style='margin: 0; font-size: 28px; font-weight: bold;'>Order Confirmation</h1>
             <p style='margin: 10px 0 0; opacity: 0.9;'>Thank you for choosing SOHUB Protect!</p>
         </div>
