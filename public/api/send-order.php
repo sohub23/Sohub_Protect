@@ -146,10 +146,10 @@ try {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
 
-            // LOGO
-            $logo = __DIR__ . '/assets/logo-white.png';
+            // LOGO (Match Navbar)
+            $logo = __DIR__ . '/assets/logo-with-icon.png';
             if (file_exists($logo)) {
-                $this->Image($logo, 15, 6, 45, 0, 'PNG', '', 'T', true, 300, '', false, false, 0);
+                $this->Image($logo, 15, 6, 40, 0, 'PNG', '', 'T', true, 300, '', false, false, 0);
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -291,8 +291,10 @@ try {
 
     $pdfContent = $pdf->Output('', 'S');
 
-    /* ── Email Sending ── */
+    // PHPMailer Configuration
     $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+    $fromEmail = trim($_ENV['SMTP_USER'] ?? '') ?: 'hello@sohub.com.bd';
+
     $mail->isSMTP();
     $mail->Host = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
     $mail->SMTPAuth = true;
@@ -301,21 +303,13 @@ try {
     $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = intval($_ENV['SMTP_PORT'] ?? 587);
     $mail->CharSet = 'UTF-8';
-    $mail->setFrom($_ENV['SMTP_USER'], 'SOHUB Protect');
-    $mail->addAddress($_ENV['ADMIN_EMAIL'] ?? 'hello@sohub.com.bd');
-    if ($customerEmail) {
-        $mail->addAddress($customerEmail, $customerName);
-    }
+    $mail->setFrom($fromEmail, 'SOHUB Protect');
+    
+    // Add PDF Attachment (for both emails)
     $mail->addStringAttachment($pdfContent, 'Quotation-' . $orderId . '.pdf', 'base64', 'application/pdf');
     $mail->isHTML(true);
 
-    // Embed Logo for Email Bodies
-    $logoEmbedPath = __DIR__ . '/assets/logo-white.png';
-    if (file_exists($logoEmbedPath)) {
-        $mail->addEmbeddedImage($logoEmbedPath, 'logo_white');
-    }
     /* ── Send Admin Email ── */
-    $mail->clearAddresses();
     $mail->addAddress($_ENV['ADMIN_EMAIL'] ?? 'hello@sohub.com.bd');
     $mail->Subject = "New Order Recieved: #{$orderId}";
 
@@ -358,6 +352,12 @@ try {
         $mail->addAddress($customerEmail, $customerName);
         $mail->Subject = "Order Confirmation: #{$orderId} — SOHUB Protect";
 
+        // Embed Logo specifically for Customer Email (so it doesn't show as attachment in Admin mail)
+        $logoEmbedPath = __DIR__ . '/assets/logo-with-icon.png';
+        if (file_exists($logoEmbedPath)) {
+            $mail->addEmbeddedImage($logoEmbedPath, 'logo_with_icon');
+        }
+
         // Build Addon Rows
         $addonRows = "";
         foreach ($addons as $addon) {
@@ -375,7 +375,7 @@ try {
         
         <!-- Blue Header -->
         <div style='background-color: #1890ff; padding: 40px 20px; text-align: center; color: #ffffff;'>
-            <img src='cid:logo_white' alt='SOHUB Protect' style='height: 40px; margin-bottom: 20px;'>
+            <img src='cid:logo_with_icon' alt='SOHUB Protect' style='height: 45px; margin-bottom: 20px;'>
             <h1 style='margin: 0; font-size: 28px; font-weight: bold;'>Order Confirmation</h1>
             <p style='margin: 10px 0 0; opacity: 0.9;'>Thank you for choosing SOHUB Protect!</p>
         </div>
