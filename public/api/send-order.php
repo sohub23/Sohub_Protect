@@ -149,7 +149,7 @@ try {
             // LOGO (Match Navbar)
             $logo = __DIR__ . '/assets/logo-with-icon.png';
             if (file_exists($logo)) {
-                $this->Image($logo, 15, 6, 40, 0, 'PNG', '', 'T', true, 300, '', false, false, 0);
+                $this->Image($logo, 15, 6, 38, 0, '', '', 'T', false, 300, '', false, false, 0);
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -208,6 +208,7 @@ try {
     $pdf->SetDrawColor(200, 220, 255);
     $startY = $pdf->GetY();
     $pdf->RoundedRect(15, $startY, 180, 28, 3, '1111', 'DF');
+    $pdf->SetTextColor(0, 0, 0); // Customer info text should be black
     $pdf->SetXY(20, $startY + 3);
     $pdf->Cell(30, 5, 'Name:', 0, 0);
     $pdf->Cell(55, 5, $customerName, 0, 0);
@@ -256,7 +257,8 @@ try {
 
         // Col 0: Image
         if ($img && file_exists($img)) {
-            $pdf->Image($img, 17, $y + 2, 20, 18);
+            // Use empty string for type to let TCPDF auto-detect (fix for jpeg-extension PNGs)
+            $pdf->Image($img, 17, $y + 2, 20, 18, '', '', 'T', false, 300, '', false, false, 0);
         }
         $pdf->SetXY(15, $y);
         $pdf->Cell($colWidths[0], $rowHeight, '', 1, 0, 'C');
