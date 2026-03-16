@@ -163,10 +163,18 @@ try {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
 
-            // LOGO (Draw on top of Rect)
-            $logoPath = $this->logoPath;
-            if ($logoPath && file_exists($logoPath)) {
-                $this->Image($logoPath, 15, 6, 42, 0, '', '', 'T', false, 300, '', false, false, 0);
+            // LOGO (Draw on top of Rect - Hyper-robust path)
+            $paths = [
+                $this->logoPath,
+                __DIR__ . '/assets/logo-with-icon.png',
+                __DIR__ . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'logo-with-icon.png'
+            ];
+            
+            foreach ($paths as $lp) {
+                if ($lp && file_exists($lp)) {
+                    $this->Image($lp, 15, 6, 42, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
+                    break;
+                }
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -218,8 +226,9 @@ try {
     $pdf->AddPage();
 
     // Body Logo Fallback (If header fails or for extra branding)
-    if ($logoPath && file_exists($logoPath)) {
-        $pdf->Image($logoPath, 15, $pdf->GetY(), 45, 0, '', '', 'T', false, 300, '', false, false, 0);
+    $finalLogo = $logoPath ?: __DIR__ . '/assets/logo-with-icon.png';
+    if (file_exists($finalLogo)) {
+        $pdf->Image($finalLogo, 15, $pdf->GetY(), 40, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
         $pdf->Ln(15);
     }
 
@@ -329,7 +338,7 @@ try {
     $pdf->SetFillColor(245, 248, 255);
     $pdf->SetTextColor(30, 30, 30);
     // [Image + Product] columns: Total Quantity label
-    $pdf->Cell($colWidths[0] + $colWidths[1], 10, 'Total Quantity', 1, 0, 'R', true);
+    $pdf->Cell($colWidths[0] + $colWidths[1], 10, '   Total Quantity', 1, 0, 'L', true);
     // [Qty] column: Value
     $pdf->Cell($colWidths[2], 10, $totalQuantity, 1, 0, 'C', true);
     // [Unit Price] column: Grand Total label
