@@ -17,14 +17,14 @@ const CompatibilityIcons = ({ variant = "light" }: CompatibilityIconsProps) => {
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-5">
+    <div className="flex flex-wrap items-center justify-center md:justify-start gap-5">
 
       {platforms.map((p) => (
         <div key={p.label} className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-lg ${iconBg} flex items-center justify-center`}>
-            <p.icon className={`w-4 h-4 ${iconColor}`} />
+          <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl ${iconBg} flex items-center justify-center transition-transform hover:scale-110`}>
+            <p.icon className={`w-4 h-4 md:w-5 md:h-5 ${iconColor}`} />
           </div>
-          <span className={`text-sm font-medium ${textMain}`}>{p.label}</span>
+          <span className={`text-[10px] md:text-sm font-medium ${textMain}`}>{p.label}</span>
         </div>
       ))}
     </div>

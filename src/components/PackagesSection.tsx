@@ -135,14 +135,14 @@ const PackagesSection = () => {
                 <img
                   src={pkg.image}
                   alt={pkg.name}
-                  className="w-full h-full object-cover scale-[0.90] mix-blend-multiply origin-center"
+                  className="w-full h-full object-contain md:object-cover scale-[0.90] mix-blend-multiply origin-center"
                 />
               </div>
 
               {/* Product Name */}
               <div className="text-center mt-1">
-                <h3 className="text-lg font-bold text-foreground">{pkg.nameBn}</h3>
-                <p className="text-sm text-primary font-medium">{pkg.name}</p>
+                <h3 className="text-sm md:text-lg font-bold text-foreground">{pkg.nameBn}</h3>
+                <p className="text-[10px] md:text-sm text-primary font-medium">{pkg.name}</p>
               </div>
             </div>
           ))}
@@ -176,11 +176,11 @@ const PackagesSection = () => {
         <div className="border-t border-border pt-10 max-w-4xl mx-auto">
           <div className="grid grid-cols-2 gap-4 md:gap-8">
             {packages.map((pkg) => (
-              <div key={pkg.id}>
+              <div key={pkg.id} className="flex flex-col">
                 <h4 className="text-sm md:text-base font-bold text-foreground mb-6">
                   {pkg.name} Specifications
                 </h4>
-                <div className="space-y-5 md:space-y-6">
+                <div className="space-y-5 md:space-y-6 flex-grow">
                   {pkg.specs.map((spec, i) => (
                     <div key={i} className="flex items-start gap-2.5 md:gap-3">
                       <spec.icon className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0 mt-0.5" />

@@ -11,8 +11,8 @@ interface QRExpandableProps {
 
 const QRExpandable = ({ size = "md", className = "", dark = false }: QRExpandableProps) => {
   const [expanded, setExpanded] = useState(false);
-  const imgSize = size === "sm" ? "w-16 h-16" : "w-20 h-20";
-  const containerPad = size === "sm" ? "p-2" : "p-2.5";
+  const imgSize = size === "sm" ? "w-16 h-16" : "w-16 h-16 md:w-20 md:h-20";
+  const containerPad = size === "sm" ? "p-2" : "p-2 md:p-2.5";
 
   return (
     <div className={className}>
@@ -59,7 +59,7 @@ const QRExpandable = ({ size = "md", className = "", dark = false }: QRExpandabl
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setExpanded(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-md cursor-zoom-out"
+              className="absolute inset-0 bg-black/90 backdrop-blur-sm cursor-zoom-out"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}

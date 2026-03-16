@@ -28,6 +28,7 @@ import {
   DoorOpen,
   Flame,
   Wind,
+  ShoppingBag,
 } from "lucide-react";
 
 /* ── Security Modes ─────────────────────────────── */
@@ -191,16 +192,16 @@ const ProductDetails = () => {
           <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto mb-10">
             European-Standard সিস্টেম। কোনো মাসিক ফি নেই। সাশ্রয়ী মূল্যে সর্বাধুনিক প্রযুক্তি।
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex items-center justify-center gap-2 md:gap-4 px-4 md:px-0">
             <Link
               to="/#packages"
-              className="bg-primary-foreground text-primary px-8 py-3.5 rounded-full font-medium hover:bg-primary-foreground/90 transition-colors"
+              className="flex-1 md:flex-none bg-primary-foreground text-primary px-4 py-2.5 md:px-8 md:py-3.5 rounded-full text-xs md:text-sm lg:text-base font-medium hover:bg-primary-foreground/90 transition-colors whitespace-nowrap"
             >
               প্যাকেজ দেখুন
             </Link>
             <a
               href="#how-detail"
-              className="border border-primary-foreground/30 text-primary-foreground px-8 py-3.5 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors"
+              className="flex-1 md:flex-none border border-primary-foreground/30 text-primary-foreground px-4 py-2.5 md:px-8 md:py-3.5 rounded-full text-xs md:text-sm lg:text-base font-medium hover:bg-primary-foreground/10 transition-colors whitespace-nowrap"
             >
               কিভাবে কাজ করে
             </a>
@@ -226,26 +227,26 @@ const ProductDetails = () => {
       </section>
 
       {/* ── Security Modes ────────────────────────── */}
-      <section className="py-20 lg:py-28">
+      <section className="py-12 lg:py-28">
         <div className="section-container">
-          <div className="text-center mb-14">
-            <p className="text-sm uppercase tracking-widest text-primary font-medium mb-3">
+          <div className="text-center mb-8 md:mb-14">
+            <p className="text-[10px] md:text-sm uppercase tracking-widest text-primary font-medium mb-2 md:mb-3">
               Discover the ways we prioritize your safety
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+            <h2 className="text-xl md:text-4xl font-bold text-foreground mb-2 md:mb-3">
               "আপনার মানসিক শান্তি রক্ষা করা, প্রতিটি পদক্ষেপে"
             </h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 max-w-5xl mx-auto">
             {securityModes.map((mode, i) => (
               <div
                 key={i}
-                className={`rounded-2xl p-6 border ${mode.border} ${mode.bg} transition-transform hover:-translate-y-1`}
+                className={`rounded-xl md:rounded-2xl p-4 md:p-6 border ${mode.border} ${mode.bg} transition-transform hover:-translate-y-1`}
               >
-                <mode.icon className={`w-10 h-10 ${mode.color} mb-4`} />
-                <h3 className="text-lg font-bold text-foreground mb-1">{mode.title}</h3>
-                <p className="text-xs text-muted-foreground font-medium mb-2">{mode.titleBn}</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">{mode.desc}</p>
+                <mode.icon className="w-6 h-6 md:w-10 md:h-10 text-primary mb-3 md:mb-4" />
+                <h3 className="text-sm md:text-lg font-bold text-foreground mb-0.5 md:mb-1">{mode.title}</h3>
+                <p className="text-[10px] md:text-xs text-muted-foreground font-medium mb-1 md:mb-2">{mode.titleBn}</p>
+                <p className="text-[11px] md:text-sm text-muted-foreground leading-relaxed line-clamp-2 md:line-clamp-none">{mode.desc}</p>
               </div>
             ))}
           </div>
@@ -284,13 +285,13 @@ const ProductDetails = () => {
       </section>
 
       {/* ── Product Ecosystem ─────────────────────── */}
-      <section className="py-20 lg:py-28">
+      <section className="py-12 lg:py-28">
         <div className="section-container">
-          <div className="text-center mb-14">
-            <p className="text-sm uppercase tracking-widest text-primary font-medium mb-3">
+          <div className="text-center mb-10 md:mb-14">
+            <p className="text-[10px] md:text-sm uppercase tracking-widest text-primary font-medium mb-2 md:mb-3">
               SOHUB PROTECT Ecosystem
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+            <h2 className="text-2xl md:text-4xl font-bold text-foreground">
               সম্পূর্ণ সিকিউরিটি ইকোসিস্টেম
             </h2>
           </div>
@@ -305,16 +306,16 @@ const ProductDetails = () => {
                 />
               </div>
             </div>
-            <div className="grid sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-2 gap-3 md:gap-5">
               {ecosystem.map((item, i) => (
                 <div
                   key={i}
-                  className="p-5 rounded-2xl bg-muted/50 border border-border"
+                  className="p-4 md:p-5 rounded-xl md:rounded-2xl bg-muted/50 border border-border"
                 >
-                  <item.icon className="w-8 h-8 text-primary mb-3" />
-                  <h3 className="text-sm font-bold text-foreground">{item.title}</h3>
-                  <p className="text-xs text-primary font-medium mb-1">{item.titleBn}</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <item.icon className="w-6 h-6 md:w-8 md:h-8 text-primary mb-2 md:mb-3" />
+                  <h3 className="text-[13px] md:text-sm font-bold text-foreground">{item.title}</h3>
+                  <p className="text-[10px] md:text-xs text-primary font-medium mb-0.5 md:mb-1">{item.titleBn}</p>
+                  <p className="text-[11px] md:text-xs text-muted-foreground leading-relaxed md:line-clamp-none">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -378,24 +379,24 @@ const ProductDetails = () => {
       </section>
 
       {/* ── Extra Benefits ────────────────────────── */}
-      <section className="py-20 lg:py-28" style={{ backgroundColor: '#1f98d1' }}>
+      <section className="py-12 lg:py-28" style={{ backgroundColor: '#1f98d1' }}>
         <div className="section-container">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+          <div className="text-center mb-10 md:mb-14">
+            <h2 className="text-2xl md:text-4xl font-bold text-white mb-3">
               অন্যান্য সুবিধা
             </h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 max-w-4xl mx-auto">
             {extraBenefits.map((b, i) => (
-              <div key={i} className="p-6 rounded-2xl bg-white shadow-lg text-center">
-                <b.icon className="w-8 h-8 text-primary mx-auto mb-3" />
-                <h3 className="text-sm font-bold text-foreground mb-1">{b.title}</h3>
-                <p className="text-xs text-muted-foreground">{b.desc}</p>
+              <div key={i} className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-white shadow-lg text-center">
+                <b.icon className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-2 md:mb-3" />
+                <h3 className="text-[13px] md:text-sm font-bold text-foreground mb-0.5 md:mb-1">{b.title}</h3>
+                <p className="text-[10px] md:text-xs text-muted-foreground">{b.desc}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-12 flex justify-center">
+          <div className="mt-8 md:mt-12 flex justify-center">
             <CompatibilityIcons variant="light" />
           </div>
         </div>
@@ -412,10 +413,10 @@ const ProductDetails = () => {
           </p>
           <Link
             to="/#order"
-            className="inline-flex items-center gap-2 bg-primary text-white px-10 py-4 rounded-full font-medium text-base hover:bg-primary/90 transition-colors shadow-lg"
+            className="inline-flex items-center gap-2 bg-primary text-white md:bg-primary md:text-white px-6 py-2.5 md:px-10 md:py-4 rounded-full font-medium text-xs md:text-base hover:opacity-90 transition-all shadow-lg active:scale-95"
           >
+            <ShoppingBag className="w-4 h-4 md:w-5 md:h-5" />
             অর্ডার করুন
-            <ChevronRight className="w-5 h-5" />
           </Link>
         </div>
       </section>

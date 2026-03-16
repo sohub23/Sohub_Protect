@@ -47,21 +47,21 @@ const AddonsSection = () => {
         </div>
 
         {/* Addons grid - non-selectable display */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-4xl mx-auto">
+        <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 max-w-4xl mx-auto">
           {addons.map((addon) => (
             <div
               key={addon.id}
-              className="rounded-2xl p-4 text-center bg-card border border-border hover:border-primary/40 text-foreground shadow-sm hover:shadow-md transition-all"
+              className="rounded-xl md:rounded-2xl p-2 md:p-4 text-center bg-card border border-border hover:border-primary/40 text-foreground shadow-sm hover:shadow-md transition-all"
             >
-              <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-4 bg-white rounded-xl shadow-sm flex items-center justify-center p-2 overflow-hidden">
+              <div className="w-14 h-14 md:w-28 md:h-28 mx-auto mb-2 md:mb-4 rounded-lg md:rounded-xl flex items-center justify-center p-1 md:p-2 overflow-hidden">
                 <img
                   src={addon.image}
                   alt={addon.nameBn}
                   className="max-w-full max-h-full object-contain mix-blend-multiply"
                 />
               </div>
-              <p className="text-xs font-semibold leading-tight">{addon.nameBn}</p>
-              <p className="text-[10px] mt-1 text-muted-foreground">
+              <p className="text-[10px] md:text-xs font-semibold leading-tight">{addon.nameBn}</p>
+              <p className="text-[8px] md:text-[10px] mt-0.5 md:mt-1 text-muted-foreground">
                 {addon.name}
               </p>
             </div>
