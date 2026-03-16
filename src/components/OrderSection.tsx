@@ -32,7 +32,7 @@ const editions = [
     name: "Affordable Edition",
     nameBn: "Protect Affordable Edition",
     desc: "Smart Cube Panel, Motion Sensor, Door Sensor, Remote, Power Adapter",
-    price: 10,
+    price: 7490,
     image: hero2Image,
   },
   {
