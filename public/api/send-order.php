@@ -165,45 +165,21 @@ try {
         public string $logoPath = '';
         public string $orderId = '';
         public string $orderDate = '';
+        public bool $isFirstPage = true;
 
         public function Header()
         {
             $this->SetFillColor(24, 144, 255);
             $this->Rect(0, 0, 210, 38, 'F');
 
-            // LOGO - Multiple fallback attempts
-            $logoAdded = false;
-            $paths = [
-                $this->logoPath,
-                __DIR__ . '/assets/logo-with-icon.png',
-                __DIR__ . '\\assets\\logo-with-icon.png',
-                __DIR__ . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'logo-with-icon.png',
-                dirname(__DIR__) . '/api-assets/logo-with-icon.png',
-                dirname(__DIR__) . '\\api-assets\\logo-with-icon.png'
-            ];
-            
-            foreach ($paths as $lp) {
-                if ($lp && file_exists($lp)) {
-                    try {
-                        $this->Image($lp, 15, 6, 42, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
-                        $logoAdded = true;
-                        break;
-                    } catch (Exception $e) {
-                        // Try next path
-                        continue;
-                    }
+            // LOGO - Only on first page, top left corner
+            if ($this->isFirstPage && $this->logoPath && file_exists($this->logoPath)) {
+                try {
+                    // Position: X=10mm, Y=8mm, Width=35mm (auto height)
+                    $this->Image($this->logoPath, 10, 8, 35, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
+                } catch (Exception $e) {
+                    // Silent fail - no logo
                 }
-            }
-            
-            // Fallback: Draw text logo if image fails
-            if (!$logoAdded) {
-                $this->SetFont('helvetica', 'B', 16);
-                $this->SetTextColor(255, 255, 255);
-                $this->SetXY(15, 10);
-                $this->Cell(42, 10, 'SOHUB', 0, 0, 'C');
-                $this->SetFont('helvetica', '', 8);
-                $this->SetXY(15, 20);
-                $this->Cell(42, 5, 'Protect', 0, 0, 'C');
             }
 
             $this->SetFont('helvetica', 'B', 20);
@@ -222,6 +198,13 @@ try {
             $this->SetLineWidth(0.8);
             $this->Line(15, 38, 195, 38);
             $this->SetY(42);
+        }
+        
+        public function AddPage($orientation = '', $format = '', $keepmargins = false, $tocpage = false)
+        {
+            parent::AddPage($orientation, $format, $keepmargins, $tocpage);
+            // After first page, disable logo
+            $this->isFirstPage = false;
         }
 
         public function Footer()
@@ -254,32 +237,7 @@ try {
     $pdf->SetAutoPageBreak(true, 35);
     $pdf->AddPage();
 
-    // Body Logo - Guaranteed to show
-    $bodyLogoPaths = [
-        $logoPath,
-        __DIR__ . '/assets/logo-with-icon.png',
-        __DIR__ . '\\assets\\logo-with-icon.png',
-        __DIR__ . '/../api-assets/logo-with-icon.png'
-    ];
-    
-    $bodyLogoAdded = false;
-    foreach ($bodyLogoPaths as $blp) {
-        if ($blp && file_exists($blp)) {
-            try {
-                $pdf->Image($blp, 15, $pdf->GetY(), 40, 0, 'PNG', '', 'T', false, 300, '', false, false, 0);
-                $pdf->Ln(15);
-                $bodyLogoAdded = true;
-                break;
-            } catch (Exception $e) {
-                continue;
-            }
-        }
-    }
-    
-    // If no logo added, just add spacing
-    if (!$bodyLogoAdded) {
-        $pdf->Ln(5);
-    }
+    // No body logo - logo only in header top left
 
     // Customer Info Card
     $pdf->SetFont('helvetica', 'B', 12);
