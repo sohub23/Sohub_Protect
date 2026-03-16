@@ -32,7 +32,7 @@ const editions = [
     name: "Affordable Edition",
     nameBn: "Protect Affordable Edition",
     desc: "Smart Cube Panel, Motion Sensor, Door Sensor, Remote, Power Adapter",
-    price: 7490,
+    price: 10,
     image: hero2Image,
   },
   {
@@ -80,6 +80,7 @@ const OrderSection = () => {
   const [orderId, setOrderId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [activePreview, setActivePreview] = useState<string | null>(null);
+  const [hoveredEdition, setHoveredEdition] = useState<string | null>(null);
 
   // Update edition when URL param changes (from PackagesSection)
   useEffect(() => {
@@ -377,10 +378,14 @@ const OrderSection = () => {
                         setActivePreview(ed.image);
                       }}
                       onMouseEnter={() => {
-                        setSelectedEdition(ed.id);
+                        setHoveredEdition(ed.id);
                         setActivePreview(ed.image);
                       }}
-                      className={`w-12 h-12 md:w-14 md:h-14 rounded-lg border-2 overflow-hidden flex items-center justify-center p-1.5 transition-all ${selectedEdition === ed.id && (activePreview === ed.image || !activePreview)
+                      onMouseLeave={() => {
+                        setHoveredEdition(null);
+                        setActivePreview(null);
+                      }}
+                      className={`w-12 h-12 md:w-14 md:h-14 rounded-lg border-2 overflow-hidden flex items-center justify-center p-1.5 transition-all ${(selectedEdition === ed.id || hoveredEdition === ed.id)
                         ? "border-primary bg-primary/5 shadow-sm"
                         : "border-border bg-card hover:border-primary/50"
                         }`}
@@ -420,18 +425,22 @@ const OrderSection = () => {
                         setActivePreview(null);
                       }}
                       onMouseEnter={() => {
-                        setSelectedEdition(ed.id);
+                        setHoveredEdition(ed.id);
+                        setActivePreview(ed.image);
+                      }}
+                      onMouseLeave={() => {
+                        setHoveredEdition(null);
                         setActivePreview(null);
                       }}
                       disabled={submitStatus === "loading"}
-                      className={`w-full text-left rounded-xl p-3.5 border-2 transition-all ${selectedEdition === ed.id
+                      className={`w-full text-left rounded-xl p-3.5 border-2 transition-all ${(selectedEdition === ed.id || hoveredEdition === ed.id)
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/30 shadow-md scale-[1.01]"
                         } hover:border-primary/50 disabled:opacity-60`}
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <p className={`text-sm font-bold ${selectedEdition === ed.id ? "text-primary" : "text-foreground"}`}>
+                          <p className={`text-sm font-bold ${(selectedEdition === ed.id || hoveredEdition === ed.id) ? "text-primary" : "text-foreground"}`}>
                             {ed.nameBn}
                           </p>
                           <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{ed.desc}</p>
@@ -441,6 +450,11 @@ const OrderSection = () => {
                           {selectedEdition === ed.id && (
                             <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                               <Check className="w-3 h-3 text-primary-foreground" />
+                            </div>
+                          )}
+                          {hoveredEdition === ed.id && selectedEdition !== ed.id && (
+                            <div className="w-5 h-5 rounded-full border-2 border-primary/30 flex items-center justify-center">
+                              <div className="w-1.5 h-1.5 rounded-full bg-primary/50" />
                             </div>
                           )}
                         </div>

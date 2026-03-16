@@ -29,7 +29,7 @@ const packages: Package[] = [
     nameBn: "SOHUB Protect",
     tagline: "সাশ্রয়ী। নির্ভরযোগ্য।",
     model: "SP01-WiFi-Kit",
-    price: 7490,
+    price: 10,
     image: hero2Image,
     connectivity: "WiFi",
     features: [
