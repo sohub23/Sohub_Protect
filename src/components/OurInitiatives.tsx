@@ -24,8 +24,11 @@ const DesktopOurInitiatives = ({ initiatives }: { initiatives: Initiative[] }) =
                 {/* Header */}
                 <div className="text-center mb-14">
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
-                        Our Initiatives
+                        Explore Our Initiatives
                     </h2>
+                    <p className="mt-4 text-muted-foreground text-lg">
+                        Each initiatives solves a real problem.
+                    </p>
                 </div>
 
                 {/* Grid — 4 columns */}
@@ -93,8 +96,11 @@ const MobileOurInitiatives = ({ initiatives }: { initiatives: Initiative[] }) =>
                 {/* Header */}
                 <div className="text-center mb-6">
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
-                        Our Initiatives
+                        Explore Our Initiatives
                     </h2>
+                    <p className="mt-2 text-muted-foreground text-sm">
+                        Each initiatives solves a real problem.
+                    </p>
                 </div>
 
                 {/* List — single column */}

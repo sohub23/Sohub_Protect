@@ -1,21 +1,22 @@
 import QRExpandable from "@/components/ui/QRExpandable";
 import logoWithIcon from "@/assets/logo-with-icon.png";
-import { FileText, ChevronDown, Mail, Globe } from "lucide-react";
+import { FileText, ChevronDown, Mail, Globe, ExternalLink, ShieldCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const brochures = [
     {
       name: "SOHUB Protect",
-      url: "/PowerPoint_Presentation.pdf"
+      url: "/Sohub Protect.pdf"
     }
   ];
 
   return (
-    <footer className="bg-foreground border-t border-background/10 py-12 md:py-20">
+    <footer className="bg-foreground border-t border-background/10 pt-6 md:pt-10 pb-4 md:pb-6">
       <div className="section-container">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-start mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-y-12 lg:gap-x-12 items-start mb-12">
           {/* Left Column — Logo & CTA */}
-          <div className="flex flex-col items-start text-left gap-6 w-full">
+          <div className="flex flex-col items-start text-left gap-6 w-full lg:col-span-4">
             <div className="flex flex-col items-start gap-4 w-full">
               <img
                 src={logoWithIcon}
@@ -31,11 +32,11 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Center Column — Contact Us */}
-          <div className="flex flex-col items-center">
+          {/* Center Column — Support */}
+          <div className="flex flex-col items-center lg:col-span-3">
             <div className="text-center w-full max-w-[240px]">
               <p className="text-xs uppercase tracking-widest text-primary font-bold mb-6">
-                যোগাযোগ করুন
+                Support
               </p>
               <div className="space-y-4">
                 <a
@@ -69,9 +70,45 @@ const Footer = () => {
             </div>
           </div>
 
+          {/* New Column — Quick Links */}
+          <div className="flex flex-col items-center lg:col-span-2">
+            <div className="text-center w-full max-w-[240px]">
+              <p className="text-xs uppercase tracking-widest text-primary font-bold mb-6">
+                Quick Links
+              </p>
+              <div className="space-y-4">
+                <Link
+                  to="/terms-and-privacy"
+                  className="flex items-center gap-4 text-background hover:text-primary transition-colors group whitespace-nowrap"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <ExternalLink className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[10px] text-background/40 font-medium">Legal</p>
+                    <p className="text-[13px] font-semibold">Terms & Privacy</p>
+                  </div>
+                </Link>
+
+                <Link
+                  to="/warranty"
+                  className="flex items-center gap-4 text-background hover:text-primary transition-colors group whitespace-nowrap"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <ShieldCheck className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[10px] text-background/40 font-medium">Support</p>
+                    <p className="text-[13px] font-semibold">Warranty Policy</p>
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </div>
+
           {/* Right Column — Brochures & Policies */}
-          <div className="flex flex-col items-center md:items-end gap-6 h-full justify-between">
-            <div className="flex flex-col items-center md:items-end gap-4 text-right">
+          <div className="flex flex-col items-center lg:items-end lg:col-span-3 gap-6 h-full justify-between">
+            <div className="flex flex-col items-center lg:items-end gap-4 text-right">
               <p className="text-sm font-bold text-primary tracking-wide uppercase">
                 Secure Your Peace of Mind
               </p>
@@ -108,11 +145,10 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar — All in one line */}
-        <div className="border-t border-background/10 pt-8 mt-8">
-          <div className="flex flex-wrap justify-center items-center gap-x-2.5 gap-y-2 text-xs text-background/50 font-medium tracking-tight">
-            <span>© {new Date().getFullYear()} All rights reserved.</span>
-            <span className="text-background/10">|</span>
-            <span>SOHUB Protect — Powered by Solution Hub Technologies</span>
+        <div className="border-t border-background/10 pt-8 mt-1">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-y-4 text-xs text-background/50 font-medium tracking-tight">
+            <span>A product of SOHUB — Solution Hub Technologies</span>
+            <span>© {new Date().getFullYear()} SOHUB. All rights reserved.</span>
           </div>
         </div>
       </div>

@@ -7,6 +7,8 @@ import Index from "./pages/Index.tsx";
 import Checkout from "./pages/Checkout.tsx";
 import ProductDetails from "./pages/ProductDetails.tsx";
 import Partnership from "./pages/Partnership.tsx";
+import TermsAndPrivacy from "./pages/TermsAndPrivacy.tsx";
+import Warranty from "./pages/Warranty.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/product-details" element={<ProductDetails />} />
           <Route path="/partnership" element={<Partnership />} />
+          <Route path="/terms-and-privacy" element={<TermsAndPrivacy />} />
+          <Route path="/warranty" element={<Warranty />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

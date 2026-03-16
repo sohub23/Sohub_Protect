@@ -259,9 +259,128 @@ try {
     if ($customerEmail) { $mail->addAddress($customerEmail, $customerName); }
     $mail->addStringAttachment($pdfContent, 'Quotation-' . $orderId . '.pdf', 'base64', 'application/pdf');
     $mail->isHTML(true);
-    $mail->Subject = "New Order #{$orderId} — SOHUB Protect";
-    $mail->Body = "<h1>Order #{$orderId}</h1><p>Customer: {$customerName}</p><p>Total: {$total} BDT</p>";
+    /* ── Send Admin Email ── */
+    $mail->clearAddresses();
+    $mail->addAddress($_ENV['ADMIN_EMAIL'] ?? 'hello@sohub.com.bd');
+    $mail->Subject = "New Order Recieved: #{$orderId}";
+    
+    $editionName = $edition['name'] ?? 'SOHUB Protect';
+    $paymentLabel = ($paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery');
+    
+    $mail->Body = "
+    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; border: 1px solid #eee; border-top: 4px solid #1890ff; border-radius: 8px; padding: 30px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
+        <h2 style='color: #1890ff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 22px;'>
+            <span style='font-size: 24px;'>🛡️</span> New Order Received
+        </h2>
+        <hr style='border: 0; border-top: 1px solid #eee; margin-bottom: 25px;'>
+        <div style='color: #333; line-height: 1.8; font-size: 15px;'>
+            <p style='margin-bottom: 10px;'><strong>Order ID:</strong> <span style='font-family: monospace;'>{$orderId}</span></p>
+            <p style='margin-bottom: 10px;'><strong>Edition:</strong> {$editionName} (SOHUB Protect {$editionName})</p>
+            <p style='margin-bottom: 10px;'><strong>Total Amount:</strong> <span style='color: #e53e3e; font-weight: bold; font-size: 18px;'>".number_format($total)." BDT</span></p>
+            <p style='margin-bottom: 25px;'><strong>Payment:</strong> {$paymentLabel}</p>
+        </div>
+        <div style='background-color: #f8fafc; border-radius: 12px; padding: 25px; border: 1px solid #edf2f7;'>
+            <h3 style='color: #2d3748; margin-top: 0; margin-bottom: 15px; font-size: 18px;'>
+                <span style='font-size: 18px;'>👤</span> Customer Contact
+            </h3>
+            <table style='width: 100%; font-size: 14px; border-collapse: collapse; color: #4a5568;'>
+                <tr><td style='padding: 5px 0; font-weight: bold; width: 80px;'>Name:</td><td style='padding: 5px 0;'>{$customerName}</td></tr>
+                <tr><td style='padding: 5px 0; font-weight: bold;'>Phone:</td><td style='padding: 5px 0;'><a href='tel:{$customerPhone}' style='color: #1890ff; text-decoration: none;'>{$customerPhone}</a></td></tr>
+                <tr><td style='padding: 5px 0; font-weight: bold;'>Email:</td><td style='padding: 5px 0;'><a href='mailto:{$customerEmail}' style='color: #1890ff; text-decoration: none;'>".($customerEmail ?: 'N/A')."</a></td></tr>
+                <tr><td style='padding: 5px 0; font-weight: bold;'>Address:</td><td style='padding: 5px 0;'>{$customerAddress}</td></tr>
+                <tr><td style='padding: 5px 0; font-weight: bold;'>Note:</td><td style='padding: 5px 0;'>".($customerNote ?: 'N/A')."</td></tr>
+            </table>
+        </div>
+        <div style='margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: left;'>
+            <p style='color: #a0aec0; font-size: 12px;'>This is an automated sales notification from SOHUB Protect Portal.</p>
+        </div>
+    </div>";
     $mail->send();
+
+    /* ── Send Customer Email ── */
+    if ($customerEmail) {
+        $mail->clearAddresses();
+        $mail->addAddress($customerEmail, $customerName);
+        $mail->Subject = "Order Confirmation: #{$orderId} — SOHUB Protect";
+        
+        // Build Addon Rows
+        $addonRows = "";
+        foreach ($addons as $addon) {
+            $name = $addon['nameBn'] . " (" . $addon['name'] . ")";
+            $addonRows .= "
+                <tr>
+                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7;'>{$name}</td>
+                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; text-align: right;'>".number_format($addon['price'])." BDT</td>
+                </tr>";
+        }
+
+        $mail->Body = "
+<div style='font-family: Arial, sans-serif; background-color: #f6f9fc; padding: 20px 0;'>
+    <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);'>
+        
+        <!-- Blue Header -->
+        <div style='background-color: #1890ff; padding: 40px 20px; text-align: center; color: #ffffff;'>
+            <img src='https://sohub.com.bd/assets/images/logo-white.png' alt='SOHUB Protect' style='height: 40px; margin-bottom: 20px;'>
+            <h1 style='margin: 0; font-size: 28px; font-weight: bold;'>Order Confirmation</h1>
+            <p style='margin: 10px 0 0; opacity: 0.9;'>Thank you for choosing SOHUB Protect!</p>
+        </div>
+
+        <div style='padding: 30px;'>
+            <!-- Order ID Bubble -->
+            <div style='text-align: center; margin-bottom: 30px;'>
+                <span style='background-color: #e6f7ff; color: #1890ff; padding: 8px 20px; border-radius: 50px; font-weight: bold; font-size: 14px; border: 1px solid #91d5ff;'>
+                    🛡️ {$orderId}
+                </span>
+            </div>
+
+            <p style='font-size: 16px; color: #333;'>Dear <strong>{$customerName}</strong>,</p>
+            <p style='font-size: 15px; color: #555; line-height: 1.6;'>
+                We've received your order for the SOHUB Protect system. Your quotation is attached to this email as a PDF. Our team will contact you shortly on <strong>{$customerPhone}</strong> to confirm the details.
+            </p>
+
+            <h3 style='color: #1890ff; margin-top: 35px; margin-bottom: 15px; font-size: 18px; display: flex; align-items: center;'>
+                📦 Order Summary
+            </h3>
+
+            <table style='width: 100%; border-collapse: collapse; font-size: 14px; color: #4a5568; border: 1px solid #edf2f7;'>
+                <tr style='background-color: #1890ff; color: #ffffff;'>
+                    <th style='padding: 12px 15px; text-align: left;'>Product</th>
+                    <th style='padding: 12px 15px; text-align: right;'>Price</th>
+                </tr>
+                <tr>
+                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: bold; color: #1890ff;'>SOHUB Protect {$editionName}</td>
+                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: bold; text-align: right;'>".number_format($editionPrice)." BDT</td>
+                </tr>
+                {$addonRows}
+                <tr>
+                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; color: #718096;'>Delivery</td>
+                    <td style='padding: 12px 15px; border-bottom: 1px solid #edf2f7; text-align: right;'>".number_format($deliveryFee)." BDT</td>
+                </tr>
+                <tr style='background-color: #f8fafc;'>
+                    <td style='padding: 15px; font-weight: bold; font-size: 18px; color: #2d3748;'>Total Amount</td>
+                    <td style='padding: 15px; font-weight: bold; font-size: 18px; color: #1890ff; text-align: right;'>".number_format($total)." BDT</td>
+                </tr>
+            </table>
+
+            <!-- Next Steps Card -->
+            <div style='margin-top: 40px; background-color: #f0f9ff; border: 1px solid #bae7ff; border-radius: 12px; padding: 25px; text-align: center;'>
+                <h3 style='margin: 0 0 10px; color: #0050b3; font-size: 18px;'>🚀 What's Next?</h3>
+                <p style='margin: 0; font-size: 14px; color: #003a8c;'>Our executive will call you soon to schedule the installation.</p>
+                <p style='margin: 10px 0 0; font-size: 14px; color: #003a8c;'>Need help? Call us at <a href='tel:09678-076482' style='color: #1890ff; text-decoration: none; font-weight: bold;'>09678-076482</a></p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style='background-color: #1a202c; padding: 30px; text-align: center; color: #ffffff;'>
+            <p style='margin: 0; font-size: 14px; font-weight: bold;'>Solution Hub Technologies (SOHUB)</p>
+            <div style='margin: 15px 0; font-size: 12px; color: #a0aec0;'>
+                📞 09678-076482 | 🌐 <a href='https://sohubprotect.com.bd' style='color: #1890ff; text-decoration: none;'>sohubprotect.com.bd</a>
+            </div>
+        </div>
+    </div>
+</div>";
+        $mail->send();
+    }
 
     echo json_encode(['success' => true, 'orderId' => $orderId]);
 
