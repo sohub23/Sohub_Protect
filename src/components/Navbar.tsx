@@ -269,17 +269,29 @@ const Navbar = () => {
             </Link>
           )}
 
-          {/* Mobile toggle */}
-          <button
-            className="md:hidden text-primary-foreground"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Mobile Order Button */}
+            <a
+              href="/"
+              onClick={(e) => handleNavClick(e, "order")}
+              className="md:hidden flex items-center gap-1.5 bg-primary-foreground text-primary px-3.5 py-1.5 rounded-full text-[11px] font-bold shadow-sm transition-transform active:scale-95"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              অর্ডার করুন
+            </a>
+
+            {/* Mobile toggle */}
+            <button
+              className="md:hidden text-primary-foreground focus:outline-none"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
@@ -316,14 +328,6 @@ const Navbar = () => {
                     </Link>
                   )
                 )}
-              <a
-                href="/"
-                className="flex items-center justify-center gap-2 bg-primary-foreground text-primary px-5 py-3 rounded-full text-sm font-medium mt-2"
-                onClick={(e) => handleNavClick(e, "order")}
-              >
-                <ShoppingBag className="w-4 h-4" />
-                অর্ডার করুন
-              </a>
             </div>
           </div>
         )}
