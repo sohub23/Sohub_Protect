@@ -68,7 +68,7 @@ try {
     $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = intval($_ENV['SMTP_PORT'] ?? 587);
     $mail->CharSet = 'UTF-8';
-    $mail->setFrom($_ENV['SMTP_USER'] ?? 'hello@sohub.com.bd', 'SOHUB Protect');
+    $mail->setFrom($_ENV['FROM_EMAIL'] ?? 'hello@sohub.com.bd', $_ENV['FROM_NAME'] ?? 'SOHUB Protect');
     $mail->isHTML(true);
 
     /* ── Admin Email (Google Style) ── */

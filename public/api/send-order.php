@@ -331,7 +331,6 @@ try {
 
     // PHPMailer Configuration
     $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-    $fromEmail = trim($_ENV['SMTP_USER'] ?? '') ?: 'hello@sohub.com.bd';
 
     $mail->isSMTP();
     $mail->Host = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
@@ -341,7 +340,7 @@ try {
     $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = intval($_ENV['SMTP_PORT'] ?? 587);
     $mail->CharSet = 'UTF-8';
-    $mail->setFrom($fromEmail, 'SOHUB Protect');
+    $mail->setFrom($_ENV['FROM_EMAIL'] ?? 'hello@sohub.com.bd', $_ENV['FROM_NAME'] ?? 'SOHUB Protect');
     
     // Add PDF Attachment (for both emails)
     $mail->addStringAttachment($pdfContent, 'Quotation-' . $orderId . '.pdf', 'base64', 'application/pdf');
