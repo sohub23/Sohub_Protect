@@ -97,7 +97,8 @@ const OrderSection = () => {
     const tranId = searchParams.get('tran_id');
 
     if (payment === 'ssl' && status === 'success' && tranId) {
-      navigate(`/thank-you?orderId=${tranId}`);
+      sessionStorage.setItem('lastOrderId', tranId);
+      navigate('/thank-you');
     }
   }, [searchParams]);
 
@@ -265,8 +266,9 @@ const OrderSection = () => {
         }
       }
 
-      // COD — Redirect to thank you page
-      navigate(`/thank-you?orderId=${serverOrderId}`);
+      // COD — Redirect to thank you page with clean URL
+      sessionStorage.setItem('lastOrderId', serverOrderId);
+      navigate('/thank-you');
     } catch (err) {
       console.error("Order submission error:", err);
       if (err instanceof SyntaxError) {

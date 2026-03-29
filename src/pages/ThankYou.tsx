@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { 
@@ -15,12 +15,16 @@ import {
 import { motion } from "framer-motion";
 
 const ThankYou = () => {
-  const [searchParams] = useSearchParams();
-  const orderId = searchParams.get("orderId") || searchParams.get("tran_id") || "N/A";
+  const orderId = sessionStorage.getItem('lastOrderId') || "N/A";
 
   useEffect(() => {
     document.title = "Thank You - SOHUB Protect";
     window.scrollTo(0, 0);
+    
+    // Optional: cleanup after a delay or on unmount
+    return () => {
+      // sessionStorage.removeItem('lastOrderId'); // Keep it during the session in case of refresh
+    };
   }, []);
 
   return (
