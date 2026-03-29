@@ -27,3 +27,4 @@ dist-ssr
 api/.env
 api/vendor/
 public/.env
+public/api/.env
