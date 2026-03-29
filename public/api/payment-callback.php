@@ -27,7 +27,7 @@ if (strpos($host, 'localhost') !== false) {
 
 // SSLCommerz callback
 if ($status === 'success' || strtolower($status) === 'valid' || strtolower($status) === 'success') {
-    $redirectUrl = $siteUrl . '/?payment=ssl&status=success&tran_id=' . urlencode($tranId) . '&val_id=' . urlencode($valId) . '#order';
+    $redirectUrl = $siteUrl . '/thank-you?orderId=' . urlencode($tranId);
 } elseif ($status === 'cancel') {
     $redirectUrl = $siteUrl . '/?payment=ssl&status=cancel#order';
 } else {

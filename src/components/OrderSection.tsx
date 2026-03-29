@@ -8,7 +8,7 @@ import {
   Send,
   X,
 } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import panelImage from "@/assets/panel-product.png";
 import hero2Image from "@/assets/afford_trans.jpeg";
 import proNewImage from "@/assets/pro_combo_new.png";
@@ -63,6 +63,7 @@ type SubmitStatus = "idle" | "loading" | "success" | "error";
 
 const OrderSection = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const editionParam = searchParams.get('edition');
   const initialEdition = editions.find(e => e.id === editionParam)?.id || "sp05";
   const [selectedEdition, setSelectedEdition] = useState(initialEdition);
@@ -96,15 +97,7 @@ const OrderSection = () => {
     const tranId = searchParams.get('tran_id');
 
     if (payment === 'ssl' && status === 'success' && tranId) {
-      setSubmitStatus('success');
-      setOrderId(tranId);
-      // Wait a bit then scroll to success message
-      setTimeout(() => {
-        const orderSection = document.getElementById("order");
-        if (orderSection) {
-          orderSection.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }, 100);
+      navigate(`/thank-you?orderId=${tranId}`);
     }
   }, [searchParams]);
 
@@ -272,13 +265,8 @@ const OrderSection = () => {
         }
       }
 
-      // COD — just show success
-      setSubmitStatus("success");
-      // Scroll to top of order section so user sees success message
-      const orderSection = document.getElementById("order");
-      if (orderSection) {
-        orderSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      // COD — Redirect to thank you page
+      navigate(`/thank-you?orderId=${serverOrderId}`);
     } catch (err) {
       console.error("Order submission error:", err);
       if (err instanceof SyntaxError) {
