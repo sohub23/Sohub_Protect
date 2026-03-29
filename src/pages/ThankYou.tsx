@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { 
@@ -15,17 +15,45 @@ import {
 import { motion } from "framer-motion";
 
 const ThankYou = () => {
-  const orderId = sessionStorage.getItem('lastOrderId') || "N/A";
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [orderId, setOrderId] = useState<string>("N/A");
+
+  // Helper to read cookie
+  const getCookie = (name: string) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+    return null;
+  };
 
   useEffect(() => {
     document.title = "Thank You - SOHUB Protect";
     window.scrollTo(0, 0);
+
+    // 1. Check for cookie (Online Payment redirect usually)
+    const cookieOrder = getCookie('last_order_id');
+    // 2. Check URL just in case
+    const urlOrder = searchParams.get("orderId") || searchParams.get("tran_id");
+    // 3. Check Session storage (Standard COD or fallback)
+    const sessionOrder = sessionStorage.getItem('lastOrderId');
+
+    const finalOrderId = cookieOrder || urlOrder || sessionOrder;
     
-    // Optional: cleanup after a delay or on unmount
-    return () => {
-      // sessionStorage.removeItem('lastOrderId'); // Keep it during the session in case of refresh
-    };
-  }, []);
+    if (finalOrderId) {
+      setOrderId(finalOrderId);
+      // Clean URL if orderId found in it
+      if (urlOrder) {
+        sessionStorage.setItem('lastOrderId', finalOrderId);
+        navigate("/thank-you", { replace: true });
+      }
+      // If found in cookie, clear it
+      if (cookieOrder) {
+        document.cookie = "last_order_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        sessionStorage.setItem('lastOrderId', finalOrderId);
+      }
+    }
+  }, [searchParams, navigate]);
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
