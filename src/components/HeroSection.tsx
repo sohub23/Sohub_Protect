@@ -3,8 +3,14 @@ import comHeroImage from "@/assets/com hero.png";
 import shieldBadge from "@/assets/shield-badge.png";
 import { ShoppingBag } from "lucide-react";
 import CompatibilityIcons from "./CompatibilityIcons";
+import { scrollToSection } from "@/lib/utils";
 
 const HeroSection = () => {
+  const handleScroll = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    scrollToSection(id, 32);
+  };
+
   return (
     <section id="hero" className="relative min-h-screen flex items-center">
       {/* Background image */}
@@ -53,7 +59,8 @@ const HeroSection = () => {
             style={{ animationDelay: "1s" }}>
 
             <a
-              href="#order"
+              href="/"
+              onClick={(e) => handleScroll(e, "order")}
               className="w-auto flex items-center justify-center gap-1.5 bg-primary-foreground text-primary px-4 md:px-10 py-2 md:py-3.5 rounded-full font-bold text-[11px] md:text-base hover:bg-primary-foreground/90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
             >
               <ShoppingBag className="w-3 h-3 md:w-5 md:h-5" />
@@ -61,7 +68,8 @@ const HeroSection = () => {
             </a>
 
             <a
-              href="#how"
+              href="/"
+              onClick={(e) => handleScroll(e, "how")}
               className="w-auto border border-primary-foreground/30 text-primary-foreground px-4 md:px-10 py-2 md:py-3.5 rounded-full font-medium text-[11px] md:text-base hover:bg-primary-foreground/10 transition-colors text-center shadow-lg whitespace-nowrap"
             >
               কিভাবে কাজ করে

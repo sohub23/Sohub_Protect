@@ -21,6 +21,19 @@ const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
+    if (window.location.hash) {
+      const id = window.location.hash.substring(1);
+      const el = document.getElementById(id);
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: "smooth" });
+          window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        }, 500);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     document.title = "SOHUB Protect - Smart Home Security System";
     const payment = searchParams.get("payment");
     const status = searchParams.get("status");

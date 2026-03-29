@@ -75,6 +75,8 @@ const packages: Package[] = [
   },
 ];
 
+import { scrollToSection } from "@/lib/utils";
+
 const PackagesSection = () => {
   const [selected, setSelected] = useState("sp05");
   const [showFullSpecs, setShowFullSpecs] = useState(false);
@@ -93,13 +95,10 @@ const PackagesSection = () => {
   }, [showFullSpecs]);
 
   const handleOrder = (editionId: string) => {
-    // Update URL with edition param, then scroll to order section
-    navigate(`/?edition=${editionId}#order`, { replace: true });
+    // Update URL with edition param, then scroll to order section without hash
+    navigate(`/?edition=${editionId}`, { replace: true });
     setTimeout(() => {
-      const orderEl = document.getElementById('order');
-      if (orderEl) {
-        orderEl.scrollIntoView({ behavior: 'smooth' });
-      }
+      scrollToSection('order', 32);
     }, 50);
   };
 

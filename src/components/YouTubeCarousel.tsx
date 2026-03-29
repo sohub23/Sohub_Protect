@@ -5,6 +5,7 @@ import { Play, X, ChevronLeft, ChevronRight } from "lucide-react";
 interface Video {
   id: string;
   title: string;
+  viewCount?: number;
 }
 
 const API_KEY = "AIzaSyBWGorxS2K4lutpZc1bR2uJhWATQfwMvZM";
@@ -30,17 +31,33 @@ const YouTubeCarousel = () => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet,id&order=date&maxResults=50&type=video`);
+        // Step 1: Fetch video IDs from the channel (ordered by viewCount in search index for best candidates)
+        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=id&order=viewCount&maxResults=50&type=video`);
         const data = await response.json();
-        if (data.items) {
-          const fetchedVideos = data.items
+        
+        if (data.items && data.items.length > 0) {
+          const videoIds = data.items
             .filter((item: any) => item.id.kind === 'youtube#video')
-            .map((item: any) => ({
-              id: item.id.videoId,
-              title: item.snippet.title,
-            }));
-          if (fetchedVideos.length > 0) {
-            setVideos(fetchedVideos);
+            .map((item: any) => item.id.videoId)
+            .join(',');
+
+          // Step 2: Fetch actual real-time statistics and snippets for these specific videos
+          const statsResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?key=${API_KEY}&id=${videoIds}&part=snippet,statistics`);
+          const statsData = await statsResponse.json();
+
+          if (statsData.items) {
+            const fetchedVideos = statsData.items
+              .map((item: any) => ({
+                id: item.id,
+                title: item.snippet.title,
+                viewCount: parseInt(item.statistics.viewCount) || 0,
+              }))
+              // Step 3: Sort by actual viewCount (Descending) for "real-time" accuracy
+              .sort((a: any, b: any) => (b.viewCount || 0) - (a.viewCount || 0));
+
+            if (fetchedVideos.length > 0) {
+              setVideos(fetchedVideos);
+            }
           }
         }
       } catch (error) {

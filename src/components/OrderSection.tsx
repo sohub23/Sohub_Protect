@@ -157,7 +157,7 @@ const OrderSection = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const isValid = formData.name.trim() && formData.phone.trim() && formData.address.trim();
+  const isValid = formData.name.trim() && formData.phone.trim() && formData.email.trim() && formData.address.trim();
 
   const handleSubmit = async () => {
     if (!isValid) return;
@@ -602,7 +602,7 @@ const OrderSection = () => {
                   {([
                     { name: "name", label: "Name", placeholder: "আপনার নাম", required: true, type: "text", max: 100 },
                     { name: "phone", label: "Phone Number", placeholder: "01712345678", required: true, type: "tel", max: 15 },
-                    { name: "email", label: "Email", placeholder: "your@email.com (ইনভয়েস ও কোটেশন পেতে)", required: false, type: "email", max: 255 },
+                    { name: "email", label: "Email", placeholder: "your@email.com (ইনভয়েস ও কোটেশন পেতে)", required: true, type: "email", max: 255 },
                   ] as const).map((field) => (
                     <div key={field.name}>
                       <label className="text-[11px] font-medium text-foreground mb-1 block">
@@ -681,7 +681,7 @@ const OrderSection = () => {
                                 >
                                   <X className="w-3 h-3" />
                                 </button>
-                                <span className="text-muted-foreground">{addon.nameBn} <span className="font-semibold text-foreground bg-muted px-1.5 py-0.5 rounded ml-1">x{qty}</span></span>
+                                <span className="text-muted-foreground">{addon.nameBn} <span className="font-semibold text-foreground bg-muted px-1.5 py-0.5 rounded ml-1">{addon.price}x{qty}</span></span>
                               </div>
                               <span className="font-medium text-muted-foreground">{(addon.price * qty).toLocaleString()} BDT</span>
                             </div>

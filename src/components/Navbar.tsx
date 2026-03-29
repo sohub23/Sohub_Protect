@@ -8,6 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { scrollToSection } from "@/lib/utils";
 
 /* ─── Initiative type ─── */
 interface Initiative {
@@ -34,8 +35,8 @@ const Navbar = () => {
   const isHome = location.pathname === "/";
 
   const navLinks = [
-    { label: "কেন প্রটেক্ট?", href: "#why", isHash: true },
-    { label: "প্যাকেজ", href: "#packages", isHash: true },
+    { label: "কেন প্রটেক্ট?", href: "#why", targetId: "why" },
+    { label: "প্যাকেজ", href: "#packages", targetId: "packages" },
     { label: "পণ্যের বিবরণ", href: "/product-details", isRoute: true },
     { label: "পার্টনারশিপ", href: "/partnership", isRoute: true },
   ];
@@ -99,23 +100,14 @@ const Navbar = () => {
     return `https://sohub.com.bd${logoPath}`;
   };
 
-  const handlePackageScroll = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
+  const handleNavClick = (e: React.MouseEvent, targetId: string) => {
     if (!isHome) return;
-    
     e.preventDefault();
-    const element = document.getElementById("packages");
-    if (element) {
-      const offset = -32; // Scroll past the 96px padding so the text starts right at the navbar (64px)
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
-      });
-      setIsOpen(false);
+    scrollToSection(targetId, targetId === "hero" ? 0 : 32);
+    setIsOpen(false);
+    // Explicitly clear hash just in case
+    if (window.location.hash) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
     }
   };
 
@@ -199,7 +191,7 @@ const Navbar = () => {
       <div className="bg-primary/95 backdrop-blur-md">
         <div className="section-container flex items-center justify-between h-16">
           {isHome ? (
-            <a href="#hero">
+            <a href="/" onClick={(e) => handleNavClick(e, "hero")}>
               <img
                 src={logoWithIcon}
                 alt="SOHUB Protect"
@@ -236,8 +228,8 @@ const Navbar = () => {
               ) : isHome ? (
                 <a
                   key={link.href}
-                  href={link.href}
-                  onClick={link.href === "#packages" ? handlePackageScroll : undefined}
+                  href="/"
+                  onClick={(e) => handleNavClick(e, link.targetId!)}
                   className={`text-sm transition-colors ${
                     activeSection === link.href 
                       ? "text-primary-foreground font-semibold" 
@@ -260,7 +252,8 @@ const Navbar = () => {
 
           {isHome ? (
             <a
-              href="#order"
+              href="/"
+              onClick={(e) => handleNavClick(e, "order")}
               className="hidden md:flex items-center gap-2 bg-primary-foreground text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-primary-foreground/90 transition-colors"
             >
               <ShoppingBag className="w-4 h-4" />
@@ -306,15 +299,9 @@ const Navbar = () => {
                   ) : isHome ? (
                     <a
                       key={link.href}
-                      href={link.href}
+                      href="/"
                       className="text-primary-foreground/80 hover:text-primary-foreground py-2"
-                      onClick={(e) => {
-                        if (link.href === "#packages") {
-                          handlePackageScroll(e);
-                        } else {
-                          setIsOpen(false);
-                        }
-                      }}
+                      onClick={(e) => handleNavClick(e, link.targetId!)}
                     >
                       {link.label}
                     </a>
@@ -330,9 +317,9 @@ const Navbar = () => {
                   )
                 )}
               <a
-                href="#order"
+                href="/"
                 className="flex items-center justify-center gap-2 bg-primary-foreground text-primary px-5 py-3 rounded-full text-sm font-medium mt-2"
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => handleNavClick(e, "order")}
               >
                 <ShoppingBag className="w-4 h-4" />
                 অর্ডার করুন
