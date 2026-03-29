@@ -13,7 +13,6 @@ import partnershipValue from "@/assets/partnership-value.png";
 import partnershipCollab from "@/assets/partnership-collab.png";
 
 const partnershipWays = [
-  // ... (keep as is)
   {
     icon: Package,
     title: "Bundled Packages",
@@ -96,6 +95,7 @@ const Partnership = () => {
     email: "",
     phone: "",
     subject: "",
+    businessName: "",
     businessLocation: "",
     message: "",
   });
@@ -110,7 +110,7 @@ const Partnership = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Check if all fields are filled
     const isAllFilled = Object.values(formData).every(val => val.trim() !== "");
     if (!isAllFilled) {
@@ -137,6 +137,7 @@ const Partnership = () => {
           email: "",
           phone: "",
           subject: "",
+          businessName: "",
           businessLocation: "",
           message: "",
         });
@@ -381,7 +382,7 @@ const Partnership = () => {
                     {/* Full Name */}
                     <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        Full Name <span className="text-red-500">*</span>
+                        Full Name <span className="text-primary">*</span>
                       </label>
                       <div className="relative">
                         <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -392,7 +393,7 @@ const Partnership = () => {
                           value={formData.fullName}
                           onChange={handleChange}
                           placeholder="Your full name"
-                          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-orange-500 focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400"
+                          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-primary focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400"
                         />
                       </div>
                     </div>
@@ -400,7 +401,7 @@ const Partnership = () => {
                     {/* Email */}
                     <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                         Email <span className="text-red-500">*</span>
+                         Email <span className="text-primary">*</span>
                       </label>
                       <div className="relative">
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -411,7 +412,7 @@ const Partnership = () => {
                           value={formData.email}
                           onChange={handleChange}
                           placeholder="your@email.com"
-                          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-orange-500 focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400"
+                          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-primary focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400"
                         />
                       </div>
                     </div>
@@ -419,7 +420,7 @@ const Partnership = () => {
                     {/* Phone */}
                     <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        Phone <span className="text-red-500">*</span>
+                        Phone <span className="text-primary">*</span>
                       </label>
                       <div className="relative">
                         <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -430,7 +431,7 @@ const Partnership = () => {
                           value={formData.phone}
                           onChange={handleChange}
                           placeholder="+880 1XXXXXXXXX"
-                          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-orange-500 focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400"
+                          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-primary focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400"
                         />
                       </div>
                     </div>
@@ -438,7 +439,7 @@ const Partnership = () => {
                     {/* Subject */}
                     <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        Subject <span className="text-red-500">*</span>
+                        Subject <span className="text-primary">*</span>
                       </label>
                       <div className="relative">
                         <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -449,35 +450,55 @@ const Partnership = () => {
                           value={formData.subject}
                           onChange={handleChange}
                           placeholder="How can we help?"
-                          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-orange-500 focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400"
+                          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-primary focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400"
                         />
                       </div>
                     </div>
                   </div>
 
-                  {/* Business Location */}
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                      Business Location <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        name="businessLocation"
-                        required
-                        value={formData.businessLocation}
-                        onChange={handleChange}
-                        placeholder="Your business address or area"
-                        className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-orange-500 focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400"
-                      />
+                  {/* Business Name & Location */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        Business Name <span className="text-primary">*</span>
+                      </label>
+                      <div className="relative">
+                        <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          name="businessName"
+                          required
+                          value={formData.businessName}
+                          onChange={handleChange}
+                          placeholder="Your company name"
+                          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-primary focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        Business Location <span className="text-primary">*</span>
+                      </label>
+                      <div className="relative">
+                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          name="businessLocation"
+                          required
+                          value={formData.businessLocation}
+                          onChange={handleChange}
+                          placeholder="City/Area"
+                          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-primary focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400"
+                        />
+                      </div>
                     </div>
                   </div>
 
                   {/* Message */}
                   <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                       Message <span className="text-red-500">*</span>
+                       Message <span className="text-primary">*</span>
                     </label>
                     <div className="relative">
                       <MessageSquare className="absolute left-4 top-4 w-4 h-4 text-gray-400" />
@@ -488,7 +509,7 @@ const Partnership = () => {
                         onChange={handleChange}
                         placeholder="Tell us more about your inquiry..."
                         rows={4}
-                        className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-orange-500 focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400 resize-none"
+                        className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl focus:border-primary focus:bg-white focus:ring-0 transition-all outline-none text-gray-900 placeholder:text-gray-400 resize-none"
                       />
                     </div>
                   </div>
@@ -498,7 +519,7 @@ const Partnership = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="group flex items-center justify-center gap-2 bg-[#F6921E] hover:bg-[#e5861b] text-white px-8 py-3.5 rounded-full font-bold transition-all shadow-lg shadow-orange-500/20 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100"
+                      className="group flex items-center justify-center gap-2 bg-primary hover:bg-brand-dark text-white px-10 py-4 rounded-full font-bold transition-all shadow-lg shadow-primary/20 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100"
                     >
                       {isSubmitting ? (
                         <>
